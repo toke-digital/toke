@@ -1,0 +1,32 @@
+
+
+A "good" LDAP login looks like this:
+
+{
+    "data": {},
+    "auth": {
+        "token_policies": [
+            "default",
+            "mw-ansible"
+        ],
+        "client_token": "47445606-2688-241f-a379-65d960630d7a",
+        "metadata": {"username": "dsmith270"},
+        "renewable": true,
+        "accessor": "d38f1732-44e8-da35-dfe4-cf7b1d7316fe",
+        "policies": [
+            "default",
+            "mw-ansible"
+        ],
+        "lease_duration": 2764800,
+        "entity_id": "cfe2c6fe-acc4-550b-c987-ca1e023da948"
+    },
+    "renewable": false,
+    "warnings": null,
+    "lease_duration": 0,
+    "request_id": "bf83e6bc-8b34-3bd4-a9b2-934a7a9fd7e7",
+    "lease_id": "",
+    "wrap_info": null
+}
+
+
+
