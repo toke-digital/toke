@@ -30,13 +30,14 @@ public class DriverConfig {
 	// login token parameter
 	boolean renewable;
 	
-	// constants for KVv2 - can use static import
+	// constants for KVv2 - can use static import for these
 	public static final String KVv2CONFIG = "/config"; 
 	public static final String KVv2DATA = "/data"; 
 	public static final String KVv2DELETE = "/delete"; 
 	public static final String KVv2UNDELETE = "/undelete";
 	public static final String KVv2REMOVE = "/remove";
 	public static final String KVv2METADATA = "/metadata";
+	public static final String KVv2DESTROY = "/destroy";
 	
 	/**
 	 * Sets to default values

@@ -62,6 +62,55 @@ public class Networking implements TokenListener {
 		}
 	}
 	
+	public APIResponse delete(String url) throws IOException {
+		lock.lock();
+		try {
+			Request request = new Request.Builder()
+					.delete()
+					.url(url)
+					.header("X-Vault-Token", token.clientToken())
+					.build();
+			
+			int code; boolean success; String result;
+			try (Response response = client.newCall(request).execute()){
+				 result = response.body().string();
+				 code = response.code();
+				 success = response.isSuccessful();
+			}
+			
+			return new APIResponse(code, success, result);
+			
+		} finally {
+			lock.unlock();
+		}
+	}
+	
+	public APIResponse list(String url) throws IOException {
+		lock.lock();
+		try {
+			
+			// any list url needs to end with a slash
+			if(!url.endsWith("/")) url += "/";
+			
+			Request request = new Request.Builder()
+					.url(url+"?list=true")
+					.header("X-Vault-Token", token.clientToken())
+					.build();
+			
+			int code; boolean success; String result;
+			try (Response response = client.newCall(request).execute()){
+				 result = response.body().string();
+				 code = response.code();
+				 success = response.isSuccessful();
+			}
+			
+			return new APIResponse(code, success, result);
+			
+		} finally {
+			lock.unlock();
+		}
+	}
+	
 	/**
 	 * Special case, does not get X-Vault-Token header, auth endpoints are unauthenticated
 	 * 

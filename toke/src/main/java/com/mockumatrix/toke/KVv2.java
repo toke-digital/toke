@@ -19,7 +19,7 @@ public class KVv2 extends KV {
 	}
 	
 	/**
-	 * Returns the most recent version
+	 * Returns the most recent version on this path
 	 * 
 	 * @param path
 	 * @return
@@ -29,6 +29,14 @@ public class KVv2 extends KV {
 		return read(path, -1);
 	}
 
+	/**
+	 * Read a given version of this path
+	 * 
+	 * @param path
+	 * @param version
+	 * @return
+	 * @throws ReadException
+	 */
 	public APIResponse read(String path, int version) throws ReadException {
 		String url = config.kv2Path(KVv2DATA, path);
 		if(version != -1) {
@@ -47,6 +55,14 @@ public class KVv2 extends KV {
 		return response;
 	}
 	
+	/**
+	 * Configure the max versions and if cas (Check and Set) is to be required on calls.
+	 * 
+	 * @param max_versions
+	 * @param cas_required
+	 * @return
+	 * @throws ConfigureException
+	 */
 	public APIResponse kvConfigure(int max_versions, boolean cas_required) throws ConfigureException {
 		String url = config.kv2Path(KVv2CONFIG,null);
 		JSONObject json = new JSONObject();
@@ -63,6 +79,12 @@ public class KVv2 extends KV {
 		}
 	}
 	
+	/**
+	 * Return the config for this secrets engine
+	 * 
+	 * @return
+	 * @throws ReadException
+	 */
 	public APIResponse kvReadConfig() throws ReadException {
 		String url = config.kv2Path(KVv2CONFIG, null);
 		
@@ -80,7 +102,7 @@ public class KVv2 extends KV {
 	}
 	
 	/**
-	 * Use cas - write only if there is no such key
+	 * Use cas - write only if there is no such key already
 	 * 
 	 * @param path
 	 * @param data
@@ -95,7 +117,8 @@ public class KVv2 extends KV {
 	}
     
     /**
-     * Write regardless (no check and set)
+     * Write regardless (no check and set) assuming the token has privileges to do so
+     * 
      * @param path
      * @param data
      * @return
@@ -109,21 +132,32 @@ public class KVv2 extends KV {
 	}
 	
     /**
-     * Write with CAS - write only the version indicated by the version number (the cas value)
+     * Write only to the version indicated by the version number
      * 
      * @param path
      * @param data
-     * @param checkAndSet
+     * @param version
      * @return
      * @throws WriteException
      */
-	public APIResponse kvCreateUpdate(String path, Map<String,Object> data, int checkAndSet) throws WriteException {
+	public APIResponse kvWriteVersion(String path, Map<String,Object> data, int version) throws WriteException {
 		
 		JSONObject top = new JSONObject().put("data", data);
-		top.put("options", new JSONObject().put("cas", checkAndSet));
+		top.put("options", new JSONObject().put("cas", version));
 		return kvCreateUpdate(path, top.toString());
 	}
 	
+	/**
+	 * <p>Create or update data along a path - this is the workhorse method, the 
+	 * others are syntactical sugar and call this one.</p>
+	 * 
+	 * <p>https://www.vaultproject.io/api/secret/kv/kv-v2.html#create-update-secret</p>
+	 * 
+	 * @param path
+	 * @param jsonData
+	 * @return
+	 * @throws WriteException
+	 */
 	public APIResponse kvCreateUpdate(String path, String jsonData) throws WriteException {
 		String url = config.kv2Path(KVv2DATA,path);
 		
@@ -136,6 +170,130 @@ public class KVv2 extends KV {
 		} catch (IOException e) {
 			throw new WriteException(e);
 		}
+	}
+	
+	/**
+	 * List keys in a path
+	 * 
+	 * @param path
+	 * @return
+	 * @throws ReadException
+	 */
+	public APIResponse kvList(String path) throws ReadException {
+		String url = config.kv2Path(KVv2METADATA, path);
+		
+		APIResponse response = null;
+		try {
+			response = client.list(url);
+			// we expect a 200 per the documentation
+			if(response.code==404) throw new ReadException("Http 404 - this is usually a problem with the path.");
+			if(response.code!=200) throw new ReadException("Unexpected HTTP Response Code: "+response.code);
+		} catch (IOException e) {
+			throw new ReadException(e);
+		}
+		
+		return response;
+	}
+	
+	/**
+	 * Blow away the given versions permanently
+	 * 
+	 * @param path
+	 * @param versions
+	 * @return
+	 * @throws WriteException
+	 */
+	public APIResponse kvDestroy(String path, int [] versions) throws WriteException {
+		String url = config.kv2Path(KVv2DESTROY, path);
+		
+		JSONObject obj = new JSONObject().put("versions", versions);
+		
+		APIResponse response = null;
+		try {
+			response = client.post(url, obj.toString());
+			// we expect a 200 per the documentation
+			if(response.code==404) throw new WriteException("Http 404 - this is usually a problem with the path.");
+			if(response.code!=204) throw new WriteException("Unexpected HTTP Response Code: "+response.code);
+		} catch (IOException e) {
+			throw new WriteException(e);
+		}
+		
+		return response;
+	}
+	
+	/**
+	 * Soft-Delete the previous version to the current one
+	 * 
+	 * @param path
+	 * @return
+	 * @throws WriteException
+	 */
+	public APIResponse kvDelete(String path) throws WriteException {
+		String url = config.kv2Path(KVv2DATA, path);
+		
+		APIResponse response = null;
+		try {
+			response = client.delete(url);
+			// we expect a 200 per the documentation
+			if(response.code==404) throw new WriteException("Http 404 - this is usually a problem with the path.");
+			if(response.code!=204) throw new WriteException("Unexpected HTTP Response Code: "+response.code);
+		} catch (IOException e) {
+			throw new WriteException(e);
+		}
+		
+		return response;
+	}
+	
+	/**
+	 * Soft-Delete some set of versions 
+	 * 
+	 * @param path
+	 * @param versionsToDelete
+	 * @return
+	 * @throws WriteException
+	 */
+	public APIResponse kvDelete(String path, int [] versionsToDelete) throws WriteException {
+		String url = config.kv2Path(KVv2DELETE, path);
+		
+		JSONObject obj = new JSONObject().put("versions", versionsToDelete);
+		
+		APIResponse response = null;
+		try {
+			response = client.post(url, obj.toString());
+			// we expect a 200 per the documentation
+			if(response.code==404) throw new WriteException("Http 404 - this is usually a problem with the path.");
+			if(response.code!=204) throw new WriteException("Unexpected HTTP Response Code: "+response.code);
+		} catch (IOException e) {
+			throw new WriteException(e);
+		}
+		
+		return response;
+	}
+	
+	/**
+	 * Restore previously deleted versions
+	 * 
+	 * @param path
+	 * @param versionsToUndelete
+	 * @return
+	 * @throws WriteException
+	 */
+	public APIResponse kvUndelete(String path, int [] versionsToUndelete) throws WriteException {
+		String url = config.kv2Path(KVv2UNDELETE, path);
+		
+		JSONObject obj = new JSONObject().put("versions", versionsToUndelete);
+		
+		APIResponse response = null;
+		try {
+			response = client.post(url, obj.toString());
+			// we expect a 200 per the documentation
+			if(response.code==404) throw new WriteException("Http 404 - this is usually a problem with the path.");
+			if(response.code!=204) throw new WriteException("Unexpected HTTP Response Code: "+response.code);
+		} catch (IOException e) {
+			throw new WriteException(e);
+		}
+		
+		return response;
 	}
 
 }
