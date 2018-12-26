@@ -5,6 +5,7 @@ import com.mockumatrix.toke.Driver;
 import com.mockumatrix.toke.DriverConfig;
 import com.mockumatrix.toke.exception.LoginFailedException;
 import com.mockumatrix.toke.exception.ReadException;
+import com.mockumatrix.toke.exception.TokeException;
 
 /**
  * Useful CLI and demo client
@@ -40,7 +41,7 @@ public class CLI {
 		APIResponse res = null;
 		try {
 			res = driver.kv2().read("test/mysecret");
-		} catch (ReadException e) {
+		} catch (TokeException e) {
 			e.printStackTrace();
 			return;
 		}

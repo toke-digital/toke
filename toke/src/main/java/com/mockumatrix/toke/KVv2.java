@@ -1,6 +1,7 @@
 package com.mockumatrix.toke;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.json.JSONObject;
 
@@ -78,11 +79,56 @@ public class KVv2 extends KV {
 		return response;
 	}
 	
-	public APIResponse kvCreateUpdate(String path, JSONObject data) throws WriteException {
+	/**
+	 * Use cas - write only if there is no such key
+	 * 
+	 * @param path
+	 * @param data
+	 * @return
+	 * @throws WriteException
+	 */
+    public APIResponse kvWriteIfKeyDoesntExist(String path, Map<String,Object> data) throws WriteException {
+		
+		JSONObject top = new JSONObject().put("data", data);
+		top.put("options", new JSONObject().put("cas", 0));
+		return kvCreateUpdate(path, top.toString());
+	}
+    
+    /**
+     * Write regardless (no check and set)
+     * @param path
+     * @param data
+     * @return
+     * @throws WriteException
+     */
+    public APIResponse kvWrite(String path, Map<String,Object> data) throws WriteException {
+		
+		JSONObject top = new JSONObject().put("data", data);
+	//	top.put("options", new JSONObject().put("cas", checkAndSet));
+		return kvCreateUpdate(path, top.toString());
+	}
+	
+    /**
+     * Write with CAS - write only the version indicated by the version number (the cas value)
+     * 
+     * @param path
+     * @param data
+     * @param checkAndSet
+     * @return
+     * @throws WriteException
+     */
+	public APIResponse kvCreateUpdate(String path, Map<String,Object> data, int checkAndSet) throws WriteException {
+		
+		JSONObject top = new JSONObject().put("data", data);
+		top.put("options", new JSONObject().put("cas", checkAndSet));
+		return kvCreateUpdate(path, top.toString());
+	}
+	
+	public APIResponse kvCreateUpdate(String path, String jsonData) throws WriteException {
 		String url = config.kv2Path(KVv2DATA,path);
 		
 		try {
-			APIResponse response = client.post(url, data.toString());
+			APIResponse response = client.post(url, jsonData);
 			// we expect a 200 per the documentation
 			if(response.code==404) throw new WriteException("Http 404 - this is usually a problem with the path.");
 			if(response.code!=200) throw new WriteException("Unexpected HTTP Response Code: "+response.code);
