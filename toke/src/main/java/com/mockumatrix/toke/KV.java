@@ -6,9 +6,9 @@ import com.mockumatrix.toke.event.TokenListener;
 
 public abstract class KV implements TokenListener {
 
-	DriverConfig config;
-	Token token;
-	Networking client;
+	protected DriverConfig config;
+	protected Token token;
+	protected Networking client;
 	
 	
 	public KV(DriverConfig config, Networking client) {

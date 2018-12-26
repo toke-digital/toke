@@ -22,7 +22,7 @@ public class DriverConfig {
 	String defaultKVv1Name; //  e.g., /secret
 	String defaultKVv2Name; //  e.g., /secret
 	
-	String kvName; // the user-configured kv name, e.g., /other
+	String kv1Name; // the user-configured kv name, e.g., /other
 	String kv2Name; // the user-configured kv2 name, e.g., /other2
 	
 	String authPath; // if auth is not located at /auth, such as /auth-special
@@ -133,6 +133,27 @@ public class DriverConfig {
 		return buf.toString();
 	}
 	
+	// KVv1
+	
+	public String kv1Path(String path) {
+		
+		StringBuffer buf = baseURL();
+		if(kv1Name == null) {
+			buf.append(this.defaultKVv1Name);
+		}else {
+			buf.append(kv1Name);
+		}
+		
+		if(path != null) {
+			if(path.charAt(0) != '/') {
+				buf.append("/");
+			}
+			buf.append(path);
+		}
+		
+		return buf.toString();
+	}
+	
 	
 	public DriverConfig host(String val) {
 		host = val;
@@ -205,7 +226,7 @@ public class DriverConfig {
 	}
 	
 	public DriverConfig kvName(String val) {
-		kvName = val;
+		kv1Name = val;
 		return this;
 	}
 	
