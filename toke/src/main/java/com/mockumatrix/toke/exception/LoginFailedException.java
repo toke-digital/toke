@@ -6,7 +6,7 @@ package com.mockumatrix.toke.exception;
  * @author David R. Smith <davesmith.gbs@gmail.com>
  *
  */
-public class LoginFailedException extends Exception {
+public class LoginFailedException extends TokeException {
 
 	private static final long serialVersionUID = 1L;
 

@@ -30,7 +30,8 @@ public class DriverConfig {
 	// login token parameter
 	boolean renewable;
 	
-	// constants for KVv2 - use static import
+	// constants for KVv2 - can use static import
+	public static final String KVv2CONFIG = "/config"; 
 	public static final String KVv2DATA = "/data"; 
 	public static final String KVv2DELETE = "/delete"; 
 	public static final String KVv2UNDELETE = "/undelete";
@@ -121,10 +122,12 @@ public class DriverConfig {
 		}
 		buf.append(verb);
 		
-		if(path.charAt(0) != '/') {
-			buf.append("/");
+		if(path != null) {
+			if(path.charAt(0) != '/') {
+				buf.append("/");
+			}
+			buf.append(path);
 		}
-		buf.append(path);
 		
 		return buf.toString();
 	}

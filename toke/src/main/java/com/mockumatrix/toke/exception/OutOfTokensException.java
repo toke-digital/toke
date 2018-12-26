@@ -1,6 +1,6 @@
 package com.mockumatrix.toke.exception;
 
-public class OutOfTokensException extends Exception {
+public class OutOfTokensException extends TokeException {
 
 	private static final long serialVersionUID = 1L;
 
