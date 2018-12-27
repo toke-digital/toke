@@ -8,12 +8,9 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.mockumatrix.toke.accessor.Data;
 import com.mockumatrix.toke.accessor.Toke;
 import com.mockumatrix.toke.exception.LoginFailedException;
 import com.mockumatrix.toke.exception.TokeException;
-import com.mockumatrix.toke.response.APIResponse;
-import com.mockumatrix.toke.response.APIResponseBase;
 
 import org.junit.Assert;
 

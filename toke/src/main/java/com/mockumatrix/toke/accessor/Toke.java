@@ -1,10 +1,5 @@
 package com.mockumatrix.toke.accessor;
 
-import com.mockumatrix.toke.response.APIPostResponse;
-import com.mockumatrix.toke.response.BasicResponse;
-import com.mockumatrix.toke.response.KVv1APIResponse;
-import com.mockumatrix.toke.response.KVv2APIResponse;
-
 /**
  * Simple wrapper on the response out of OKHTTP
  * 
@@ -39,22 +34,6 @@ public class Toke {
 	private Data data;
 	private Secrets list;
 	private Capabilities caps;
-	
-	public KVv1APIResponse toKVv1APIResponse() {
-		return new KVv1APIResponse(code,successful,response);
-	}
-	
-	public KVv2APIResponse toKVv2APIResponse() {
-		return new KVv2APIResponse(code,successful,response);
-	}
-	
-	public APIPostResponse toAPIPostResponse() {
-		return new APIPostResponse(code,successful,response);
-	}
-	
-	public BasicResponse toBasicResponse() {
-		return new BasicResponse(code,successful,response);
-	}
 
 	/**
 	 * Use with KVv1 and KVv2 reads
