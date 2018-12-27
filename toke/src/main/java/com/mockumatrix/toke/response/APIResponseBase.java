@@ -1,5 +1,8 @@
 package com.mockumatrix.toke.response;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONObject;
 
 public abstract class APIResponseBase implements APIResponse {
@@ -36,6 +39,17 @@ public abstract class APIResponseBase implements APIResponse {
 			}
 			
 			return json;
+		}
+		
+		/**
+		 * Used only with 'list' endpoints
+		 */
+		@Override
+		public List<String> keys() {
+			List<Object> list = json().getJSONObject("data").getJSONArray("keys").toList();
+			List<String> newList = new ArrayList<String>();
+			list.forEach(item-> newList.add(String.valueOf(item)));
+			return newList;
 		}
 		
 		@Override

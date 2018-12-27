@@ -5,7 +5,6 @@ import org.json.JSONObject;
 import com.mockumatrix.toke.Driver;
 import com.mockumatrix.toke.DriverConfig;
 import com.mockumatrix.toke.exception.LoginFailedException;
-import com.mockumatrix.toke.exception.ReadException;
 import com.mockumatrix.toke.exception.TokeException;
 import com.mockumatrix.toke.response.APIResponse;
 
@@ -42,12 +41,15 @@ public class CLI {
 		
 		APIResponse res = null;
 		try {
+			
 			res = driver.kv().kvWrite("test/stuff", new JSONObject().put("key0", "value0").put("key1", 100));
 			System.err.println(res.data());
 			System.err.println(res.metadata());
+			
 			res = driver.kv().kvRead("test/stuff");
 			System.err.println(res.data());
 			System.err.println(res.metadata());
+			
 		} catch (TokeException e) {
 			e.printStackTrace();
 			return;
