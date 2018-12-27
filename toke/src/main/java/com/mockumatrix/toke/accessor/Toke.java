@@ -1,7 +1,7 @@
 package com.mockumatrix.toke.accessor;
 
 /**
- * Simple wrapper on the response out of OKHTTP
+ * Simple wrapper on the response out of OKHTTP with HTTPResponse code, success falg, and message body.
  * 
  * @author David R. Smith <davesmith.gbs@gmail.com>
  *
@@ -23,7 +23,7 @@ public class Toke {
 		this.code = code;
 		this.successful = successful;
 
-		// if not successful, body might look like this:
+		// if not successful, body probably looks something like this:
 		//
 		// {"errors": ["ldap operation failed"]}
 
@@ -54,7 +54,7 @@ public class Toke {
 	}
 	
 	/**
-	 * Use weith KVv1 and KVv2 list secrets
+	 * Use with KVv1 and KVv2 to list secrets
 	 * @return
 	 */
 	public Secrets kvList() {

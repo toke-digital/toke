@@ -36,6 +36,7 @@ public class Sys implements TokenListener {
 	
 	public Toke capabilities(String token, String path) throws ReadException {
 		List<String> paths = new ArrayList<String>(1);
+		paths.add(path);
 		return capabilities(token, paths);
 	}
 	
@@ -53,11 +54,13 @@ public class Sys implements TokenListener {
 				.put("token", token)
 				.put("paths", new JSONArray(paths));
 		
+		System.err.println(json.toString(4));
+		
 		try {
 			Toke response = client.post(url, json.toString());
 			// we expect a 200 per the documentation
 			if(response.code==404) throw new ReadException("Http 404 - this is usually a problem with the path.");
-			if(response.code!=200) throw new ReadException("Unexpected HTTP Response Code: "+response.code);
+			if(response.code!=200) throw new ReadException("Unexpected HTTP Response Code: "+response.code + " "+response.response);
 			return response;
 		} catch (IOException e) {
 			throw new ReadException(e);
@@ -66,24 +69,20 @@ public class Sys implements TokenListener {
 	
 	public Toke capabilitiesSelf(String path) throws ReadException {
 		List<String> paths = new ArrayList<String>(1);
-		return capabilitiesSelf(paths);
+		paths.add(path);
+		return capabilities(this.token.clientToken(), paths);
 	}
 	
-	public Toke capabilitiesSelf(List<String> paths) throws ReadException {
-		String url = config.baseURL().append("/sys/capabilities-self").toString();
-		JSONObject json = new JSONObject()
-				.put("token", token)
-				.put("paths", new JSONArray(paths));
+	public Toke health() throws ReadException {
+		
+		String url = config.baseURL().append("/sys/health").toString();
 		
 		try {
-			Toke response = client.post(url, json.toString());
-			// we expect a 200 per the documentation
-			if(response.code==404) throw new ReadException("Http 404 - this is usually a problem with the path.");
-			if(response.code!=200) throw new ReadException("Unexpected HTTP Response Code: "+response.code);
-			return response;
+			return client.get(url);
 		} catch (IOException e) {
 			throw new ReadException(e);
 		}
 	}
+	
 
 }

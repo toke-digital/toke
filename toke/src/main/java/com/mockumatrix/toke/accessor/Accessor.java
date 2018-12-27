@@ -4,13 +4,13 @@ import org.json.JSONObject;
 
 public class Accessor {
 
-	public final Toke response;
+	public final Toke toke;
 
 	public Accessor(Toke resp) {
-		this.response = resp;
+		this.toke = resp;
 	}
 	
 	public JSONObject json() {
-		return new JSONObject(response);
+		return new JSONObject(toke.response);
 	}
 }

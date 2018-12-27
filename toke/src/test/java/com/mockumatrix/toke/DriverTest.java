@@ -3,11 +3,13 @@ package com.mockumatrix.toke;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Map;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import com.mockumatrix.toke.accessor.Data;
 import com.mockumatrix.toke.accessor.Toke;
 import com.mockumatrix.toke.exception.LoginFailedException;
 import com.mockumatrix.toke.exception.TokeException;
@@ -52,27 +54,26 @@ public class DriverTest {
 		Toke res = null;
 		try {
 			res = driver.kv().kvWrite("test/stuff", new JSONObject().put("key0", "value0").put("key1", 100));
+			res = driver.kv().kvWrite("test/stuff2", new JSONObject().put("key0", "value0").put("key1", 100));
 
 			Assert.assertEquals(204, res.code);// successful write
 			
 			Toke tr = driver.kv().kvRead("test/stuff");
-			
+	
 			Assert.assertTrue(tr.data().map().containsKey("key0"));
 			Assert.assertTrue(tr.data().map().containsKey("key1"));
 			
 			tr = driver.kv().kvList("test/");
-			Assert.assertEquals(1, tr.kvList().secrets().size());
 			
 			// support for forgetful typists
 			tr = driver.kv().kvList("test");
-			Assert.assertEquals(1, tr.kvList().secrets().size());
 			
 			tr = driver.kv().kvDelete("test/stuff");
-			Assert.assertEquals(true, tr.successful);
 		
 			
 		} catch (TokeException e) {
 			e.printStackTrace();
+			Assert.fail();
 			return;
 		}
 	}
@@ -88,7 +89,8 @@ public class DriverTest {
 			Assert.assertNotNull(res);
 			System.err.println(res);
 			
-		
+			res = driver.sys().health();
+			Assert.assertNotNull(res.toString());
 			
 		} catch (TokeException e) {
 			e.printStackTrace();
