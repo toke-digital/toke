@@ -8,6 +8,8 @@ public class Driver {
 	
 	final Auth auth;
 	
+	final Sys sys;
+	
 	final KVv1 kvv1;
 	final KVv2 kvv2;
 	
@@ -23,6 +25,9 @@ public class Driver {
 		tokenManager = new TokenManager();
 		auth.addTokenListener(tokenManager);
 		
+		sys = new Sys(config,httpClient);
+		auth.addTokenListener(sys);
+		
 		kvv1 = new KVv1(config,httpClient);
 		auth.addTokenListener(kvv1);
 		
@@ -33,6 +38,10 @@ public class Driver {
 	
 	public Auth auth() {
 		return auth;
+	}
+	
+	public Sys sys() {
+		return sys;
 	}
 	
 	public KVv1 kv() {

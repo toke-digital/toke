@@ -8,6 +8,8 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import com.mockumatrix.toke.accessor.Data;
+import com.mockumatrix.toke.accessor.Toke;
 import com.mockumatrix.toke.exception.LoginFailedException;
 import com.mockumatrix.toke.exception.TokeException;
 import com.mockumatrix.toke.response.APIResponse;
@@ -50,25 +52,52 @@ public class DriverTest {
 	@Test
 	public void testKVv1() {
 		
-		APIResponse res = null;
+		Toke res = null;
 		try {
 			res = driver.kv().kvWrite("test/stuff", new JSONObject().put("key0", "value0").put("key1", 100));
-			res = driver.kv().kvRead("test/stuff");
-			Assert.assertNotNull(res);
-			Assert.assertEquals("value0", res.data().get("key0"));
-			Assert.assertEquals(100, res.data().get("key1"));
+
+			Assert.assertEquals(204, res.code);// successful write
 			
-			Assert.assertEquals(1, driver.kv().kvList("test/").keys().size());
+			Toke tr = driver.kv().kvRead("test/stuff");
+			
+			Assert.assertTrue(tr.data().map().containsKey("key0"));
+			Assert.assertTrue(tr.data().map().containsKey("key1"));
+			
+			tr = driver.kv().kvList("test/");
+			Assert.assertEquals(1, tr.kvList().secrets().size());
+			
 			// support for forgetful typists
-			Assert.assertEquals(1, driver.kv().kvList("test").keys().size());
+			tr = driver.kv().kvList("test");
+			Assert.assertEquals(1, tr.kvList().secrets().size());
 			
-			APIResponseBase resBase = (APIResponseBase) driver.kv().kvDelete("test/stuff");
-			Assert.assertEquals(204, resBase.code);
+			tr = driver.kv().kvDelete("test/stuff");
+			Assert.assertEquals(true, tr.successful);
+		
 			
 		} catch (TokeException e) {
 			e.printStackTrace();
 			return;
 		}
 	}
+	
+	@Test
+	public void testSys() {
+		
+		Toke res = null;
+		try {
+			res = driver.kv().kvWrite("test/stuff2", new JSONObject().put("key0", "value0").put("key1", 100));
+			res = driver.sys().capabilitiesSelf("test/stuff2");
+			
+			Assert.assertNotNull(res);
+			System.err.println(res);
+			
+		
+			
+		} catch (TokeException e) {
+			e.printStackTrace();
+			return;
+		}
+	}
+	
 
 }

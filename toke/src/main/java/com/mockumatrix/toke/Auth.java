@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.json.JSONObject;
 
+import com.mockumatrix.toke.accessor.Toke;
 import com.mockumatrix.toke.event.EventEnum;
 import com.mockumatrix.toke.event.TokenEvent;
 import com.mockumatrix.toke.event.TokenListener;
@@ -82,7 +83,7 @@ public class Auth {
   		JSONObject json = new JSONObject();
   		// TODO at the moment only supporting one config property here
   		json.put("renewable", config.renewable);
-  		TokeResponse result = null;
+  		Toke result = null;
     	try {
   			result = client.loginToken(url, json.toString(), config.token);
   		} catch (IOException e) {
@@ -94,7 +95,7 @@ public class Auth {
     
     private Token httpLogin(String url, JSONObject json) throws LoginFailedException {
     	
-    	TokeResponse result = null;
+    	Toke result = null;
     	try {
   			result = client.login(url, json.toString());
   		} catch (IOException e) {

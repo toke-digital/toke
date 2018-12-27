@@ -2,6 +2,7 @@ package com.mockumatrix.toke.response;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONObject;
 
@@ -39,6 +40,18 @@ public abstract class APIResponseBase implements APIResponse {
 			}
 			
 			return json;
+		}
+		
+		@Override
+		public Map<String, Object> data() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public Map<String, Object> metadata() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 		
 		/**

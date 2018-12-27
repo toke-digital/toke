@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.mockumatrix.toke.accessor.Toke;
 import com.mockumatrix.toke.event.EventEnum;
 import com.mockumatrix.toke.event.TokenEvent;
 import com.mockumatrix.toke.event.TokenListener;
@@ -40,7 +41,7 @@ public class Networking implements TokenListener {
 	 * @return
 	 * @throws IOException
 	 */
-	public TokeResponse get(String url) throws IOException {
+	public Toke get(String url) throws IOException {
 		lock.lock();
 		try {
 			Request request = new Request.Builder()
@@ -55,14 +56,14 @@ public class Networking implements TokenListener {
 				 success = response.isSuccessful();
 			}
 			
-			return new TokeResponse(code, success, result);
+			return new Toke(code, success, result);
 			
 		} finally {
 			lock.unlock();
 		}
 	}
 	
-	public TokeResponse delete(String url) throws IOException {
+	public Toke delete(String url) throws IOException {
 		lock.lock();
 		try {
 			Request request = new Request.Builder()
@@ -78,14 +79,14 @@ public class Networking implements TokenListener {
 				 success = response.isSuccessful();
 			}
 			
-			return new TokeResponse(code, success, result);
+			return new Toke(code, success, result);
 			
 		} finally {
 			lock.unlock();
 		}
 	}
 	
-	public TokeResponse list(String url) throws IOException {
+	public Toke list(String url) throws IOException {
 		lock.lock();
 		try {
 			
@@ -104,7 +105,7 @@ public class Networking implements TokenListener {
 				 success = response.isSuccessful();
 			}
 			
-			return new TokeResponse(code, success, result);
+			return new Toke(code, success, result);
 			
 		} finally {
 			lock.unlock();
@@ -119,13 +120,13 @@ public class Networking implements TokenListener {
 	 * @return
 	 * @throws IOException
 	 */
-	public TokeResponse login(String url, String json) throws IOException {
+	public Toke login(String url, String json) throws IOException {
 		lock.lock();
 		try {
 			RequestBody body = RequestBody.create(JSON, json);
 			Request request = new Request.Builder().url(url).post(body).build();
 			try (Response response = client.newCall(request).execute()) {
-				return new TokeResponse(response.code(), response.isSuccessful(), response.body().string());
+				return new Toke(response.code(), response.isSuccessful(), response.body().string());
 			}
 		} finally {
 			lock.unlock();
@@ -140,7 +141,7 @@ public class Networking implements TokenListener {
 	 * @return
 	 * @throws IOException
 	 */
-	public TokeResponse loginToken(String url, String json, String clientToken) throws IOException {
+	public Toke loginToken(String url, String json, String clientToken) throws IOException {
 		lock.lock();
 		try {
 			RequestBody body = RequestBody.create(JSON, json);
@@ -150,7 +151,7 @@ public class Networking implements TokenListener {
 					.header("X-Vault-Token", clientToken)
 					.build();
 			try (Response response = client.newCall(request).execute()) {
-				return new TokeResponse(response.code(), response.isSuccessful(), response.body().string());
+				return new Toke(response.code(), response.isSuccessful(), response.body().string());
 			}
 		} finally {
 			lock.unlock();
@@ -166,7 +167,7 @@ public class Networking implements TokenListener {
 	 * @return
 	 * @throws IOException
 	 */
-	public TokeResponse post(String url, String json) throws IOException {
+	public Toke post(String url, String json) throws IOException {
 		lock.lock();
 		try {
 			RequestBody body = RequestBody.create(JSON, json);
@@ -176,7 +177,7 @@ public class Networking implements TokenListener {
 					.header("X-Vault-Token", token.clientToken())
 					.build();
 			try (Response response = client.newCall(request).execute()) {
-				return new TokeResponse(response.code(), response.isSuccessful(), response.body().string());
+				return new Toke(response.code(), response.isSuccessful(), response.body().string());
 			}
 		} finally {
 			lock.unlock();
