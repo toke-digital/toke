@@ -46,6 +46,10 @@ public class Auth {
 		// destroy token
 	}
 	
+	public void logoff() {
+		// destroy token
+	}
+	
 	// Logins. All logins are POSTs
 	
 	protected void loginLDAP() throws LoginFailedException {
@@ -78,25 +82,25 @@ public class Auth {
   		JSONObject json = new JSONObject();
   		// TODO at the moment only supporting one config property here
   		json.put("renewable", config.renewable);
-  		APIResponse result = null;
+  		TokeResponse result = null;
     	try {
   			result = client.loginToken(url, json.toString(), config.token);
   		} catch (IOException e) {
   			throw new LoginFailedException(e);
   		}
-    	Token toke = new Token(result.json(), result.successful);
+    	Token toke = new Token(new JSONObject(result.response), result.successful);
 		this.fireLoginEvent(toke);
     }
     
     private Token httpLogin(String url, JSONObject json) throws LoginFailedException {
     	
-    	APIResponse result = null;
+    	TokeResponse result = null;
     	try {
   			result = client.login(url, json.toString());
   		} catch (IOException e) {
   			throw new LoginFailedException(e);
   		}
-    	return new Token(result.json(), result.successful);
+    	return new Token(new JSONObject(result.response), result.successful);
     }
     
     private void fireLoginEvent(Token toke) {

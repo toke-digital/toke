@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import com.mockumatrix.toke.exception.ConfigureException;
 import com.mockumatrix.toke.exception.ReadException;
 import com.mockumatrix.toke.exception.WriteException;
+import com.mockumatrix.toke.response.APIResponse;
 
 import static com.mockumatrix.toke.DriverConfig.*;
 
@@ -42,7 +43,7 @@ public class KVv2 extends KV {
 		if(version != -1) {
 			url+="?version="+version;
 		}
-		APIResponse response = null;
+		TokeResponse response = null;
 		try {
 			response = client.get(url);
 			// we expect a 200 per the documentation
@@ -52,7 +53,7 @@ public class KVv2 extends KV {
 			throw new ReadException(e);
 		}
 		
-		return response;
+		return response.toKVv2APIResponse();
 	}
 	
 	/**
@@ -69,11 +70,11 @@ public class KVv2 extends KV {
 		json.put("max_versions", max_versions);
 		json.put("cas_required", cas_required);
 		try {
-			APIResponse response = client.post(url, json.toString());
+			TokeResponse response = client.post(url, json.toString());
 			// we expect a 204 per the documentation
 			if(response.code==404) throw new ConfigureException("Http 404 - this is usually a problem with the path.");
 			if(response.code!=204) throw new ConfigureException("Unexpected HTTP Response Code: "+response.code);
-			return response;
+			return response.toKVv2APIResponse();
 		} catch (IOException e) {
 			throw new ConfigureException(e);
 		}
@@ -88,7 +89,7 @@ public class KVv2 extends KV {
 	public APIResponse kvReadConfig() throws ReadException {
 		String url = config.kv2Path(KVv2CONFIG, null);
 		
-		APIResponse response = null;
+		TokeResponse response = null;
 		try {
 			response = client.get(url);
 			// we expect a 200 per the documentation
@@ -98,7 +99,7 @@ public class KVv2 extends KV {
 			throw new ReadException(e);
 		}
 		
-		return response;
+		return response.toKVv2APIResponse();
 	}
 	
 	/**
@@ -162,11 +163,11 @@ public class KVv2 extends KV {
 		String url = config.kv2Path(KVv2DATA,path);
 		
 		try {
-			APIResponse response = client.post(url, jsonData);
+			TokeResponse response = client.post(url, jsonData);
 			// we expect a 200 per the documentation
 			if(response.code==404) throw new WriteException("Http 404 - this is usually a problem with the path.");
 			if(response.code!=200) throw new WriteException("Unexpected HTTP Response Code: "+response.code);
-			return response;
+			return response.toAPIPostResponse();
 		} catch (IOException e) {
 			throw new WriteException(e);
 		}
@@ -182,7 +183,7 @@ public class KVv2 extends KV {
 	public APIResponse kvList(String path) throws ReadException {
 		String url = config.kv2Path(KVv2METADATA, path);
 		
-		APIResponse response = null;
+		TokeResponse response = null;
 		try {
 			response = client.list(url);
 			// we expect a 200 per the documentation
@@ -192,7 +193,7 @@ public class KVv2 extends KV {
 			throw new ReadException(e);
 		}
 		
-		return response;
+		return response.toKVv2APIResponse();
 	}
 	
 	/**
@@ -208,7 +209,7 @@ public class KVv2 extends KV {
 		
 		JSONObject obj = new JSONObject().put("versions", versions);
 		
-		APIResponse response = null;
+		TokeResponse response = null;
 		try {
 			response = client.post(url, obj.toString());
 			// we expect a 200 per the documentation
@@ -218,7 +219,7 @@ public class KVv2 extends KV {
 			throw new WriteException(e);
 		}
 		
-		return response;
+		return response.toKVv2APIResponse();
 	}
 	
 	/**
@@ -231,7 +232,7 @@ public class KVv2 extends KV {
 	public APIResponse kvDelete(String path) throws WriteException {
 		String url = config.kv2Path(KVv2DATA, path);
 		
-		APIResponse response = null;
+		TokeResponse response = null;
 		try {
 			response = client.delete(url);
 			// we expect a 200 per the documentation
@@ -241,7 +242,7 @@ public class KVv2 extends KV {
 			throw new WriteException(e);
 		}
 		
-		return response;
+		return response.toAPIPostResponse();
 	}
 	
 	/**
@@ -257,7 +258,7 @@ public class KVv2 extends KV {
 		
 		JSONObject obj = new JSONObject().put("versions", versionsToDelete);
 		
-		APIResponse response = null;
+		TokeResponse response = null;
 		try {
 			response = client.post(url, obj.toString());
 			// we expect a 200 per the documentation
@@ -267,7 +268,7 @@ public class KVv2 extends KV {
 			throw new WriteException(e);
 		}
 		
-		return response;
+		return response.toAPIPostResponse();
 	}
 	
 	/**
@@ -283,7 +284,7 @@ public class KVv2 extends KV {
 		
 		JSONObject obj = new JSONObject().put("versions", versionsToUndelete);
 		
-		APIResponse response = null;
+		TokeResponse response = null;
 		try {
 			response = client.post(url, obj.toString());
 			// we expect a 200 per the documentation
@@ -293,7 +294,7 @@ public class KVv2 extends KV {
 			throw new WriteException(e);
 		}
 		
-		return response;
+		return response.toAPIPostResponse();
 	}
 
 }

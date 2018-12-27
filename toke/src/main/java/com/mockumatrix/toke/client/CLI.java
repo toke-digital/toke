@@ -1,11 +1,13 @@
 package com.mockumatrix.toke.client;
 
-import com.mockumatrix.toke.APIResponse;
+import org.json.JSONObject;
+
 import com.mockumatrix.toke.Driver;
 import com.mockumatrix.toke.DriverConfig;
 import com.mockumatrix.toke.exception.LoginFailedException;
 import com.mockumatrix.toke.exception.ReadException;
 import com.mockumatrix.toke.exception.TokeException;
+import com.mockumatrix.toke.response.APIResponse;
 
 /**
  * Useful CLI and demo client
@@ -27,7 +29,7 @@ public class CLI {
 				.host("127.0.0.1")
 				.port(8200)
 				.authType("TOKEN")
-				.token("s.59eS6J6SpXD230kCSt0KbQya");
+				.token("s.7QmL8ffLsV1m4r7aTQqQGT1H");
 		
 		Driver driver = new Driver(config);
 		
@@ -40,15 +42,20 @@ public class CLI {
 		
 		APIResponse res = null;
 		try {
-			res = driver.kv2().read("test/mysecret");
+			res = driver.kv().kvWrite("test/stuff", new JSONObject().put("key0", "value0").put("key1", 100));
+			System.err.println(res.data());
+			System.err.println(res.metadata());
+			res = driver.kv().kvRead("test/stuff");
+			System.err.println(res.data());
+			System.err.println(res.metadata());
 		} catch (TokeException e) {
 			e.printStackTrace();
 			return;
 		}
 		System.err.println(res);
-		System.err.println(res.data());
-		System.err.println(res.metadata());
+	
 		
+	//	driver.auth().logoff();
 		
 	}
 

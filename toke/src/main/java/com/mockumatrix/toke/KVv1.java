@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import com.mockumatrix.toke.exception.ReadException;
 import com.mockumatrix.toke.exception.WriteException;
+import com.mockumatrix.toke.response.APIResponse;
 
 public class KVv1 extends KV {
 
@@ -27,7 +28,7 @@ public class KVv1 extends KV {
 	public APIResponse kvRead(String path) throws ReadException {
 		String url = config.kv1Path(path);
 		
-		APIResponse response = null;
+		TokeResponse response = null;
 		try {
 			response = client.get(url);
 			// we expect a 200 per the documentation
@@ -37,31 +38,49 @@ public class KVv1 extends KV {
 			throw new ReadException(e);
 		}
 		
-		return response;
+		return response.toKVv1APIResponse();
 	}
 	
-	public APIResponse kvCreateUpdate(String path, Map<String,Object> map) throws WriteException {
+	/**
+	 * Create or over-write a path and set key/value pairs from the supplied JSONObject
+	 * @param path
+	 * @param obj
+	 * @return
+	 * @throws WriteException
+	 */
+	public APIResponse kvWrite(String path, JSONObject obj) throws WriteException {
+		return kvCreateUpdate(path, obj.toString());
+	}
+	
+	/**
+	 * Create or over-write a path and set key/value pairs from the supplied map
+	 * @param path
+	 * @param map
+	 * @return
+	 * @throws WriteException
+	 */
+	public APIResponse kvWrite(String path, Map<String,Object> map) throws WriteException {
 		JSONObject obj = new JSONObject(map);
 		return kvCreateUpdate(path, obj.toString());
 	}
 	
 	/**
-	 * Create a path and set key/value pairs. Or update that path. 
+	 * Create or over-write a path and set key/value pairs
 	 * 
 	 * @param path
 	 * @param jsonData
 	 * @return
 	 * @throws WriteException
 	 */
-	public APIResponse kvCreateUpdate(String path, String jsonData) throws WriteException {
+	private APIResponse kvCreateUpdate(String path, String jsonData) throws WriteException {
 		String url = config.kv1Path(path);
 		
 		try {
-			APIResponse response = client.post(url, jsonData);
+			TokeResponse response = client.post(url, jsonData);
 			// we expect a 200 per the documentation
 			if(response.code==404) throw new WriteException("Http 404 - this is usually a problem with the path.");
 			if(response.code!=204) throw new WriteException("Unexpected HTTP Response Code: "+response.code);
-			return response;
+			return response.toAPIPostResponse();
 		} catch (IOException e) {
 			throw new WriteException(e);
 		}
@@ -77,7 +96,7 @@ public class KVv1 extends KV {
 	public APIResponse kvList(String path) throws ReadException {
 		String url = config.kv1Path(path);
 		
-		APIResponse response = null;
+		TokeResponse response = null;
 		try {
 			response = client.list(url);
 			// we expect a 200 per the documentation
@@ -87,7 +106,7 @@ public class KVv1 extends KV {
 			throw new ReadException(e);
 		}
 		
-		return response;
+		return response.toKVv1APIResponse();
 	}
 	
 	
@@ -102,7 +121,7 @@ public class KVv1 extends KV {
 	public APIResponse kvDelete(String path) throws WriteException {
 		String url = config.kv1Path(path);
 		
-		APIResponse response = null;
+		TokeResponse response = null;
 		try {
 			response = client.delete(url);
 			// we expect a 200 per the documentation
@@ -112,7 +131,7 @@ public class KVv1 extends KV {
 			throw new WriteException(e);
 		}
 		
-		return response;
+		return response.toAPIPostResponse();
 	}
 	
 }
