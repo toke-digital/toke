@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.mockumatrix</groupId>
+	<groupId>digital.toke</groupId>
+	<artifactId>vault-driver</artifactId>
 	<version>1.0.0</version>
 
-	<artifactId>toke</artifactId>
-	<name>Toke</name>
+	<name>Digital Toke Vault Driver</name>
 	<description>A java driver for a subset of Hashicorp's Vault HTTP REST API.</description>
 	<inceptionYear>2018</inceptionYear>
 
@@ -130,5 +130,37 @@
 		<!-- needed to get my inadequate comments to parse in Java 1.8 javadoc -->
 		<additionalparam>-Xdoclint:none</additionalparam>
 	</properties>
+	
+	<url>https://github.com/buttermilk-crypto/b2/bracket-properties</url>
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	
+	<organization>
+		<name>David R. Smith</name>
+		<url>https://github.com/buttermilk-crypto/</url>
+	</organization>
+	<scm>
+		<connection>scm:git:git://github.com/buttermilk-crypto/b2.git</connection>
+		<developerConnection>scm:git:git://github.com/buttermilk-crypto/b2.git</developerConnection>
+		<url>https://github.com/buttermilk-crypto/b2/bracket-properties</url>
+	</scm>
+	<developers>
+		<developer>
+			<id>1</id>
+			<name>David R. Smith</name>
+			<email>davesmith.gbs@gmail.com</email>
+		</developer>
+	</developers>
+	<issueManagement>
+		<system>None</system>
+	</issueManagement>
+	<ciManagement>
+		<system>None</system>
+	</ciManagement>
 
 </project>
