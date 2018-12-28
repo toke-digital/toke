@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import org.json.JSONObject;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -12,7 +13,6 @@ import com.mockumatrix.toke.accessor.Toke;
 import com.mockumatrix.toke.exception.LoginFailedException;
 import com.mockumatrix.toke.exception.TokeException;
 
-import org.junit.Assert;
 
 public class DriverTest {
 	
@@ -54,12 +54,12 @@ public class DriverTest {
 			res = driver.kv().kvWrite("test/stuff", new JSONObject().put("key0", "value0").put("key1", 100));
 			res = driver.kv().kvWrite("test/stuff2", new JSONObject().put("key0", "value0").put("key1", 100));
 
-			Assert.assertEquals(204, res.code);// successful write
+			Assertions.assertEquals(204, res.code);// successful write
 			
 			Toke tr = driver.kv().kvRead("test/stuff");
 	
-			Assert.assertTrue(tr.data().map().containsKey("key0"));
-			Assert.assertTrue(tr.data().map().containsKey("key1"));
+			Assertions.assertTrue(tr.data().map().containsKey("key0"));
+			Assertions.assertTrue(tr.data().map().containsKey("key1"));
 			
 			tr = driver.kv().kvList("test/");
 			
@@ -71,8 +71,7 @@ public class DriverTest {
 			
 		} catch (TokeException e) {
 			e.printStackTrace();
-			Assert.fail();
-			return;
+			Assertions.fail(e);
 		}
 	}
 	
@@ -84,15 +83,15 @@ public class DriverTest {
 			res = driver.kv().kvWrite("test/stuff2", new JSONObject().put("key0", "value0").put("key1", 100));
 			res = driver.sys().capabilitiesSelf("test/stuff2");
 			
-			Assert.assertNotNull(res);
+			Assertions.assertNotNull(res);
 			System.err.println(res);
 			
 			res = driver.sys().health();
-			Assert.assertNotNull(res.toString());
+			Assertions.assertNotNull(res.toString());
 			
 		} catch (TokeException e) {
 			e.printStackTrace();
-			return;
+			Assertions.fail(e);
 		}
 	}
 	
