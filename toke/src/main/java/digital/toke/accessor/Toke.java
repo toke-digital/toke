@@ -1,7 +1,7 @@
 package digital.toke.accessor;
 
 /**
- * Simple wrapper on the response out of OKHTTP with HTTPResponse code, success falg, and message body.
+ * Simple wrapper on the response out of OKHTTP with HTTPResponse code, success flag, and message body.
  * 
  * @author David R. Smith <davesmith.gbs@gmail.com>
  *
