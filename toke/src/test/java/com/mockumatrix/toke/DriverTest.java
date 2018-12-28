@@ -3,13 +3,11 @@ package com.mockumatrix.toke;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Map;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import com.mockumatrix.toke.accessor.Data;
 import com.mockumatrix.toke.accessor.Toke;
 import com.mockumatrix.toke.exception.LoginFailedException;
 import com.mockumatrix.toke.exception.TokeException;

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -15,6 +17,8 @@ import com.mockumatrix.toke.exception.ReadException;
 
 public class Sys implements TokenListener {
 
+	private static final Logger logger = LogManager.getLogger(Sys.class);
+	
 	protected DriverConfig config;
 	protected Token token;
 	protected Networking client;
@@ -24,12 +28,14 @@ public class Sys implements TokenListener {
 		super();
 		this.config = config;
 		this.client = client;
+		logger.info("Initialized Sys driver instance");
 	}
 	
 	@Override
 	public void tokenEvent(TokenEvent evt) {
 		if(evt.getType().equals(EventEnum.LOGIN)) {
 			token = evt.getToken();
+			logger.info("Token with accessor "+token.accessor()+" set on Sys");
 		}
 	}
 	

@@ -1,7 +1,13 @@
 package com.mockumatrix.toke;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+
 public class Driver {
 
+	private static final Logger logger = LogManager.getLogger(Driver.class);
+	
 	final DriverConfig config;
 	final Networking httpClient;
 	final TokenManager tokenManager;
@@ -34,6 +40,7 @@ public class Driver {
 		kvv2 = new KVv2(config,httpClient);
 		auth.addTokenListener(kvv2);
 		
+		logger.info("Driver instance "+this.getClass().hashCode() +" initialized");
 	}
 	
 	public Auth auth() {

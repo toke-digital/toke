@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import com.mockumatrix.toke.accessor.Toke;
@@ -23,23 +25,19 @@ import com.mockumatrix.toke.exception.LoginFailedException;
  */
 public class Auth {
 
+	private static final Logger logger = LogManager.getLogger(Auth.class);
+	
 	DriverConfig config;
 	Networking client;
 	
 	private List<TokenListener> listeners;
-
-	public Auth(DriverConfig config) {
-		super();
-		this.config = config;
-		client = new Networking();
-		listeners = new ArrayList<TokenListener>();
-	}
 	
 	public Auth(DriverConfig config, Networking client) {
 		super();
 		this.config = config;
 		this.client = client;
 		listeners = new ArrayList<TokenListener>();
+		logger.info("Auth instance "+this.hashCode()+" configured");
 	}
 	
 	
@@ -108,8 +106,11 @@ public class Auth {
     	
     	if(toke.isFromSuccessfulLoginRequest()) {
 		    fireTokenEvent(new TokenEvent(this, toke, EventEnum.LOGIN));
+		    logger.info("Fired successful login...");
 		}else {
 			fireTokenEvent(new TokenEvent(this, toke, EventEnum.FAILED_LOGIN));
+			  logger.info("Unsuccessful login attempt...");
+			  logger.debug(toke.getJson().toString());
 		}
     }
 

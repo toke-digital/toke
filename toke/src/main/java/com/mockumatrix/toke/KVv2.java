@@ -3,6 +3,8 @@ package com.mockumatrix.toke;
 import java.io.IOException;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import com.mockumatrix.toke.accessor.Toke;
@@ -14,9 +16,11 @@ import static com.mockumatrix.toke.DriverConfig.*;
 
 public class KVv2 extends KV {
 
+	private static final Logger logger = LogManager.getLogger(KVv2.class);
+	
 	public KVv2(DriverConfig config, Networking client) {
 		super(config,client);
-		
+		logger.info("Initialized KVv2 driver instance");
 	}
 	
 	/**

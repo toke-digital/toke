@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.mockumatrix.toke.accessor.Toke;
 import com.mockumatrix.toke.event.EventEnum;
 import com.mockumatrix.toke.event.TokenEvent;
@@ -16,14 +19,15 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
- * Thread safe wrapper on the HTTP calls
+ * Thread-safe wrapper on the HTTP calls
  * 
  * @author David R. Smith <davesmith.gbs@gmail.com>
- * @see APIResponse
+ * @see Toke
  *
  */
 public class Networking implements TokenListener {
 
+	private static final Logger logger = LogManager.getLogger(Networking.class);
 	public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 	protected final Lock lock = new ReentrantLock();
 	protected final OkHttpClient client;
@@ -31,6 +35,7 @@ public class Networking implements TokenListener {
 
 	public Networking() {
 		client = new OkHttpClient();
+		logger.info("Initialized a networking instance");
 	}
 
 	/**
@@ -188,6 +193,7 @@ public class Networking implements TokenListener {
 	public void tokenEvent(TokenEvent evt) {
 		if(evt.getType().equals(EventEnum.LOGIN)) {
 			token = evt.getToken();
+			logger.info("Token with accessor "+token.accessor()+" set on Networking instance");
 		}
 		
 	}
