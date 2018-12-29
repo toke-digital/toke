@@ -9,6 +9,11 @@ I've used Steve Perkin's [BetterCloud driver](https://github.com/BetterCloud/vau
 successfully for a while but I need KVv2 support, which that project doesn't provide. I looked at 
 the possibility of forking their code but I guess I just have some different ideas about design.
 
+Requires
+---------------------
+
+Java 8
+
 
 Getting it
 ---------------------

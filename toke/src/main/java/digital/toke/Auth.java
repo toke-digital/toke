@@ -63,6 +63,11 @@ public class Auth {
 		this.fireLoginEvent(toke);
 	}
 	
+	/**
+	 * Assumption: bind_secret_id is true for this app role, which forces the secret_id to be used
+	 * 
+	 * @throws LoginFailedException
+	 */
     protected void loginAppRole() throws LoginFailedException {
 		String url = config.authAppRoleLogin();
 		JSONObject json = new JSONObject();
@@ -111,6 +116,7 @@ public class Auth {
     	if(toke.isFromSuccessfulLoginRequest()) {
 		    fireTokenEvent(new TokenEvent(this, toke, EventEnum.LOGIN));
 		    logger.info("Fired successful login...");
+		    logger.debug(toke.getJson().toString());
 		}else {
 			fireTokenEvent(new TokenEvent(this, toke, EventEnum.FAILED_LOGIN));
 			  logger.info("Unsuccessful login attempt...");

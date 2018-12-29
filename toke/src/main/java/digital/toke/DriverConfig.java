@@ -21,6 +21,7 @@ public class DriverConfig {
 	String secretId;
 	String roleId;
 	
+	// used with LDAP and USERPASS
 	String username;
 	String password;
 	
