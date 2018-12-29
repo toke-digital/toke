@@ -24,14 +24,13 @@ import digital.toke.exception.ReadException;
  * @author David R. Smith <davesmith.gbs@gmail.com>
  *
  */
-public class Sys implements TokenListener {
+public class Sys extends Base implements TokenListener {
 
 	private static final Logger logger = LogManager.getLogger(Sys.class);
 	
 	protected DriverConfig config;
 	protected Token token;
 	protected Networking client;
-	
 	
 	public Sys(DriverConfig config, Networking client) {
 		super();
@@ -44,6 +43,7 @@ public class Sys implements TokenListener {
 	public void tokenEvent(TokenEvent evt) {
 		if(evt.getType().equals(EventEnum.LOGIN)) {
 			token = evt.getToken();
+			countDownLatch.countDown();
 			logger.info("Token with accessor "+token.accessor()+" set on Sys");
 		}
 	}
@@ -64,6 +64,9 @@ public class Sys implements TokenListener {
 	 * @throws ReadException 
 	 */
 	public Toke capabilities(String token, List<String> paths) throws ReadException {
+		
+		latch();
+		
 		String url = config.baseURL().append("/sys/capabilities").toString();
 		JSONObject json = new JSONObject()
 				.put("token", token)

@@ -53,6 +53,9 @@ public class KVv2 extends KV {
 	 * @throws ReadException
 	 */
 	public Toke read(String path, int version) throws ReadException {
+		
+		latch();
+		
 		String url = config.kv2Path(KVv2DATA, path);
 		if(version != -1) {
 			url+="?version="+version;
@@ -79,6 +82,9 @@ public class KVv2 extends KV {
 	 * @throws ConfigureException
 	 */
 	public Toke kvConfigure(int max_versions, boolean cas_required) throws ConfigureException {
+		
+		latch();
+		
 		String url = config.kv2Path(KVv2CONFIG,null);
 		JSONObject json = new JSONObject();
 		json.put("max_versions", max_versions);
@@ -101,6 +107,9 @@ public class KVv2 extends KV {
 	 * @throws ReadException
 	 */
 	public Toke kvReadConfig() throws ReadException {
+		
+		latch();
+		
 		String url = config.kv2Path(KVv2CONFIG, null);
 		
 		Toke response = null;
@@ -174,6 +183,9 @@ public class KVv2 extends KV {
 	 * @throws WriteException
 	 */
 	public Toke kvCreateUpdate(String path, String jsonData) throws WriteException {
+		
+		latch();
+		
 		String url = config.kv2Path(KVv2DATA,path);
 		
 		try {
@@ -195,6 +207,9 @@ public class KVv2 extends KV {
 	 * @throws ReadException
 	 */
 	public Toke kvList(String path) throws ReadException {
+		
+		latch();
+		
 		String url = config.kv2Path(KVv2METADATA, path);
 		
 		Toke response = null;
@@ -219,6 +234,9 @@ public class KVv2 extends KV {
 	 * @throws WriteException
 	 */
 	public Toke kvDestroy(String path, int [] versions) throws WriteException {
+		
+		latch();
+		
 		String url = config.kv2Path(KVv2DESTROY, path);
 		
 		JSONObject obj = new JSONObject().put("versions", versions);
@@ -244,6 +262,9 @@ public class KVv2 extends KV {
 	 * @throws WriteException
 	 */
 	public Toke kvDelete(String path) throws WriteException {
+		
+		latch();
+		
 		String url = config.kv2Path(KVv2DATA, path);
 		
 		Toke response = null;
@@ -268,6 +289,9 @@ public class KVv2 extends KV {
 	 * @throws WriteException
 	 */
 	public Toke kvDelete(String path, int [] versionsToDelete) throws WriteException {
+		
+		latch();
+		
 		String url = config.kv2Path(KVv2DELETE, path);
 		
 		JSONObject obj = new JSONObject().put("versions", versionsToDelete);
@@ -294,6 +318,9 @@ public class KVv2 extends KV {
 	 * @throws WriteException
 	 */
 	public Toke kvUndelete(String path, int [] versionsToUndelete) throws WriteException {
+		
+		latch();
+		
 		String url = config.kv2Path(KVv2UNDELETE, path);
 		
 		JSONObject obj = new JSONObject().put("versions", versionsToUndelete);

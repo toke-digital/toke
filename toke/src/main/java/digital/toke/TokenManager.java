@@ -4,9 +4,10 @@
  */
 package digital.toke;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -17,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 import digital.toke.event.EventEnum;
 import digital.toke.event.TokenEvent;
 import digital.toke.event.TokenListener;
+import digital.toke.exception.LoginFailedException;
 import digital.toke.exception.OutOfTokensException;
 
 /**
@@ -27,40 +29,35 @@ import digital.toke.exception.OutOfTokensException;
  * @author David R. Smith <davesmith.gbs@gmail.com>
  *
  */
-public class TokenManager implements TokenListener {
+public class TokenManager {
 
 	private static final Logger logger = LogManager.getLogger(TokenManager.class);
-	private Set<Token> tokens;
 	
+	private Set<Token> tokens;
+	private List<TokenListener> listeners;
 	private  ScheduledExecutorService scheduledPool;
+	private Housekeeping housekeeping;
 
 	
 	public TokenManager(Housekeeping housekeeping) {
 		
-		// concurrent set
-		tokens = new ConcurrentSkipListSet<Token>();
-		
+		this.housekeeping = housekeeping;
+		listeners = new ArrayList<TokenListener>();
+
+		initScheduler();
+	}
+	
+	private void initScheduler() {
 		// one background thread
 		scheduledPool = Executors.newScheduledThreadPool(1);
 		
-		//fires initially at one second, again every 5 minutes
-		housekeeping.setTokens(tokens);
-		scheduledPool.scheduleWithFixedDelay(housekeeping, 0, 300, TimeUnit.SECONDS);
+		//fires initially at one second, again every 30 seconds
+		scheduledPool.scheduleWithFixedDelay(housekeeping, 1, 30, TimeUnit.SECONDS);
 		
 		logger.info("Initialized a TokenManager instance");
-
 	}
  
-	/**
-	 * Only adds tokens which are from successful logins. 
-	 */
-	@Override
-	public void tokenEvent(TokenEvent evt) {
-		if(evt.getType().equals(EventEnum.LOGIN)) {
-			tokens.add(evt.getToken());
-			logger.info("Token with accessor "+evt.getToken().accessor()+" added to TokenManager");
-		}
-	}
+	
 	
 	/**
 	 * Will check to see if token can operate on this path. At the moment just returns the first available token
@@ -76,5 +73,28 @@ public class TokenManager implements TokenListener {
 		}
 		return null;
 	}
+	
+	public void addTokenListener(TokenListener listener) {
+		listeners.add(listener);
+	}
+	
+	protected void fireTokenEvent(TokenEvent evt) {
+		for(TokenListener l: listeners) {
+			l.tokenEvent(evt);
+		}
+	}
+	
+	  private void fireLoginEvent(Token token) throws LoginFailedException {
+	    	
+	    	if(token.isFromSuccessfulLoginRequest()) {
+			    fireTokenEvent(new TokenEvent(this, token, EventEnum.LOGIN));
+			    logger.info("Fired successful login...");
+			    logger.debug(token.getJson().toString());
+			}else {
+				  logger.info("Unsuccessful login attempt...");
+				  logger.debug(token.getJson().toString());
+				  throw new LoginFailedException(token);
+			}
+	    }
 
 }

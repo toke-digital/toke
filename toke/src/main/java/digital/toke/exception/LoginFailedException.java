@@ -4,8 +4,13 @@
  */
 package digital.toke.exception;
 
+import java.util.List;
+
+import digital.toke.Token;
+
 /**
- * Thrown when login fails for a network-oriented reason
+ * Thrown when login fails for a network-oriented reason or some other reason releated to the attempt.
+ * See 
  * 
  * @author David R. Smith <davesmith.gbs@gmail.com>
  *
@@ -13,8 +18,13 @@ package digital.toke.exception;
 public class LoginFailedException extends TokeException {
 
 	private static final long serialVersionUID = 1L;
+	
+	Token badToken;
 
-	public LoginFailedException() {
+	public LoginFailedException() {}
+	
+	public LoginFailedException(Token badToken) {
+		this.badToken = badToken;
 	}
 
 	public LoginFailedException(String arg0) {
@@ -26,5 +36,11 @@ public class LoginFailedException extends TokeException {
 		super(arg0);
 	}
 
-
+	public Token getBadToken() {
+		return badToken;
+	}
+	
+	public List<String> errors() {
+		return badToken.errors();
+	}
 }
