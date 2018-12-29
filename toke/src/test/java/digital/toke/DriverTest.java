@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright 2019 David R. Smith All Rights Reserved 
+ */
+
 package digital.toke;
 
 import java.io.File;
@@ -15,7 +20,12 @@ import digital.toke.accessor.Toke;
 import digital.toke.exception.LoginFailedException;
 import digital.toke.exception.TokeException;
 
-
+/**
+ * The testing requires a fairly specific vault instance to be set up and that's not documented quite yet.
+ * 
+ * @author David R. Smith <davesmith.gbs@gmail.com>
+ *
+ */
 public class DriverTest {
 	
 	static Driver driver;
@@ -67,6 +77,7 @@ public class DriverTest {
 			
 			// support for forgetful typists
 			tr = driver.kv().kvList("test");
+			tr.kvList().secrets();
 			
 			tr = driver.kv().kvDelete("test/stuff");
 		
