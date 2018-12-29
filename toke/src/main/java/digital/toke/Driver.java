@@ -36,8 +36,7 @@ public class Driver {
 		
 		auth = new Auth(config, httpClient);
 		
-		Housekeeping housekeeping = new Housekeeping(auth);
-		tokenManager = new TokenManager(housekeeping);
+		tokenManager = new TokenManager(auth);
 		
 		sys = new Sys(config, httpClient);
 		tokenManager.addTokenListener(sys);

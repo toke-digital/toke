@@ -118,26 +118,25 @@ public class Auth {
     	return new Token(new JSONObject(result.response), result.successful);
     }
     
-  
-
 	
-	public void login() throws LoginFailedException {
+	public Token login() throws LoginFailedException {
 		
+		Token t = null;
 		switch(config.authType) {
 			case LDAP: {
-				loginLDAP();
+				t = loginLDAP();
 				break;
 			}
 			case APPROLE: {
-				loginAppRole();
+				t = loginAppRole();
 				break;
 			}
 			case USERPASS: {
-				loginUserPass();
+				t = loginUserPass();
 				break;
 			}
 			case TOKEN: {
-				loginToken();
+				t = loginToken();
 				break;
 			}
 			default: {
@@ -145,6 +144,8 @@ public class Auth {
 				break;
 			}
 		}
+		
+		return t;
 	}
 	
 }
