@@ -21,6 +21,7 @@ import digital.toke.event.TokenEvent;
 import digital.toke.event.TokenListener;
 import digital.toke.exception.LoginFailedException;
 import digital.toke.exception.OutOfTokensException;
+import digital.toke.exception.ReadException;
 
 /**
  * TokenManager looks after token life-cycle and can do auto-renewals, etc. It
@@ -60,6 +61,7 @@ public class TokenManager {
 			public void run() {
 
 				// 1.0 - do we have any tokens? If not, get one.
+				// The initial TokenEvent sent of a valid token will free the latch on the restful client operations
 				if (tokens.size() == 0) {
 					
 					logger.info("Zero tokens found, trying to login to get one...");
@@ -70,6 +72,7 @@ public class TokenManager {
 						if(token.fromSuccessfulLoginRequest) {
 							tokens.add(token);
 							this.fireLoginEvent(token);
+							return; // exit house keeping at this point - we are logged in
 						}else {
 							logger.info("Unsuccessful login attempt...");
 							logger.debug(token.getJson().toString());
@@ -79,9 +82,34 @@ public class TokenManager {
 					}
 				}
 				
-				// 1.1 at least one token in set to manage
+				// 1.1 at least one token to be managed...first do a lookup if needed
 				
-				//
+				List<Token> updatedTokens = new ArrayList<Token>();
+				Iterator<Token> iter = tokens.iterator();
+				while(iter.hasNext()) {
+				   Token t = iter.next();	
+				   if(t.getLookupData()== null) {
+					   try {
+						Token updated = auth.lookupSelf(t);
+						updatedTokens.add(updated);
+						this.fireTokenEvent(new TokenEvent(this, EventEnum.SET_LATCH));
+						this.fireTokenEvent(new TokenEvent(this, updated,EventEnum.RELOAD_TOKEN));
+					} catch (ReadException e) {
+						logger.error(e);
+					}
+				   }
+				}
+				
+				// 1.1.1 - update our managed set
+				for(Token t: updatedTokens) {
+					if(tokens.contains(t)) tokens.remove(t);
+				}
+				
+				for(Token t: updatedTokens) {
+					tokens.add(t);
+				}
+				
+				
 			}
 
 			private void fireTokenEvent(TokenEvent evt) {

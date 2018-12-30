@@ -121,6 +121,20 @@ public class DriverConfig {
 		return buf.toString();
 	}
 	
+	public String authTokenLookup() {
+		StringBuffer buf = baseURL();
+		buf.append(authPath);
+		buf.append("/token/lookup");
+		return buf.toString();
+	}
+	
+	public String authTokenLookupSelf() {
+		StringBuffer buf = baseURL();
+		buf.append(authPath);
+		buf.append("/token/lookup-self");
+		return buf.toString();
+	}
+	
 	// KVv2
 	
 	public String kv2Config() {

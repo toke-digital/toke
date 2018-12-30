@@ -199,6 +199,12 @@ public class Networking implements TokenListener {
 			logger.info("Token with accessor "+token.accessor()+" set on Networking instance");
 		}
 		
+		if(evt.getType().equals(EventEnum.RELOAD_TOKEN)) {
+			token = evt.getToken();
+			logger.info("Reloaded token on Networking instance.");
+		}
+		
+		
 	}
 	
 

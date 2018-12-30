@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import digital.toke.accessor.Toke;
 
 import digital.toke.exception.LoginFailedException;
+import digital.toke.exception.ReadException;
 
 /**
  * The auth module implements a vault login using various auth types such as LDAP and APPROLE. 
@@ -146,6 +147,31 @@ public class Auth {
 		}
 		
 		return t;
+	}
+	
+	public Token lookupSelf(Token t) throws ReadException {
+		
+		String url = config.authTokenLookupSelf();
+		
+		Toke toke = null;
+		try {
+			toke = client.get(url);
+		} catch (IOException e) {
+			throw new ReadException(e);
+		}
+		
+		if(toke.successful) {
+			if(toke.response == null || toke.response.contains("errors")) {
+				throw new ReadException("Errors on token lookup: "+toke.response);
+			}else {
+			   return new Token(t.getJson(),
+					   t.fromSuccessfulLoginRequest,
+					   new JSONObject(toke.response));
+		    }
+		}else {
+			throw new ReadException("Failed to perform lookup on "+t);
+		}
+		
 	}
 	
 }

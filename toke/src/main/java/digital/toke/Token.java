@@ -4,9 +4,12 @@
  */
 package digital.toke;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -20,13 +23,26 @@ import org.json.JSONObject;
  */
 public class Token {
 
+	@SuppressWarnings("unused")
+	private static final Logger logger = LogManager.getLogger(Token.class);
+	                            
+    //  "expire_time": "2018-05-19T11:35:54.466476215-04:00",
+	
 	final JSONObject json;
 	final boolean fromSuccessfulLoginRequest;
 
+	final JSONObject lookupData;
 	
 	public Token(JSONObject json, boolean valid) {
 		this.json = json;
 		this.fromSuccessfulLoginRequest = valid;
+		this.lookupData = new JSONObject();
+	}
+	
+	public Token(JSONObject json, boolean valid, JSONObject lookupData) {
+		this.json = json;
+		this.fromSuccessfulLoginRequest = valid;
+		this.lookupData = lookupData;
 	}
 
 	public String clientToken() {
@@ -76,6 +92,22 @@ public class Token {
 		return result;
 	}
 
+	public JSONObject getLookupData() {
+		return lookupData;
+	}
+	
+	public Instant expireTime()  {
+		JSONObject data = lookupData.optJSONObject("data");
+		if(data == null) 
+			throw new RuntimeException("Either lookup was not done for this token or it failed.");
+		String ex = data.getString("expire_time");
+		return Instant.parse(ex);
+	}
+
+	/**
+	 * Implementation note - Token equality is used by the TokenManager 
+	 * so this is important, don't change unless you know what you are doing.
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
