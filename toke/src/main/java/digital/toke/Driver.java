@@ -37,6 +37,7 @@ public class Driver {
 		auth = new Auth(config, httpClient);
 		
 		tokenManager = new TokenManager(auth);
+		tokenManager.addTokenListener(httpClient);
 		
 		sys = new Sys(config, httpClient);
 		tokenManager.addTokenListener(sys);

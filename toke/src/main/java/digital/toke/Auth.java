@@ -82,7 +82,7 @@ public class Auth {
   		json.put("renewable", config.renewable);
   		Toke result = null;
     	try {
-  			result = client.loginToken(url, json.toString(), config.token);
+  			result = client.loginToken(url, json.toString(), config.findToken());
   		} catch (IOException e) {
   			throw new LoginFailedException(e);
   		}
@@ -98,7 +98,7 @@ public class Auth {
   		json.put("renewable", config.renewable);
   		Toke result = null;
     	try {
-  			result = client.loginToken(url, json.toString(), config.token);
+  			result = client.loginToken(url, json.toString(), config.findToken());
   		} catch (IOException e) {
   			throw new LoginFailedException(e);
   		}

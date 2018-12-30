@@ -23,7 +23,7 @@ import digital.toke.exception.LoginFailedException;
 import digital.toke.exception.OutOfTokensException;
 
 /**
- * TokenManager looks after token lifecycle and can do auto-renewals, etc. It
+ * TokenManager looks after token life-cycle and can do auto-renewals, etc. It
  * allows the Driver to continue operations essentially indefinitely, as in an
  * enterprise application which regularly needs to contact vault.
  * 
@@ -61,6 +61,9 @@ public class TokenManager {
 
 				// 1.0 - do we have any tokens? If not, get one.
 				if (tokens.size() == 0) {
+					
+					logger.info("Zero tokens found, trying to login to get one...");
+					
 					Token token = null;
 					try {
 						token = auth.login();
@@ -97,7 +100,8 @@ public class TokenManager {
 		}
 
 		// fires initially, and then again every 30 seconds
-		scheduledPool.scheduleWithFixedDelay(new Housekeeping(), 0, 30, TimeUnit.SECONDS);
+		logger.info("Initializing scheduler...");
+		scheduledPool.scheduleWithFixedDelay(new Housekeeping(), 1, 30, TimeUnit.SECONDS);
 
 		logger.info("Initialized a TokenManager instance");
 	}

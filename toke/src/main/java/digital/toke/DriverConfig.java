@@ -4,6 +4,13 @@
  */
 package digital.toke;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Uses a fluent idiom to allow configuration; most items have sensible defaults.
  * 
@@ -12,11 +19,14 @@ package digital.toke;
  */
 public class DriverConfig {
 	
+	private static final Logger logger = LogManager.getLogger(DriverConfig.class);
+	
 	// auth
 	AuthType authType; //        e.g., supports TOKEN, LDAP, APPROLE, USERPASS;
 	
 	// set based on selected auth type
 	String token;
+	File tokenFile;
 	
 	String secretId;
 	String roleId;
@@ -246,5 +256,30 @@ public class DriverConfig {
 		return this;
 	}
 	
+	public DriverConfig tokenFile(File fileWithToken) {
+		tokenFile = fileWithToken;
+		return this;
+	}
+	
+	public String findToken() {
+		
+		if(tokenFile != null) {
+			try {
+				String t =  new String(Files.readAllBytes(tokenFile.toPath()), "UTF-8");
+				logger.debug("returning token "+t+" from file");
+				return t;
+			} catch (IOException e) {
+				logger.error("Failed to read file with token: "+tokenFile.getPath().toString());
+				logger.error(e);
+			}
+		} else if(token == null) {
+			logger.error("Token asked for but not found in config, please fix this and try again.");
+		} else {
+			logger.debug("returning token "+token+" from config of that name.");
+			return token;
+		}
+		
+		return null;
+	}
 
 }
