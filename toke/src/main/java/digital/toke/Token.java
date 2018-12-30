@@ -12,7 +12,8 @@ import org.json.JSONObject;
 
 /**
  * Data Model of a vault token. The token has an accessor and it also 
- * knows if it has been instantiated from a successful login.
+ * knows if it has been instantiated from a successful login. Token objects 
+ * are not necessarily valid at at any given time.
  * 
  * @author David R. Smith <davesmith.gbs@gmail.com>
  *
@@ -20,7 +21,7 @@ import org.json.JSONObject;
 public class Token {
 
 	final JSONObject json;
-	final boolean fromSuccessfulLoginRequest; // presumption
+	final boolean fromSuccessfulLoginRequest;
 
 	
 	public Token(JSONObject json, boolean valid) {
@@ -38,6 +39,12 @@ public class Token {
 		JSONObject auth = json.optJSONObject("auth");
 		if(auth == null) return "";
 		else return auth.getString("accessor");
+	}
+	
+	public boolean isRenewable() {
+		JSONObject auth = json.optJSONObject("auth");
+		if(auth == null) return false;
+		else return auth.getBoolean("renewable");
 	}
 	
 	public List<String> errors() {

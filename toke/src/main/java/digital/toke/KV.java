@@ -17,14 +17,13 @@ import digital.toke.event.TokenListener;
  * @author David R. Smith <davesmith.gbs@gmail.com>
  *
  */
-public abstract class KV implements TokenListener {
+public abstract class KV extends Base implements TokenListener {
 
 	private static final Logger logger = LogManager.getLogger(KV.class);
 	
 	protected DriverConfig config;
 	protected Token token;
 	protected Networking client;
-	
 	
 	public KV(DriverConfig config, Networking client) {
 		super();
@@ -36,6 +35,7 @@ public abstract class KV implements TokenListener {
 	public void tokenEvent(TokenEvent evt) {
 		if(evt.getType().equals(EventEnum.LOGIN)) {
 			token = evt.getToken();
+			countDownLatch.countDown();
 			logger.info("Token with accessor "+token.accessor()+" set on KV");
 		}
 	}

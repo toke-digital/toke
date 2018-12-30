@@ -35,19 +35,18 @@ public class Driver {
 		httpClient = new Networking();
 		
 		auth = new Auth(config, httpClient);
-		auth.addTokenListener(httpClient);
 		
-		tokenManager = new TokenManager();
-		auth.addTokenListener(tokenManager);
+		tokenManager = new TokenManager(auth);
+		tokenManager.addTokenListener(httpClient);
 		
-		sys = new Sys(config,httpClient);
-		auth.addTokenListener(sys);
+		sys = new Sys(config, httpClient);
+		tokenManager.addTokenListener(sys);
 		
-		kvv1 = new KVv1(config,httpClient);
-		auth.addTokenListener(kvv1);
+		kvv1 = new KVv1(config, httpClient);
+		tokenManager.addTokenListener(kvv1);
 		
-		kvv2 = new KVv2(config,httpClient);
-		auth.addTokenListener(kvv2);
+		kvv2 = new KVv2(config, httpClient);
+		tokenManager.addTokenListener(kvv2);
 		
 		logger.info("Driver instance "+this.getClass().hashCode() +" initialized");
 	}

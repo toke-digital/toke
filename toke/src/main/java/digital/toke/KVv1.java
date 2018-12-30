@@ -40,6 +40,9 @@ public class KVv1 extends KV {
 	 * @throws ReadException
 	 */
 	public Toke kvRead(String path) throws ReadException {
+		
+		latch();
+		
 		String url = config.kv1Path(path);
 		
 		Toke response = null;
@@ -87,8 +90,10 @@ public class KVv1 extends KV {
 	 * @throws WriteException
 	 */
 	private Toke kvCreateUpdate(String path, String jsonData) throws WriteException {
-		String url = config.kv1Path(path);
 		
+		latch();
+		
+		String url = config.kv1Path(path);
 		try {
 			Toke response = client.post(url, jsonData);
 			// we expect a 200 per the documentation
@@ -108,6 +113,9 @@ public class KVv1 extends KV {
 	 * @throws ReadException
 	 */
 	public Toke kvList(String path) throws ReadException {
+		
+		latch();
+		
 		String url = config.kv1Path(path);
 		
 		Toke response = null;
@@ -133,6 +141,9 @@ public class KVv1 extends KV {
 	 * @throws WriteException
 	 */
 	public Toke kvDelete(String path) throws WriteException {
+		
+		latch();
+		
 		String url = config.kv1Path(path);
 		
 		Toke response = null;

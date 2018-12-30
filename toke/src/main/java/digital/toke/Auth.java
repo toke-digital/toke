@@ -5,17 +5,13 @@
 package digital.toke;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import digital.toke.accessor.Toke;
-import digital.toke.event.EventEnum;
-import digital.toke.event.TokenEvent;
-import digital.toke.event.TokenListener;
+
 import digital.toke.exception.LoginFailedException;
 
 /**
@@ -34,13 +30,10 @@ public class Auth {
 	DriverConfig config;
 	Networking client;
 	
-	private List<TokenListener> listeners;
-	
 	public Auth(DriverConfig config, Networking client) {
 		super();
 		this.config = config;
 		this.client = client;
-		listeners = new ArrayList<TokenListener>();
 		logger.info("Auth instance "+this.hashCode()+" configured");
 	}
 	
@@ -55,44 +48,63 @@ public class Auth {
 	
 	// Logins. All logins are POSTs
 	
-	protected void loginLDAP() throws LoginFailedException {
+	Token loginLDAP() throws LoginFailedException {
 		String url = config.authLdapLogin();
 		JSONObject json = new JSONObject();
 		json.put("password", config.password);
-		Token toke = httpLogin(url,json);
-		this.fireLoginEvent(toke);
+		return httpLogin(url,json);
 	}
 	
-    protected void loginAppRole() throws LoginFailedException {
+	/**
+	 * Assumption: bind_secret_id is true for this app role, which forces the secret_id to be used
+	 * 
+	 * @throws LoginFailedException
+	 */
+    Token loginAppRole() throws LoginFailedException {
 		String url = config.authAppRoleLogin();
 		JSONObject json = new JSONObject();
 		json.put("role_id", config.roleId);
 		json.put("secret_id", config.secretId);
-		Token toke = httpLogin(url,json);
-		this.fireLoginEvent(toke);
+		return  httpLogin(url,json);
 	}
     
-    protected void loginUserPass() throws LoginFailedException {
+    Token loginUserPass() throws LoginFailedException {
   		String url = config.authUserPassLogin();
   		JSONObject json = new JSONObject();
   		json.put("password", config.password);
-  		Token toke = httpLogin(url,json);
-		this.fireLoginEvent(toke);
+  		return httpLogin(url,json);
   	}
     
-    protected void loginToken() throws LoginFailedException {
+    Token loginToken() throws LoginFailedException {
   		String url = config.authTokenLogin();
   		JSONObject json = new JSONObject();
   		// TODO at the moment only supporting one config property here
   		json.put("renewable", config.renewable);
   		Toke result = null;
     	try {
-  			result = client.loginToken(url, json.toString(), config.token);
+  			result = client.loginToken(url, json.toString(), config.findToken());
   		} catch (IOException e) {
   			throw new LoginFailedException(e);
   		}
-    	Token toke = new Token(new JSONObject(result.response), result.successful);
-		this.fireLoginEvent(toke);
+    	
+    	return new Token(new JSONObject(result.response), result.successful);
+		
+    }
+    
+    Token loginToken(CreateTokenParameters params) throws LoginFailedException {
+  		String url = config.authTokenLogin();
+  		JSONObject json = new JSONObject();
+  		// TODO at the moment only supporting one config property here
+  		json.put("renewable", config.renewable);
+  		Toke result = null;
+    	try {
+  			result = client.loginToken(url, json.toString(), config.findToken());
+  		} catch (IOException e) {
+  			throw new LoginFailedException(e);
+  		}
+    	
+    	return new Token(new JSONObject(result.response), result.successful);
+		
     }
     
     private Token httpLogin(String url, JSONObject json) throws LoginFailedException {
@@ -106,36 +118,25 @@ public class Auth {
     	return new Token(new JSONObject(result.response), result.successful);
     }
     
-    private void fireLoginEvent(Token toke) {
-    	
-    	if(toke.isFromSuccessfulLoginRequest()) {
-		    fireTokenEvent(new TokenEvent(this, toke, EventEnum.LOGIN));
-		    logger.info("Fired successful login...");
-		}else {
-			fireTokenEvent(new TokenEvent(this, toke, EventEnum.FAILED_LOGIN));
-			  logger.info("Unsuccessful login attempt...");
-			  logger.debug(toke.getJson().toString());
-		}
-    }
-
 	
-	public void login() throws LoginFailedException {
+	public Token login() throws LoginFailedException {
 		
+		Token t = null;
 		switch(config.authType) {
 			case LDAP: {
-				loginLDAP();
+				t = loginLDAP();
 				break;
 			}
 			case APPROLE: {
-				loginAppRole();
+				t = loginAppRole();
 				break;
 			}
 			case USERPASS: {
-				loginUserPass();
+				t = loginUserPass();
 				break;
 			}
 			case TOKEN: {
-				loginToken();
+				t = loginToken();
 				break;
 			}
 			default: {
@@ -143,15 +144,8 @@ public class Auth {
 				break;
 			}
 		}
+		
+		return t;
 	}
 	
-	public void addTokenListener(TokenListener listener) {
-		listeners.add(listener);
-	}
-	
-	protected void fireTokenEvent(TokenEvent evt) {
-		for(TokenListener l: listeners) {
-			l.tokenEvent(evt);
-		}
-	}
 }

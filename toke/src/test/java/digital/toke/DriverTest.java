@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import digital.toke.Driver;
 import digital.toke.DriverConfig;
 import digital.toke.accessor.Toke;
-import digital.toke.exception.LoginFailedException;
 import digital.toke.exception.TokeException;
 
 /**
@@ -46,16 +45,12 @@ public class DriverTest {
 				.host("127.0.0.1")
 				.port(8200)
 				.authType("TOKEN")
-				.token(token);
+				//.token(token);
+				.tokenFile(new File("C:\\token.txt"));
 		
+		// driver will auto-login and block on rest-calls until it is ready
 		driver = new Driver(config);
 		
-		try {
-		    driver.auth().login();
-		}catch(LoginFailedException x) {
-			x.printStackTrace();
-			return;
-		}
 	}
 
 	@Test
@@ -64,7 +59,6 @@ public class DriverTest {
 		Toke res = null;
 		try {
 			res = driver.kv().kvWrite("test/stuff", new JSONObject().put("key0", "value0").put("key1", 100));
-			res = driver.kv().kvWrite("test/stuff2", new JSONObject().put("key0", "value0").put("key1", 100));
 
 			Assertions.assertEquals(204, res.code);// successful write
 			
