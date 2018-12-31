@@ -26,7 +26,7 @@ public class Base {
 	
 	protected void latch() {
 		try {
-			countDownLatch.await(1L,TimeUnit.MINUTES);
+			countDownLatch.await(10L,TimeUnit.SECONDS);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
@@ -35,7 +35,8 @@ public class Base {
 	protected void readExceptionExcept(Toke response, int val) throws ReadException {
 		if(response.code == val) return;
 		if(response.code==404) throw new ReadException("Http 404 - this is usually a problem with the path.");
-		if(response.code==400) throw new ReadException("Http 400 - this is usually a permissions issue.");
+	//	if(response.code==400) throw new ReadException("Http 400 - this is usually a permissions issue.");
+		if(response.code==403) throw new ReadException("Http 403 - this is usually a permissions issue.");
 
 		  throw new ReadException("Unexpected HTTP Response Code: "+response.code);
 
@@ -43,8 +44,10 @@ public class Base {
 	
 	protected void writeExceptionExcept(Toke response, int val) throws WriteException {
 		if(response.code == val) return;
+		//System.err.println(response.response);
+		if(response.code==400) throw new WriteException("Http 400 - in kv2 this may be a check-and-set issue.");
 		if(response.code==404) throw new WriteException("Http 404 - this is usually a problem with the path.");
-		if(response.code==400) throw new WriteException("Http 400 - this is usually a permissions issue.");
+		if(response.code==403) throw new WriteException("Http 403 - this is usually a permissions issue.");
 
 		  throw new WriteException("Unexpected HTTP Response Code: "+response.code);
 

@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import digital.toke.accessor.Toke;
 import digital.toke.exception.ReadException;
 import digital.toke.exception.WriteException;
+import okhttp3.HttpUrl;
 
 /**
  * Implement the RESTful interface calls to KVv1 secrets engine
@@ -49,8 +50,7 @@ public class KVv1 extends KV {
 		try {
 			response = client.get(url);
 			// we expect a 200 per the documentation
-			if(response.code==404) throw new ReadException("Http 404 - this is usually a problem with the path.");
-			if(response.code!=200) throw new ReadException("Unexpected HTTP Response Code: "+response.code);
+			readExceptionExcept(response, 200);
 		} catch (IOException e) {
 			throw new ReadException(e);
 		}
@@ -94,11 +94,11 @@ public class KVv1 extends KV {
 		latch();
 		
 		String url = config.kv1Path(path);
+		logger.debug("Using: "+url);
 		try {
 			Toke response = client.post(url, jsonData);
 			// we expect a 200 per the documentation
-			if(response.code==404) throw new WriteException("Http 404 - this is usually a problem with the path.");
-			if(response.code!=204) throw new WriteException("Unexpected HTTP Response Code: "+response.code);
+			writeExceptionExcept(response, 204);
 			return response;
 		} catch (IOException e) {
 			throw new WriteException(e);
@@ -116,14 +116,13 @@ public class KVv1 extends KV {
 		
 		latch();
 		
-		String url = config.kv1Path(path);
+		HttpUrl url = config.kv1List(path);
 		
 		Toke response = null;
 		try {
 			response = client.list(url);
 			// we expect a 200 per the documentation
-			if(response.code==404) throw new ReadException("Http 404 - this is usually a problem with the path.");
-			if(response.code!=200) throw new ReadException("Unexpected HTTP Response Code: "+response.code);
+			readExceptionExcept(response, 200);
 		} catch (IOException e) {
 			throw new ReadException(e);
 		}
@@ -150,8 +149,7 @@ public class KVv1 extends KV {
 		try {
 			response = client.delete(url);
 			// we expect a 200 per the documentation
-			if(response.code==404) throw new WriteException("Http 404 - this is usually a problem with the path.");
-			if(response.code!=204) throw new WriteException("Unexpected HTTP Response Code: "+response.code);
+			writeExceptionExcept(response, 204);
 		} catch (IOException e) {
 			throw new WriteException(e);
 		}

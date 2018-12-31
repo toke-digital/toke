@@ -15,6 +15,7 @@ import digital.toke.accessor.Toke;
 import digital.toke.event.EventEnum;
 import digital.toke.event.TokenEvent;
 import digital.toke.event.TokenListener;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -94,17 +95,23 @@ public class Networking implements TokenListener {
 		}
 	}
 	
-	public Toke list(String url) throws IOException {
+	/**
+	 * List, always a special case!!
+	 * 
+	 * @param url
+	 * @return
+	 * @throws IOException
+	 */
+	public Toke list(HttpUrl url) throws IOException {
 		lock.lock();
 		try {
 			
-			// any list url needs to end with a slash
-			if(!url.endsWith("/")) url += "/";
-			
 			Request request = new Request.Builder()
-					.url(url+"?list=true")
+					.url(url)
 					.header("X-Vault-Token", token.clientToken())
 					.build();
+			
+			logger.debug(request.toString());
 			
 			int code; boolean success; String result;
 			try (Response response = client.newCall(request).execute()){

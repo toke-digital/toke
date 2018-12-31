@@ -4,13 +4,42 @@
 vault auth enable userpass
 
 # add a user called bob
-vault write auth/userpass/users/bob password=password1 policies=toke-kv2
+vault write auth/userpass/users/bob password=password1 policies=bob
+
+# set up an example secrets engine called toke-kv2
+vault secrets enable -version=1 -path=toke-kv1 kv
 
 # set up an example secrets engine called toke-kv2
 vault secrets enable -version=2 -path=toke-kv2 kv
 
 # -----------------------------------------------------------------
-# create a policy for bob on this engine
+# create a policy for bob 
+
+
+# sys
+
+path "sys/health" {
+  capabilities = ["read"]
+}
+
+path "sys/capabilities*" {
+  capabilities = ["read"]
+}
+
+path "sys/wrapping/*" {
+  capabilities = ["read"]
+}
+
+
+# kv1
+
+# can read, create, update, and delete latest version of a key
+path "toke-kv1/*" {
+  capabilities = ["create", "update", "read", "delete"]
+}
+
+
+# kv2
 
 # can read, create, update, and delete latest version of a key
 path "toke-kv2/data/*" {
@@ -37,6 +66,9 @@ path "secret/metadata/*" {
 }
 
 # ------------------------------------------------------
+
+# write the policy
+vault policy write bob bob.policy.hcl
 
 
 # test capabilities
@@ -134,7 +166,6 @@ my-value    s3cr3t
 
 
 vault kv delete toke-kv2/my-secret
-
 Success! Data deleted (if it existed) at: toke-kv2/my-secret
 
 

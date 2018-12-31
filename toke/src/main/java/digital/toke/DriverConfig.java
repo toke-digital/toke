@@ -11,6 +11,8 @@ import java.nio.file.Files;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import okhttp3.HttpUrl;
+
 /**
  * Uses a fluent idiom to allow configuration; most items have sensible defaults.
  * 
@@ -142,6 +144,7 @@ public class DriverConfig {
 		if(kv2Name == null) {
 			buf.append(this.defaultKVv2Name);
 		}else {
+			if(!kv2Name.startsWith("/")) buf.append("/");
 			buf.append(kv2Name);
 		}
 		buf.append("/config");
@@ -154,6 +157,7 @@ public class DriverConfig {
 		if(kv2Name == null) {
 			buf.append(this.defaultKVv2Name);
 		}else {
+			if(!kv2Name.startsWith("/")) buf.append("/");
 			buf.append(kv2Name);
 		}
 		buf.append(verb);
@@ -168,6 +172,42 @@ public class DriverConfig {
 		return buf.toString();
 	}
 	
+	/**
+	 * Special case for list!
+	 * 
+	 * @param path
+	 * @return
+	 */
+    public HttpUrl kv2List(String path) {
+    	
+    	StringBuffer segments = new StringBuffer("v1");
+    	if(kv2Name == null) {
+			segments.append(this.defaultKVv2Name);
+		}else {
+			if(!kv2Name.startsWith("/")) segments.append("/");
+			segments.append(kv2Name);
+		}
+    	
+    	segments.append(KVv2METADATA);
+    	
+    	if(path != null) {
+			if(path.charAt(0) != '/') {
+				segments.append("/");
+			}
+			segments.append(path);
+		}
+    	
+    	HttpUrl url = new HttpUrl.Builder()
+    	 .scheme(proto)
+         .host(host)
+         .port(port)
+         .addPathSegments(segments.toString())
+         .addQueryParameter("list", "true")
+         .build();
+    	
+    	return url;
+	}
+	
 	// KVv1
 	
 	public String kv1Path(String path) {
@@ -176,6 +216,7 @@ public class DriverConfig {
 		if(kv1Name == null) {
 			buf.append(this.defaultKVv1Name);
 		}else {
+			if(!kv1Name.startsWith("/")) buf.append("/");
 			buf.append(kv1Name);
 		}
 		
@@ -188,6 +229,34 @@ public class DriverConfig {
 		
 		return buf.toString();
 	}
+	
+	  public HttpUrl kv1List(String path) {
+	    	
+		  StringBuffer segments = new StringBuffer("v1");
+	    	if(kv1Name == null) {
+				segments.append(this.defaultKVv1Name);
+			}else {
+				if(!kv1Name.startsWith("/")) segments.append("/");
+				segments.append(kv1Name);
+			}
+	    	
+	    	if(path != null) {
+				if(path.charAt(0) != '/') {
+					segments.append("/");
+				}
+				segments.append(path);
+			}
+	    	
+	    	HttpUrl url = new HttpUrl.Builder()
+	    	 .scheme(proto)
+	         .host(host)
+	         .port(port)
+	         .addPathSegments(segments.toString())
+	         .addQueryParameter("list", "true")
+	         .build();
+	    	
+	    	return url;
+		}
 	
 	
 	public DriverConfig host(String val) {

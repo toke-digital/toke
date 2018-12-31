@@ -5,6 +5,7 @@
 package digital.toke;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +44,7 @@ public class TokenManager {
 
 	public TokenManager(Auth auth) {
 		this.auth = auth;
-		tokens = new ConcurrentSkipListSet<Token>();
+		tokens = new HashSet<Token>();
 		listeners = new ArrayList<TokenListener>();
 
 		initScheduler();

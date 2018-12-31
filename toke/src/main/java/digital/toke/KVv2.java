@@ -190,9 +190,13 @@ public class KVv2 extends KV {
 		
 		String url = config.kv2Path(KVv2DATA,path);
 		
+		logger.debug(url);
+		logger.debug(jsonData.toString());
+		
 		try {
 			Toke response = client.post(url, jsonData);
 			// we expect a 200 per the documentation
+			logger.debug(response);
 			writeExceptionExcept(response, 200);
 		return response;
 		} catch (IOException e) {
@@ -211,11 +215,10 @@ public class KVv2 extends KV {
 		
 		latch();
 		
-		String url = config.kv2Path(KVv2METADATA, path);
-		
 		Toke response = null;
 		try {
-			response = client.list(url);
+			response = client.list(config.kv2List(path));
+			logger.debug(response);
 			// we expect a 200 per the documentation
 			readExceptionExcept(response, 200);
 			} catch (IOException e) {
@@ -262,8 +265,8 @@ public class KVv2 extends KV {
 		Toke response = null;
 		try {
 			response = client.post(url, obj.toString());
-			// we expect a 200 per the documentation
-			writeExceptionExcept(response, 200);
+			// we expect a 204 per the documentation
+			writeExceptionExcept(response, 204);
 			} catch (IOException e) {
 			throw new WriteException(e);
 		}
@@ -287,8 +290,8 @@ public class KVv2 extends KV {
 		Toke response = null;
 		try {
 			response = client.delete(url);
-			// we expect a 200 per the documentation
-			writeExceptionExcept(response, 200);
+			// we expect a 204 per the documentation
+			writeExceptionExcept(response, 204);
 		} catch (IOException e) {
 			throw new WriteException(e);
 		}
@@ -343,8 +346,8 @@ public class KVv2 extends KV {
 		Toke response = null;
 		try {
 			response = client.post(url, obj.toString());
-			// we expect a 200 per the documentation
-			writeExceptionExcept(response, 200);
+			// we expect a 204 per the documentation
+			writeExceptionExcept(response, 204);
 		} catch (IOException e) {
 			throw new WriteException(e);
 		}

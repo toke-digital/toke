@@ -70,6 +70,7 @@ public class Auth {
 	}
     
     Token loginUserPass() throws LoginFailedException {
+    	logger.debug("in loginUserPass");
   		String url = config.authUserPassLogin();
   		JSONObject json = new JSONObject();
   		json.put("password", config.password);
@@ -110,9 +111,11 @@ public class Auth {
     
     private Token httpLogin(String url, JSONObject json) throws LoginFailedException {
     	
+    	logger.debug("in httpLogin");
     	Toke result = null;
     	try {
   			result = client.login(url, json.toString());
+  			logger.debug("got result: "+result);
   		} catch (IOException e) {
   			throw new LoginFailedException(e);
   		}

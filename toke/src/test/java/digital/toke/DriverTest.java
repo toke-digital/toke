@@ -5,9 +5,8 @@
 
 package digital.toke;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
@@ -32,21 +31,15 @@ public class DriverTest {
 	@BeforeAll
 	public static void load() {
 		
-		String token = "";
-		
-		try {
-			token = new String(Files.readAllBytes(new File("C:\\token.txt").toPath()), "UTF-8");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
 		DriverConfig config = new DriverConfig()
 				.proto("http")
 				.host("127.0.0.1")
 				.port(8200)
-				.authType("TOKEN")
-				//.token(token);
-				.tokenFile(new File("C:\\token.txt"));
+				.kvName("toke-kv1") // driver will provide coverage for one kv1 and one kv2
+				.kv2Name("toke-kv2")
+				.authType("USERPASS")
+				.username("bob")
+				.password("password1");
 		
 		// driver will auto-login and block on rest-calls until it is ready
 		driver = new Driver(config);
@@ -88,7 +81,10 @@ public class DriverTest {
 		Toke res = null;
 		try {
 			res = driver.kv().kvWrite("test/stuff2", new JSONObject().put("key0", "value0").put("key1", 100));
-			res = driver.sys().capabilitiesSelf("test/stuff2");
+			
+			List<String> l = new ArrayList<String>();
+			l.add("text/stuff2");
+			res = driver.sys().capabilitiesSelf(l);
 			
 			Assertions.assertNotNull(res);
 			System.err.println(res);
