@@ -280,7 +280,7 @@ public class DriverConfig {
 		if(tokenFile != null) {
 			try {
 				String t =  new String(Files.readAllBytes(tokenFile.toPath()), "UTF-8");
-				logger.debug("returning token "+t+" from file");
+				logger.debug("returning a token from file to use for auth");
 				return t;
 			} catch (IOException e) {
 				logger.error("Failed to read file with token: "+tokenFile.getPath().toString());
@@ -289,7 +289,7 @@ public class DriverConfig {
 		} else if(token == null) {
 			logger.error("Token asked for but not found in config, please fix this and try again.");
 		} else {
-			logger.debug("returning token "+token+" from config of that name.");
+			logger.debug("returning token from config, not file.");
 			return token;
 		}
 		

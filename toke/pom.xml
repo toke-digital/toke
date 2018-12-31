@@ -131,7 +131,7 @@
 		<additionalparam>-Xdoclint:none</additionalparam>
 	</properties>
 	
-	<url>https://github.com/buttermilk-crypto/b2/bracket-properties</url>
+	<url>https://github.com/toke-digital/hashicorp-vault-driver/tree/master/toke</url>
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -142,7 +142,7 @@
 	
 	<organization>
 		<name>David R. Smith</name>
-		<url>https://github.com/buttermilk-crypto/</url>
+		<url>https://github.com/toke-digital/</url>
 	</organization>
 	<scm>
 		<connection>scm:git:git://github.com/buttermilk-crypto/b2.git</connection>

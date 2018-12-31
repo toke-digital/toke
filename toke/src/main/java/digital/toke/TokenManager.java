@@ -84,23 +84,31 @@ public class TokenManager {
 				
 				// 1.1 at least one token to be managed...first do a lookup if needed
 				
+				logger.debug("OK, got to 1.1");
+				
 				List<Token> updatedTokens = new ArrayList<Token>();
 				Iterator<Token> iter = tokens.iterator();
 				while(iter.hasNext()) {
-				   Token t = iter.next();	
-				   if(t.getLookupData()== null) {
+				   Token t = iter.next();
+				   logger.debug("in loop, looking at "+t);
+				   if(!t.getLookupData().has("data")) {
+					   logger.debug("into if block");
 					   try {
 						Token updated = auth.lookupSelf(t);
+						  logger.debug("updated token with lookup data "+updated.lookupData.toString(3));
 						updatedTokens.add(updated);
-						this.fireTokenEvent(new TokenEvent(this, EventEnum.SET_LATCH));
+						// make services block temporarily
+						//this.fireTokenEvent(new TokenEvent(this, EventEnum.SET_LATCH));
+						// set new token and then unblock thread
 						this.fireTokenEvent(new TokenEvent(this, updated,EventEnum.RELOAD_TOKEN));
 					} catch (ReadException e) {
 						logger.error(e);
+						return; // bail on error
 					}
 				   }
 				}
 				
-				// 1.1.1 - update our managed set
+				// 1.1.1 - update our managed set here in TokenManager
 				for(Token t: updatedTokens) {
 					if(tokens.contains(t)) tokens.remove(t);
 				}
@@ -108,6 +116,8 @@ public class TokenManager {
 				for(Token t: updatedTokens) {
 					tokens.add(t);
 				}
+				
+				// 1.1.2
 				
 				
 			}

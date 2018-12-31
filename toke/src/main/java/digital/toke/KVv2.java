@@ -40,8 +40,8 @@ public class KVv2 extends KV {
 	 * @return
 	 * @throws ReadException
 	 */
-	public Toke read(String path) throws ReadException {
-		return read(path, -1);
+	public Toke kvRead(String path) throws ReadException {
+		return kvRead(path, -1);
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class KVv2 extends KV {
 	 * @return
 	 * @throws ReadException
 	 */
-	public Toke read(String path, int version) throws ReadException {
+	public Toke kvRead(String path, int version) throws ReadException {
 		
 		latch();
 		
@@ -64,8 +64,7 @@ public class KVv2 extends KV {
 		try {
 			response = client.get(url);
 			// we expect a 200 per the documentation
-			if(response.code==404) throw new ReadException("Http 404 - this is usually a problem with the path.");
-			if(response.code!=200) throw new ReadException("Unexpected HTTP Response Code: "+response.code);
+			this.readExceptionExcept(response, 200);
 		} catch (IOException e) {
 			throw new ReadException(e);
 		}
@@ -92,8 +91,7 @@ public class KVv2 extends KV {
 		try {
 			Toke response = client.post(url, json.toString());
 			// we expect a 204 per the documentation
-			if(response.code==404) throw new ConfigureException("Http 404 - this is usually a problem with the path.");
-			if(response.code!=204) throw new ConfigureException("Unexpected HTTP Response Code: "+response.code);
+			configureExceptionExcept(response, 204);
 			return response;
 		} catch (IOException e) {
 			throw new ConfigureException(e);
@@ -116,8 +114,7 @@ public class KVv2 extends KV {
 		try {
 			response = client.get(url);
 			// we expect a 200 per the documentation
-			if(response.code==404) throw new ReadException("Http 404 - this is usually a problem with the path.");
-			if(response.code!=200) throw new ReadException("Unexpected HTTP Response Code: "+response.code);
+			readExceptionExcept(response, 200);
 		} catch (IOException e) {
 			throw new ReadException(e);
 		}
@@ -154,6 +151,11 @@ public class KVv2 extends KV {
 	//	top.put("options", new JSONObject().put("cas", checkAndSet));
 		return kvCreateUpdate(path, top.toString());
 	}
+    
+    public Toke kvWrite(String path, JSONObject json) throws WriteException {
+		
+  		return kvCreateUpdate(path, json.toString());
+  	}
 	
     /**
      * Write only to the version indicated by the version number
@@ -191,9 +193,8 @@ public class KVv2 extends KV {
 		try {
 			Toke response = client.post(url, jsonData);
 			// we expect a 200 per the documentation
-			if(response.code==404) throw new WriteException("Http 404 - this is usually a problem with the path.");
-			if(response.code!=200) throw new WriteException("Unexpected HTTP Response Code: "+response.code);
-			return response;
+			writeExceptionExcept(response, 200);
+		return response;
 		} catch (IOException e) {
 			throw new WriteException(e);
 		}
@@ -216,8 +217,25 @@ public class KVv2 extends KV {
 		try {
 			response = client.list(url);
 			// we expect a 200 per the documentation
-			if(response.code==404) throw new ReadException("Http 404 - this is usually a problem with the path.");
-			if(response.code!=200) throw new ReadException("Unexpected HTTP Response Code: "+response.code);
+			readExceptionExcept(response, 200);
+			} catch (IOException e) {
+			throw new ReadException(e);
+		}
+		
+		return response;
+	}
+	
+	public Toke kvReadMetadata(String path) throws ReadException {
+		
+		latch();
+		
+		String url = config.kv2Path(KVv2METADATA, path);
+		
+		Toke response = null;
+		try {
+			response = client.get(url);
+			// we expect a 200 per the documentation
+			readExceptionExcept(response, 200);
 		} catch (IOException e) {
 			throw new ReadException(e);
 		}
@@ -245,9 +263,8 @@ public class KVv2 extends KV {
 		try {
 			response = client.post(url, obj.toString());
 			// we expect a 200 per the documentation
-			if(response.code==404) throw new WriteException("Http 404 - this is usually a problem with the path.");
-			if(response.code!=204) throw new WriteException("Unexpected HTTP Response Code: "+response.code);
-		} catch (IOException e) {
+			writeExceptionExcept(response, 200);
+			} catch (IOException e) {
 			throw new WriteException(e);
 		}
 		
@@ -271,8 +288,7 @@ public class KVv2 extends KV {
 		try {
 			response = client.delete(url);
 			// we expect a 200 per the documentation
-			if(response.code==404) throw new WriteException("Http 404 - this is usually a problem with the path.");
-			if(response.code!=204) throw new WriteException("Unexpected HTTP Response Code: "+response.code);
+			writeExceptionExcept(response, 200);
 		} catch (IOException e) {
 			throw new WriteException(e);
 		}
@@ -300,8 +316,7 @@ public class KVv2 extends KV {
 		try {
 			response = client.post(url, obj.toString());
 			// we expect a 200 per the documentation
-			if(response.code==404) throw new WriteException("Http 404 - this is usually a problem with the path.");
-			if(response.code!=204) throw new WriteException("Unexpected HTTP Response Code: "+response.code);
+			writeExceptionExcept(response, 200);
 		} catch (IOException e) {
 			throw new WriteException(e);
 		}
@@ -329,8 +344,7 @@ public class KVv2 extends KV {
 		try {
 			response = client.post(url, obj.toString());
 			// we expect a 200 per the documentation
-			if(response.code==404) throw new WriteException("Http 404 - this is usually a problem with the path.");
-			if(response.code!=204) throw new WriteException("Unexpected HTTP Response Code: "+response.code);
+			writeExceptionExcept(response, 200);
 		} catch (IOException e) {
 			throw new WriteException(e);
 		}

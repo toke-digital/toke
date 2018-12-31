@@ -1,0 +1,147 @@
+
+
+# set up the userpass secrets engine
+vault auth enable userpass
+
+# add a user called bob
+vault write auth/userpass/users/bob password=password1 policies=toke-kv2
+
+# set up an example secrets engine called toke-kv2
+vault secrets enable -version=2 -path=toke-kv2 kv
+
+# -----------------------------------------------------------------
+# create a policy for bob on this engine
+
+# can read, create, update, and delete latest version of a key
+path "toke-kv2/data/*" {
+  capabilities = ["create", "update", "read", "delete"]
+}
+
+# can soft-delete any version of the key
+path "toke-kv2/delete/*" {
+  capabilities = ["update"]
+}
+
+# can soft-undelete any key
+path "secret/undelete/*" {
+  capabilities = ["update"]
+}
+
+# can completely remove 
+path "secret/destroy/*" {
+  capabilities = ["update"]
+}
+# access and also completely destroy metadata and all its secrets
+path "secret/metadata/*" {
+  capabilities = ["list", "read", "delete"]
+}
+
+# ------------------------------------------------------
+
+
+# test capabilities
+
+F:\repos\toke\toke\test-materials>vault login -method=userpass username=bob
+Password (will be hidden):
+Success! You are now authenticated. The token information displayed below
+is already stored in the token helper. You do NOT need to run "vault login"
+again. Future Vault requests will automatically use this token.
+
+Key                    Value
+---                    -----
+token                  s.KBGYPbBDiZI5KO4RJO0ky2Ge
+token_accessor         1k90XoVHawBEbxTsrdif2fr0
+token_duration         768h
+token_renewable        true
+token_policies         ["default" "toke-kv2"]
+identity_policies      []
+policies               ["default" "toke-kv2"]
+token_meta_username    bob
+
+vault kv put toke-kv2/my-secret my-value=s3cr3t
+
+Key              Value
+---              -----
+created_time     2018-12-31T01:09:39.8859323Z
+deletion_time    n/a
+destroyed        false
+version          1
+
+
+vault kv get toke-kv2/my-secret
+
+====== Metadata ======
+Key              Value
+---              -----
+created_time     2018-12-31T01:09:39.8859323Z
+deletion_time    n/a
+destroyed        false
+version          1
+
+====== Data ======
+Key         Value
+---         -----
+my-value    s3cr3t
+
+vault kv put -cas=0 toke-kv2/my-secret my-value=new-s3cr3t
+
+Error writing data to toke-kv2/data/my-secret: Error making API request.
+
+URL: PUT http://127.0.0.1:8200/v1/toke-kv2/data/my-secret
+Code: 400. Errors:
+
+* check-and-set parameter did not match the current version
+
+
+vault kv put -cas=1 toke-kv2/my-secret my-value=new-s3cr3t
+Key              Value
+---              -----
+created_time     2018-12-31T01:13:57.7729368Z
+deletion_time    n/a
+destroyed        false
+version          2
+
+# Now will get newest version on read:
+
+vault kv get toke-kv2/my-secret
+====== Metadata ======
+Key              Value
+---              -----
+created_time     2018-12-31T01:13:57.7729368Z
+deletion_time    n/a
+destroyed        false
+version          2
+
+====== Data ======
+Key         Value
+---         -----
+my-value    new-s3cr3t
+
+
+vault kv get -version=1 toke-kv2/my-secret
+====== Metadata ======
+Key              Value
+---              -----
+created_time     2018-12-31T01:09:39.8859323Z
+deletion_time    n/a
+destroyed        false
+version          1
+
+====== Data ======
+Key         Value
+---         -----
+my-value    s3cr3t
+
+
+vault kv delete toke-kv2/my-secret
+
+Success! Data deleted (if it existed) at: toke-kv2/my-secret
+
+
+
+
+
+
+
+
+

@@ -7,7 +7,6 @@ package digital.toke;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,17 +47,8 @@ public class Sys extends Base implements TokenListener {
 			logger.info("Token with accessor "+token.accessor()+" set on Sys");
 		}
 		
-		// block until we send RELOAD_TOKEN
-		if(evt.getType().equals(EventEnum.SET_LATCH)) {
-			token = evt.getToken();
-			countDownLatch = new CountDownLatch(1);
-			latch();
-			logger.info("Set latch on a Sys instance.");
-		}
-		
 		if(evt.getType().equals(EventEnum.RELOAD_TOKEN)) {
 			token = evt.getToken();
-			countDownLatch.countDown();
 			logger.info("Reloaded token on a Sys instance.");
 		}
 	}
