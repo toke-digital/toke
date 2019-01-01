@@ -99,7 +99,7 @@ public class TokenManager {
 						  logger.debug("updated token with lookup data "+updated.lookupData.toString(3));
 						updatedTokens.add(updated);
 						// make services block temporarily
-						//this.fireTokenEvent(new TokenEvent(this, EventEnum.SET_LATCH));
+						this.fireTokenEvent(new TokenEvent(this, EventEnum.SET_LATCH));
 						// set new token and then unblock thread
 						this.fireTokenEvent(new TokenEvent(this, updated,EventEnum.RELOAD_TOKEN));
 					} catch (ReadException e) {

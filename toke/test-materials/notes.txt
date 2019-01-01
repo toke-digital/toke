@@ -18,6 +18,7 @@ vault secrets enable -version=2 -path=toke-kv2 kv
 
 # sys
 
+# these three are needed for the driver to work correctly
 path "sys/health" {
   capabilities = ["read"]
 }
@@ -52,16 +53,16 @@ path "toke-kv2/delete/*" {
 }
 
 # can soft-undelete any key
-path "secret/undelete/*" {
+path "toke-kv2/undelete/*" {
   capabilities = ["update"]
 }
 
 # can completely remove 
-path "secret/destroy/*" {
+path "toke-kv2/destroy/*" {
   capabilities = ["update"]
 }
 # access and also completely destroy metadata and all its secrets
-path "secret/metadata/*" {
+path "toke-kv2/metadata/*" {
   capabilities = ["list", "read", "delete"]
 }
 

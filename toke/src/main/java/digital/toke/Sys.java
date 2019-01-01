@@ -24,7 +24,7 @@ import digital.toke.exception.ReadException;
  * @author David R. Smith <davesmith.gbs@gmail.com>
  *
  */
-public class Sys extends Base implements TokenListener {
+public class Sys extends ServiceBase implements TokenListener {
 
 	private static final Logger logger = LogManager.getLogger(Sys.class);
 	
@@ -43,12 +43,19 @@ public class Sys extends Base implements TokenListener {
 	public void tokenEvent(TokenEvent evt) {
 		if(evt.getType().equals(EventEnum.LOGIN)) {
 			token = evt.getToken();
-			countDownLatch.countDown();
+			countDown();
 			logger.info("Token with accessor "+token.accessor()+" set on Sys");
+		}
+		
+		if(evt.getType().equals(EventEnum.SET_LATCH)) {
+			refreshLatch();
+			latch();
+			logger.info("Reloaded token on a Sys instance.");
 		}
 		
 		if(evt.getType().equals(EventEnum.RELOAD_TOKEN)) {
 			token = evt.getToken();
+		    countDown();
 			logger.info("Reloaded token on a Sys instance.");
 		}
 	}

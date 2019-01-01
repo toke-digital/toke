@@ -122,7 +122,12 @@ public class Auth {
     	return new Token(new JSONObject(result.response), result.successful);
     }
     
-	
+	/**
+	 * Currently implementing LDAP, APPROLE, USERPASS, TOKEN
+	 * 
+	 * @return Token
+	 * @throws LoginFailedException
+	 */
 	public Token login() throws LoginFailedException {
 		
 		Token t = null;

@@ -199,6 +199,9 @@ public class Networking implements TokenListener {
 		}
 	}
 
+	/**
+	 * This class is downstream from the service classes, so no need to latch
+	 */
 	@Override
 	public void tokenEvent(TokenEvent evt) {
 		if(evt.getType().equals(EventEnum.LOGIN)) {

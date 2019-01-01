@@ -18,11 +18,11 @@ import digital.toke.exception.WriteException;
  * @author David R. Smith <davesmith.gbs@gmail.com>
  *
  */
-public class Base {
+public class ServiceBase {
 
 	protected CountDownLatch countDownLatch = new CountDownLatch(1);
 	
-	public Base() {}
+	public ServiceBase() {}
 	
 	protected void latch() {
 		try {
@@ -30,6 +30,14 @@ public class Base {
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
+	}
+	
+	protected void countDown() {
+		countDownLatch.countDown();
+	}
+	
+	protected void refreshLatch() {
+		countDownLatch = new CountDownLatch(1);
 	}
 	
 	protected void readExceptionExcept(Toke response, int val) throws ReadException {
