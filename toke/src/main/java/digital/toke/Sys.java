@@ -47,15 +47,15 @@ public class Sys extends ServiceBase implements TokenListener {
 			logger.info("Token with accessor "+token.accessor()+" set on Sys");
 		}
 		
-		if(evt.getType().equals(EventEnum.SET_LATCH)) {
-			refreshLatch();
-			latch();
-			logger.info("Reloaded token on a Sys instance.");
-		}
+	//	if(evt.getType().equals(EventEnum.SET_LATCH)) {
+	//		refreshLatch();
+	//		latch();
+	//		logger.info("Reloaded token on a Sys instance.");
+	//	}
 		
 		if(evt.getType().equals(EventEnum.RELOAD_TOKEN)) {
 			token = evt.getToken();
-		    countDown();
+	//	    countDown();
 			logger.info("Reloaded token on a Sys instance.");
 		}
 	}

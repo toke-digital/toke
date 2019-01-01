@@ -4,12 +4,16 @@
  */
 package digital.toke;
 
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -39,7 +43,7 @@ public class TokenManager {
 	private final Auth auth;
 	private final Set<Token> tokens;
 	private final List<TokenListener> listeners;
-	
+
 	private ScheduledExecutorService scheduledPool;
 
 	public TokenManager(Auth auth) {
@@ -56,25 +60,31 @@ public class TokenManager {
 
 		class Housekeeping implements Runnable {
 
-			public Housekeeping() {}
+			public Housekeeping() {
+			}
 
 			@Override
 			public void run() {
 
+				// 0.9 - preload stored tokens from File - TODO
+
+				// ...
+
 				// 1.0 - do we have any tokens? If not, get one.
-				// The initial TokenEvent sent of a valid token will free the latch on the restful client operations
+				// The initial TokenEvent sent of a valid token will free the latch on the
+				// restful client operations
 				if (tokens.size() == 0) {
-					
+
 					logger.info("Zero tokens found, trying to login to get one...");
-					
+
 					Token token = null;
 					try {
 						token = auth.login();
-						if(token.fromSuccessfulLoginRequest) {
+						if (token.fromSuccessfulLoginRequest) {
 							tokens.add(token);
 							this.fireLoginEvent(token);
 							return; // exit house keeping at this point - we are logged in
-						}else {
+						} else {
 							logger.info("Unsuccessful login attempt...");
 							logger.debug(token.getJson().toString());
 						}
@@ -82,45 +92,82 @@ public class TokenManager {
 						logger.error(e);
 					}
 				}
-				
+
 				// 1.1 at least one token to be managed...first do a lookup if needed
-				
+
 				logger.debug("OK, got to 1.1");
-				
+
+				int initialCount = tokens.size();
 				List<Token> updatedTokens = new ArrayList<Token>();
 				Iterator<Token> iter = tokens.iterator();
-				while(iter.hasNext()) {
-				   Token t = iter.next();
-				   logger.debug("in loop, looking at "+t);
-				   if(!t.getLookupData().has("data")) {
-					   logger.debug("into if block");
-					   try {
-						Token updated = auth.lookupSelf(t);
-						  logger.debug("updated token with lookup data "+updated.lookupData.toString(3));
-						updatedTokens.add(updated);
-						// make services block temporarily
-						this.fireTokenEvent(new TokenEvent(this, EventEnum.SET_LATCH));
-						// set new token and then unblock thread
-						this.fireTokenEvent(new TokenEvent(this, updated,EventEnum.RELOAD_TOKEN));
-					} catch (ReadException e) {
-						logger.error(e);
-						return; // bail on error
+				while (iter.hasNext()) {
+					Token t = iter.next();
+					logger.debug("in loop, looking at " + t);
+					if (!t.getLookupData().has("data")) {
+						logger.debug("into if block");
+						try {
+							// requires read permission on /auth/token/lookup-self
+							Token updated = auth.lookupSelf(t);
+							logger.debug("updated token with lookup data " + updated.lookupData.toString());
+							updatedTokens.add(updated);
+							// make services block temporarily
+							// this.fireTokenEvent(new TokenEvent(this, EventEnum.SET_LATCH));
+							// set new token and then unblock thread
+							this.fireTokenEvent(new TokenEvent(this, updated, EventEnum.RELOAD_TOKEN));
+						} catch (ReadException e) {
+							logger.error(e);
+							return; // bail on error
+						}
 					}
-				   }
 				}
-				
+
 				// 1.1.1 - update our managed set here in TokenManager
-				for(Token t: updatedTokens) {
-					if(tokens.contains(t)) tokens.remove(t);
+				for (Token t : updatedTokens) {
+					if (tokens.contains(t))
+						tokens.remove(t);
 				}
-				
-				for(Token t: updatedTokens) {
+
+				for (Token t : updatedTokens) {
 					tokens.add(t);
 				}
-				
+
 				// 1.1.2
-				
-				
+
+				if (tokens.size() != initialCount) {
+					logger.debug("this could happen if equals() in Token class is not working properly");
+				} else {
+					logger.debug("matching count in tokens after update: " + tokens.size());
+				}
+
+				// 1.1.3
+
+				try {
+				iter = tokens.iterator();
+				while (iter.hasNext()) {
+					Token t = iter.next();
+					if (t.isRoot()) {
+						// never need renewal, so continue
+						logger.debug("seems to be the *root token*...");
+						logger.debug("minutes until this token expires: never");
+						continue;
+					} else {
+						if (t.isRenewable()) {
+							ZonedDateTime zdt = t.expireTime();
+							// instant can be null if this is root, possibly others...?
+							if (zdt != null) {
+								Instant instant = zdt.toInstant();
+								long count = Instant.now().until((Temporal) instant, ChronoUnit.MINUTES);
+								logger.debug("Token with accessor "+t.accessor()+" will expire in "+count+" minutes.");
+							}
+						}else {
+							logger.debug("the token is not renewable, accessor is " + t.accessor());
+						}
+					}
+				}
+				}catch(Exception x) {
+					logger.error(x);
+				}
+
 			}
 
 			private void fireTokenEvent(TokenEvent evt) {
@@ -130,11 +177,11 @@ public class TokenManager {
 			}
 
 			private void fireLoginEvent(Token token) {
-				
+
 				logger.info("Firing successful login event...");
 				logger.debug(token.getJson().toString());
 				fireTokenEvent(new TokenEvent(this, token, EventEnum.LOGIN));
-					
+
 			}
 		}
 

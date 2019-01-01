@@ -4,9 +4,6 @@
  */
 package digital.toke;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,19 +36,19 @@ public abstract class KV extends ServiceBase implements TokenListener {
 		if(evt.getType().equals(EventEnum.LOGIN)) {
 			token = evt.getToken();
 			countDown();
-			logger.info("Token with accessor "+token.accessor()+" set on KV");
+			logger.info("Token with accessor "+token.accessor()+" set on "+this.getClass().getName());
 		}
 		
-		if(evt.getType().equals(EventEnum.SET_LATCH)) {
-			refreshLatch();
-			latch();
-			logger.info("Reloaded token on a KV instance.");
-		}
+	//	if(evt.getType().equals(EventEnum.SET_LATCH)) {
+	//		refreshLatch();
+	//		latch();
+	//		logger.info("Reloaded token on "+this.getClass().getName());
+	//	}
 		
 		if(evt.getType().equals(EventEnum.RELOAD_TOKEN)) {
 			token = evt.getToken();
-		    countDown();
-			logger.info("Reloaded token on a KV instance.");
+		//    countDown();
+			logger.info("Reloaded token on "+this.getClass().getName());
 		}
 	}
 
