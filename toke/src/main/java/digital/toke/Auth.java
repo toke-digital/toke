@@ -5,13 +5,14 @@
 package digital.toke;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import digital.toke.accessor.Toke;
-
+import digital.toke.exception.ConfigureException;
 import digital.toke.exception.LoginFailedException;
 import digital.toke.exception.ReadException;
 
@@ -40,12 +41,59 @@ public class Auth {
 	
 	
 	public void logoff(Token token) {
-		// destroy token
+		// destroy token TODO
 	}
 	
-	public void logoff() {
-		// destroy token
+	public void logoffSelf() {
+		// destroy token TODO
 	}
+	
+	public Toke checkSealStatus() throws ReadException {
+
+		String url = config.baseURL().append("/sys/seal-status").toString();
+
+		try {
+			return client.get(url,false);
+		} catch (IOException e) {
+			throw new ReadException(e);
+		}
+	}
+	
+	/**
+	 * Unseal for a set of keys. Return the last response
+	 * 
+	 * @param keys
+	 * @param reset
+	 * @param migrate
+	 * @return Toke
+	 * @throws ConfigureException
+	 */
+	public Toke unseal(List<String> keys, boolean reset, boolean migrate) throws ConfigureException {
+		Toke toke = null;
+		for(String key: keys) {
+			toke = unseal(key, reset, migrate);
+		}
+		return toke;
+	}
+
+	public Toke unseal(String key, boolean reset, boolean migrate) throws ConfigureException {
+
+		String url = config.baseURL().append("/sys/unseal").toString();
+		logger.debug("Using: " + url);
+		JSONObject json = new JSONObject().put("key", key).put("reset", reset).put("migrate", migrate);
+
+		logger.debug(json.toString(4));
+
+		try {
+			Toke response = client.put(url, json.toString(), false);
+			// we expect a 200 per the documentation
+			if(response.code!= 200) throw new ConfigureException(response.toString());
+			return response;
+		} catch (IOException e) {
+			throw new ConfigureException(e);
+		}
+	}
+	
 	
 	// Logins. All logins are POSTs
 	

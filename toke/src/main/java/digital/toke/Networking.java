@@ -44,19 +44,31 @@ public class Networking implements TokenListener {
 
 	/**
 	 * X-Vault-Token will be added as header. Care must be taken not to call this method prior to
-	 * successful login.
+	 * successful login (or more specifically having a valid token set).
 	 * 
 	 * @param url
-	 * @return
+	 * @return a response containing a code, success flag, and the body as a String
 	 * @throws IOException
 	 */
 	public Toke get(String url) throws IOException {
+		return get(url, true);
+	}
+	
+	public Toke get(String url, boolean withXVaultToken) throws IOException {
 		lock.lock();
 		try {
-			Request request = new Request.Builder()
+			Request request = null;
+			
+			if(withXVaultToken) {
+				request = new Request.Builder()
 					.url(url)
 					.header("X-Vault-Token", token.clientToken())
 					.build();
+			}else {
+				request = new Request.Builder()
+						.url(url)
+						.build();
+			}
 			
 			int code; boolean success; String result;
 			try (Response response = client.newCall(request).execute()){
@@ -99,7 +111,7 @@ public class Networking implements TokenListener {
 	 * List, always a special case!!
 	 * 
 	 * @param url
-	 * @return
+	 * @return a response containing a code, success flag, and the body as a String
 	 * @throws IOException
 	 */
 	public Toke list(HttpUrl url) throws IOException {
@@ -132,7 +144,7 @@ public class Networking implements TokenListener {
 	 * 
 	 * @param url
 	 * @param json
-	 * @return
+	 * @return a response containing a code, success flag, and the body as a String
 	 * @throws IOException
 	 */
 	public Toke login(String url, String json) throws IOException {
@@ -153,7 +165,7 @@ public class Networking implements TokenListener {
 	 * 
 	 * @param url
 	 * @param json
-	 * @return
+	 * @return a response containing a code, success flag, and the body as a String
 	 * @throws IOException
 	 */
 	public Toke loginToken(String url, String json, String clientToken) throws IOException {
@@ -179,7 +191,7 @@ public class Networking implements TokenListener {
 	 * 
 	 * @param url
 	 * @param json
-	 * @return
+	 * @return a response containing a code, success flag, and the body as a String
 	 * @throws IOException
 	 */
 	public Toke post(String url, String json) throws IOException {
@@ -191,6 +203,31 @@ public class Networking implements TokenListener {
 					.post(body)
 					.header("X-Vault-Token", token.clientToken())
 					.build();
+			try (Response response = client.newCall(request).execute()) {
+				return new Toke(response.code(), response.isSuccessful(), response.body().string());
+			}
+		} finally {
+			lock.unlock();
+		}
+	}
+	
+	public Toke put(String url, String json, boolean withXVaultToken) throws IOException {
+		lock.lock();
+		try {
+			RequestBody body = RequestBody.create(JSON, json);
+			Request request = null;
+			
+			if(withXVaultToken) request = new Request.Builder()
+					.url(url)
+					.put(body)
+					.header("X-Vault-Token", token.clientToken())
+					.build();
+			else request = new Request.Builder()
+					.url(url)
+					.put(body)
+					.build();
+			
+			
 			try (Response response = client.newCall(request).execute()) {
 				return new Toke(response.code(), response.isSuccessful(), response.body().string());
 			}
@@ -213,9 +250,5 @@ public class Networking implements TokenListener {
 			token = evt.getToken();
 			logger.info("Reloaded token on Networking instance.");
 		}
-		
-		
 	}
-	
-
 }

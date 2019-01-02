@@ -21,12 +21,16 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import digital.toke.accessor.SealStatus;
+import digital.toke.accessor.Toke;
 import digital.toke.event.EventEnum;
 import digital.toke.event.TokenEvent;
 import digital.toke.event.TokenListener;
+import digital.toke.exception.ConfigureException;
 import digital.toke.exception.LoginFailedException;
 import digital.toke.exception.OutOfTokensException;
 import digital.toke.exception.ReadException;
+import digital.toke.exception.SealStatusException;
 
 /**
  * TokenManager looks after token life-cycle and can do auto-renewals, etc. It
@@ -66,7 +70,34 @@ public class TokenManager {
 			@Override
 			public void run() {
 
-				// 0.9 - preload stored tokens from File - TODO
+				// 0.8 - preload stored tokens from File - TODO
+				
+				// 0.9 - check vault seal status
+				
+				try {
+					Toke response = auth.checkSealStatus();
+					SealStatus vaultInstance = new SealStatus(response);
+					if(vaultInstance.isSealed()) {
+						// check to see if we should attempt unsealing
+						if(auth.config.unseal && auth.config.unsealKeys!= null) {
+							try {
+								Toke resp = auth.unseal(auth.config.unsealKeys, false, false);
+								SealStatus status = new SealStatus(resp);
+								if(status.isSealed()) {
+									logger.error("expected to unseal, but failed..."+status.json().toString());
+								}else {
+									logger.info("Unsealed successfully..."+status.json().toString());
+								}
+							} catch (ConfigureException e) {
+								logger.error(e);
+							}
+						}
+					}else {
+						logger.info("Vault instance appears to be unsealed  - good.");
+					}
+				} catch (ReadException e1) {
+					logger.error(e1);
+				}
 
 				// ...
 
@@ -93,7 +124,7 @@ public class TokenManager {
 					}
 				}
 
-				// 1.1 at least one token to be managed...first do a lookup if needed
+				// 1.1.0 at least one token to be managed...first do a lookup if needed
 
 				logger.debug("OK, got to 1.1");
 
@@ -110,9 +141,6 @@ public class TokenManager {
 							Token updated = auth.lookupSelf(t);
 							logger.debug("updated token with lookup data " + updated.lookupData.toString());
 							updatedTokens.add(updated);
-							// make services block temporarily
-							// this.fireTokenEvent(new TokenEvent(this, EventEnum.SET_LATCH));
-							// set new token and then unblock thread
 							this.fireTokenEvent(new TokenEvent(this, updated, EventEnum.RELOAD_TOKEN));
 						} catch (ReadException e) {
 							logger.error(e);
@@ -131,7 +159,7 @@ public class TokenManager {
 					tokens.add(t);
 				}
 
-				// 1.1.2
+				// 1.1.2 - sanity test
 
 				if (tokens.size() != initialCount) {
 					logger.debug("this could happen if equals() in Token class is not working properly");
@@ -183,6 +211,7 @@ public class TokenManager {
 				fireTokenEvent(new TokenEvent(this, token, EventEnum.LOGIN));
 
 			}
+			
 		}
 
 		// fires initially, and then again every 30 seconds

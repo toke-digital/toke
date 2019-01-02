@@ -7,6 +7,7 @@ package digital.toke;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,6 +62,10 @@ public class DriverConfig {
 	static final String KVv2REMOVE = "/remove";
 	static final String KVv2METADATA = "/metadata";
 	static final String KVv2DESTROY = "/destroy";
+	
+	
+	boolean unseal; // set to true to attempt to unseal the vault. 
+	List<String> unsealKeys; // if unseal is true, these must be set
 	
 	/**
 	 * Sets to default values
@@ -341,6 +346,16 @@ public class DriverConfig {
 	
 	public DriverConfig tokenFile(File fileWithToken) {
 		tokenFile = fileWithToken;
+		return this;
+	}
+	
+	public DriverConfig unseal(boolean attemptToUnseal) {
+		unseal = attemptToUnseal;
+		return this;
+	}
+	
+	public DriverConfig unsealKeys(List<String> keys) {
+		this.unsealKeys = keys;
 		return this;
 	}
 	
