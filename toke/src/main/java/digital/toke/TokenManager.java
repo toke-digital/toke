@@ -30,7 +30,6 @@ import digital.toke.exception.ConfigureException;
 import digital.toke.exception.LoginFailedException;
 import digital.toke.exception.OutOfTokensException;
 import digital.toke.exception.ReadException;
-import digital.toke.exception.SealStatusException;
 
 /**
  * TokenManager looks after token life-cycle and can do auto-renewals, etc. It
@@ -184,8 +183,14 @@ public class TokenManager {
 							// instant can be null if this is root, possibly others...?
 							if (zdt != null) {
 								Instant instant = zdt.toInstant();
-								long count = Instant.now().until((Temporal) instant, ChronoUnit.MINUTES);
-								logger.debug("Token with accessor "+t.accessor()+" will expire in "+count+" minutes.");
+								long count = Instant.now().until((Temporal) instant, ChronoUnit.SECONDS);
+								logger.info("Token with accessor "+t.accessor()+" will expire in "+count+" seconds.");
+								if(auth.config.renew) {
+									logger.debug(String.format("Checking renew... min_ttl: %d, count: %d", auth.config.min_ttl, count));
+									if(auth.config.min_ttl>count) {
+										logger.debug("OK, looks like should renew now");
+									}
+								}
 							}
 						}else {
 							logger.debug("the token is not renewable, accessor is " + t.accessor());

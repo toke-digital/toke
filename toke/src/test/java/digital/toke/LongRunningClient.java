@@ -43,6 +43,8 @@ public class LongRunningClient {
 				.authType("USERPASS")
 				.username("bob")
 				.password("password1")
+			//	.minttl(60)
+			//	.period(30)
 				.unseal(true)
 				.unsealKeys(keys);
 		
