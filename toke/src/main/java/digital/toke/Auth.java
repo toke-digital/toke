@@ -15,6 +15,7 @@ import digital.toke.accessor.Toke;
 import digital.toke.exception.ConfigureException;
 import digital.toke.exception.LoginFailedException;
 import digital.toke.exception.ReadException;
+import digital.toke.exception.WriteException;
 
 /**
  * The auth module implements a vault login using various auth types such as LDAP and APPROLE. 
@@ -46,6 +47,25 @@ public class Auth {
 	
 	public void logoffSelf() {
 		// destroy token TODO
+	}
+	
+	public Token renewPeriodic(Token token) throws WriteException, ReadException {
+		String url = config.authTokenRenew();	
+		logger.debug("Using: " + url);
+		JSONObject json = new JSONObject().put("token", token.clientToken());
+		logger.debug(json.toString(4));
+
+		
+		Toke toke = null;
+		try {
+			toke = client.post(url,json.toString());
+		} catch (IOException e) {
+			throw new WriteException(e);
+		}
+		
+		Token newToken = new Token(new JSONObject(toke.response), toke.successful);
+		return lookup(newToken);
+		
 	}
 	
 	public Toke checkSealStatus() throws ReadException {
@@ -205,13 +225,16 @@ public class Auth {
 		return t;
 	}
 	
-	public Token lookupSelf(Token t) throws ReadException {
+	public Token lookup(Token t) throws ReadException {
 		
 		String url = config.authTokenLookupSelf();
 		
+		JSONObject json = new JSONObject();
+		json.put("token",t.clientToken());
+		
 		Toke toke = null;
 		try {
-			toke = client.get(url);
+			toke = client.post(url,json.toString());
 		} catch (IOException e) {
 			throw new ReadException(e);
 		}

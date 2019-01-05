@@ -26,7 +26,7 @@ public class LongRunningClient {
 		
 		// unseal the vault if required or desired - not every use-case is as strict has the published (manual) approach
 		
-		// (obviously in a real program these would be loaded from a file in a secure way)
+		// (obviously in a real program these would be loaded from a file or in some other secure way)
 		List<String> keys = new ArrayList<String>();
 		keys.add("y3Rb9MHxXM2todD9tMRwMXNzQHj/QmX+VACNLV9iWcWG");
 		keys.add("chCnCZQyZsx2VYz0ggJtrkZZctSMFcu+jRBxRnUcyj01");

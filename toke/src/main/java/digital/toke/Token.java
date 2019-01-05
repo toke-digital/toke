@@ -69,6 +69,20 @@ public class Token {
 		return auth.getBoolean("renewable");
 	}
 	
+	/**
+	 * Return -1 if no period, otherwise return the period (indicates this is a "periodic" token)
+	 * @return
+	 */
+	public int period() {
+		JSONObject auth = json.optJSONObject("auth");
+		if(auth == null) throw new RuntimeException("Bad data?");
+		return auth.optInt("period", -1);
+	}
+	
+	public boolean isPeriodic() {
+		return period() != -1;
+	}
+	
 	public boolean isRoot() {
 		
 		JSONObject data = lookupData.optJSONObject("data");
@@ -93,7 +107,7 @@ public class Token {
 	}
 	
 	/**
-	 * Can return null, do not call against root without a guard. There is some weirdness about vault date formats...
+	 * Can return null, do not call against root without a guard. There is some weirdness about vault date formats here...
 	 * 
 	 * @return
 	 */

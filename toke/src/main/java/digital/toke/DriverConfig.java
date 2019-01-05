@@ -62,15 +62,7 @@ public class DriverConfig {
 	static final String KVv2REMOVE = "/remove";
 	static final String KVv2METADATA = "/metadata";
 	static final String KVv2DESTROY = "/destroy";
-	
-	// unseal support
-	boolean unseal; // set to true to attempt to unseal the vault. 
-	List<String> unsealKeys; // if unseal is true, these must be set
-	
-	// check for renewals
-	boolean renew; // renew if possible
-	long period; // period to check server, in seconds, default is 300 (every 5 minutes)
-	long min_ttl; // the minimum amount of time, in seconds, we are Ok with this token approaching expiry. default is 30 min.
+
 	
 	/**
 	 * Sets to default values
@@ -84,11 +76,6 @@ public class DriverConfig {
 		defaultKVv2Name = "/secret";
 		
 		authPath = "/auth";
-		renewable = true;
-		
-		renew = true;
-		period = 300; // check every 5 min
-		min_ttl = 1800; // renew if difference between expire_date and now is less than 30 min.  
 	}
 	
 	public StringBuffer baseURL() {
@@ -148,6 +135,13 @@ public class DriverConfig {
 		StringBuffer buf = baseURL();
 		buf.append(authPath);
 		buf.append("/token/lookup-self");
+		return buf.toString();
+	}
+	
+	public String authTokenRenew() {
+		StringBuffer buf = baseURL();
+		buf.append(authPath);
+		buf.append("/token/renew");
 		return buf.toString();
 	}
 	
@@ -358,30 +352,7 @@ public class DriverConfig {
 		return this;
 	}
 	
-	public DriverConfig unseal(boolean attemptToUnseal) {
-		unseal = attemptToUnseal;
-		return this;
-	}
-	
-	public DriverConfig renew(boolean attemptToRenewTokens) {
-		renew = attemptToRenewTokens;
-		return this;
-	}
-	
-	public DriverConfig period(int periodInSeconds) {
-		period = periodInSeconds;
-		return this;
-	}
-	
-	public DriverConfig minttl(int minInSeconds) {
-		min_ttl = minInSeconds;
-		return this;
-	}
-	
-	public DriverConfig unsealKeys(List<String> keys) {
-		this.unsealKeys = keys;
-		return this;
-	}
+
 	
 	public String findToken() {
 		

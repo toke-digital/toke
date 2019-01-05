@@ -161,7 +161,7 @@ public class Networking implements TokenListener {
 	}
 	
 	/**
-	 * Special case, login using token which will call auth/token/create
+	 * Special case, login using token which will then be used in call to auth/token/create
 	 * 
 	 * @param url
 	 * @param json
