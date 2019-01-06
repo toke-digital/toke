@@ -1,9 +1,15 @@
 package digital.toke.accessor;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class SealStatus extends Accessor {
 
+	private static final Logger logger = LogManager.getLogger(SealStatus.class);
+	
 	public SealStatus(Toke resp) {
 		super(resp);
+		if(resp == null) logger.error("Response was null...?");
 	}
 	
 	public boolean isSealed() {

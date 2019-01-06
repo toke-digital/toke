@@ -17,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import digital.toke.event.EventEnum;
+import digital.toke.event.RenewalTokenEvent;
 import digital.toke.event.TokenEvent;
 import digital.toke.event.TokenListener;
 import digital.toke.exception.OutOfTokensException;
@@ -88,6 +89,24 @@ public class TokenManager {
 		logger.debug(token.getJson().toString());
 		fireTokenEvent(new TokenEvent(this, token, EventEnum.LOGIN));
 
+	}
+	
+	public void updateManagedSet(final List<TokenRenewal> list) {
+		
+		// bail if nothing to send
+		if(list.size() == 0) return;
+		
+		this.fireTokenEvent(new RenewalTokenEvent(this,list));
+		
+		final Set<Token> set = getManagedTokens();
+		for(TokenRenewal tr: list) {
+			if(set.contains(tr.oldToken)) {
+				set.remove(tr.oldToken);
+			}
+		}
+		for(TokenRenewal tr: list) {
+				set.add(tr.newToken);
+		}
 	}
 
 	public void addTokenListener(TokenListener listener) {

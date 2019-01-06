@@ -49,6 +49,35 @@ public class Auth {
 		// destroy token TODO
 	}
 	
+	public boolean pingHost() {
+		return client.pingHost(config.host,config.port,200);
+	}
+	
+	public boolean hostIsReachable() {
+		return client.checkIsReachable(config.host);
+	}
+	
+	// requires permission on auth/token/renew
+	public Token renewSelf(Token token) throws WriteException, ReadException {
+		String url = config.authTokenRenewSelf();	
+		logger.debug("Using: " + url);
+		JSONObject json = new JSONObject().put("increment", "1h"); // TODO make configurable
+		logger.debug(json.toString(4));
+
+		Toke toke = null;
+		try {
+			toke = client.post(url,json.toString());
+		} catch (IOException e) {
+			throw new WriteException(e);
+		}
+		
+		if(!toke.successful) throw new WriteException("Failed to renew token with accessor "+token.accessor());
+		
+		Token newToken = new Token(new JSONObject(toke.response), toke.successful);
+		return lookupSelf(newToken);
+	}
+	
+	// requires permission on auth/token/renew
 	public Token renewPeriodic(Token token) throws WriteException, ReadException {
 		String url = config.authTokenRenew();	
 		logger.debug("Using: " + url);
@@ -63,8 +92,10 @@ public class Auth {
 			throw new WriteException(e);
 		}
 		
+		if(!toke.successful) throw new WriteException("Failed to renew token with accessor "+token.accessor());
+		
 		Token newToken = new Token(new JSONObject(toke.response), toke.successful);
-		return lookup(newToken);
+		return lookupSelf(newToken);
 		
 	}
 	
@@ -90,8 +121,11 @@ public class Auth {
 	 */
 	public Toke unseal(List<String> keys, boolean reset, boolean migrate) throws ConfigureException {
 		Toke toke = null;
+		int count = 1;
 		for(String key: keys) {
+			logger.debug("sending unseal key "+count);
 			toke = unseal(key, reset, migrate);
+			count++;
 		}
 		return toke;
 	}
@@ -102,7 +136,7 @@ public class Auth {
 		logger.debug("Using: " + url);
 		JSONObject json = new JSONObject().put("key", key).put("reset", reset).put("migrate", migrate);
 
-		logger.debug(json.toString(4));
+	//	logger.debug(json.toString(4));
 
 		try {
 			Toke response = client.put(url, json.toString(), false);
@@ -225,7 +259,7 @@ public class Auth {
 		return t;
 	}
 	
-	public Token lookup(Token t) throws ReadException {
+	public Token lookupSelf(Token t) throws ReadException {
 		
 		String url = config.authTokenLookupSelf();
 		

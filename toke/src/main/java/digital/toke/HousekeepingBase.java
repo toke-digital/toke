@@ -24,6 +24,9 @@ import digital.toke.exception.ConfigureException;
 import digital.toke.exception.LoginFailedException;
 import digital.toke.exception.ReadException;
 
+import static digital.toke.RenewalType.*;
+
+
 public abstract class HousekeepingBase implements Runnable {
 
 	private static final Logger logger = LogManager.getLogger(HousekeepingBase.class);
@@ -33,7 +36,12 @@ public abstract class HousekeepingBase implements Runnable {
 
 	public HousekeepingBase(TokenManager parent) {
 		this.tokenManager = parent;
-		config = HousekeepingConfig.defaultInstance();
+		HousekeepingConfig hc = this.tokenManager.getAuth().config.getHousekeepingConfig();
+		if(hc == null ) {
+			config = HousekeepingConfig.defaultInstance();
+		}else {
+			config = hc;
+		}
 	}
 
 	public HousekeepingBase(HousekeepingConfig config, TokenManager parent) {
@@ -47,30 +55,44 @@ public abstract class HousekeepingBase implements Runnable {
 	 */
 	protected void unseal() {
 
+		logger.debug("entering unseal");
+		
 		Auth auth = tokenManager.getAuth();
 		try {
 			Toke response = auth.checkSealStatus();
 			SealStatus vaultInstance = new SealStatus(response);
 			if (vaultInstance.isSealed()) {
 				// check to see if we should attempt unsealing
-				if (config.unseal && config.unsealKeys != null) {
+				if (config.unseal && (config.unsealKeys != null) && (config.unsealKeys.size()>0)) {
 					try {
-						Toke resp = auth.unseal(config.getUnsealKeys(), false, false);
-						SealStatus status = new SealStatus(resp);
-						if (status.isSealed()) {
-							logger.error("expected to unseal, but failed..." + status.json().toString());
-						} else {
-							logger.info("Unsealed successfully..." + status.json().toString());
-						}
+						response = auth.unseal(config.getUnsealKeys(), false, false);
 					} catch (ConfigureException e) {
 						logger.error(e);
+						response = null;
 					}
+					
+					if(response != null) {
+						vaultInstance = new SealStatus(response);
+						if (vaultInstance.isSealed()) {
+							logger.error("expected to unseal, but failed..." + vaultInstance.json().toString());
+						} else {
+							logger.info("Unsealed successfully..." + vaultInstance.json().toString());
+						}
+					}else {
+						logger.error("Bad response?");
+						return;
+					}
+				}else {
+					logger.info("Vault sealed, but conditions not met in config to attempt unseal");
 				}
 			} else {
 				logger.info("Vault instance appears to be unsealed  - good.");
 			}
 		} catch (ReadException e1) {
 			logger.error(e1);
+		}catch(NullPointerException z) {
+			z.printStackTrace();
+			logger.error(z);
 		}
 	}
 
@@ -85,7 +107,7 @@ public abstract class HousekeepingBase implements Runnable {
 	 * Should be idempotent
 	 */
 	protected void login() {
-		// 1.0 - do we have any tokens? If not, get one.
+		// 1.0 - do we have any tokens? If not, try to get one.
 		// The initial TokenEvent sent of a valid token will free the latch on the
 		// restful client operations when we are ready to go
 
@@ -100,28 +122,30 @@ public abstract class HousekeepingBase implements Runnable {
 			try {
 				token = auth.login();
 				if (token.fromSuccessfulLoginRequest) {
-					// requires read permission on /auth/token/lookup-self
-					Token updated = null;
-					try {
-						updated = auth.lookup(token);
-						logger.debug("updated token with lookup data " + updated.lookupData.toString());
-						tokens.add(updated);
-						tokenManager.fireLoginEvent(token);
-						return; // exit at this point - we are logged in
-					} catch (ReadException e) {
-						// maybe we didn't have permission, keep the good token anyway
-						logger.error(e);
-						tokens.add(updated);
-						tokenManager.fireLoginEvent(token);
-						return; // exit at this point - we are logged in
-					}
-				} else {
-					logger.info("Unsuccessful login attempt...");
-					logger.debug(token.getJson().toString());
+					
+					tokenManager.fireLoginEvent(token);
+					tokens.add(token);
 				}
+				
 			} catch (LoginFailedException e) {
 				logger.error(e);
+				return;
 			}
+			
+			// requires read permission on /auth/token/lookup-self
+			Token updated = null;
+			try {
+				updated = auth.lookupSelf(token);
+				logger.debug("updated token with lookup data " + updated.lookupData.toString());
+				tokens.add(updated);
+				tokenManager.fireLoginEvent(token);
+				return; // exit at this point - we are logged in
+			} catch (ReadException e) {
+				// maybe we didn't have permission
+				logger.error(e);
+				return;
+			}
+			
 		}
 	}
 
@@ -142,7 +166,7 @@ public abstract class HousekeepingBase implements Runnable {
 			if (!t.getLookupData().has("data")) {
 				try {
 					// requires read permission on /auth/token/lookup-self
-					Token updated = auth.lookup(t);
+					Token updated = auth.lookupSelf(t);
 					logger.debug("updated token with lookup data " + updated.lookupData.toString());
 					updatedTokens.add(updated);
 					tokenManager.fireTokenEvent(new TokenEvent(this, updated, EventEnum.RELOAD_TOKEN));
@@ -174,38 +198,80 @@ public abstract class HousekeepingBase implements Runnable {
 		}
 	}
 
-	public void renew() {
-		
-		final Auth auth = tokenManager.getAuth();
+	/**
+	 * Attempt to renew - if there is an exception, try to replace the token by
+	 * logging in
+	 * 
+	 */
+	public List<TokenRenewal> renew() {
+		List<TokenRenewal> renewals = new ArrayList<TokenRenewal>();
 		final Set<Token> tokens = tokenManager.getManagedTokens();
+		if(tokens.size() == 0) return renewals; // bail if nothing to renew
+	
+		final Auth auth = tokenManager.getAuth();
+	
 		Iterator<Token> iter = tokens.iterator();
-		while(iter.hasNext()) {
-			Token t = iter.next();
-		if (t.isRenewable()) {
-			ZonedDateTime zdt = t.expireTime();
-			// instant can be null if this is root, possibly others...?
-			if (zdt != null) {
-				Instant instant = zdt.toInstant();
-				long count = Instant.now().until((Temporal) instant, ChronoUnit.SECONDS);
-				logger.info("Token with accessor " + t.accessor() + " will expire in " + count + " seconds.");
-				if (config.renew) {
-					logger.debug(String.format("Checking renew... min_ttl: %d, count: %d", config.min_ttl, count));
-					if (config.min_ttl > count) {
-						logger.debug("OK, looks like should renew now");
-						// ok, new renew
-						
-						
-						
-					    
-						
-					}else {
+		while (iter.hasNext()) {
+			Token oldToken = iter.next();
+			if (oldToken.isRenewable()) {
+
+				if (oldToken.isPeriodic()) {
+					try {
+						Token newToken = auth.renewPeriodic(oldToken);
+						renewals.add(new TokenRenewal(PERIODIC, oldToken,newToken));
+					} catch (Exception x) {
+						logger.info("Renew Periodic has failed, will try to reauthenticate and get a new token.", x);
+						try {
+							Token newToken = auth.login();
+							renewals.add(new TokenRenewal(LOGIN,oldToken,newToken));
+						} catch (LoginFailedException e) {
+							logger.error(e);
+							logger.error("giving up here...");
+						}
+					}
+
+					continue;
+				}
+
+				ZonedDateTime zdt = oldToken.expireTime();
+				// instant can be null if this is root, possibly others...?
+				if (zdt != null) {
+					Instant instant = zdt.toInstant();
+					long count = Instant.now().until((Temporal) instant, ChronoUnit.SECONDS);
+					logger.info("Token with accessor " + oldToken.accessor() + " will expire in " + count + " seconds.");
+					if (config.renew) {
+						logger.debug(String.format("Checking renew... min_ttl: %d, count: %d", config.min_ttl, count));
+						if (config.min_ttl > count) {
+							logger.debug("OK, looks like should renew now");
+							// ok, try to do renewal
+							try {
+								Token newToken = auth.renewSelf(oldToken);
+								renewals.add(new TokenRenewal(SELF,oldToken,newToken));
+							} catch (Exception e) {
+								logger.info(
+										"Renew of non-periodic token has failed, will try to reauthenticate and get a new token.",
+										e);
+								try {
+									Token newToken = auth.login();
+									renewals.add(new TokenRenewal(LOGIN,oldToken,newToken));
+								} catch (LoginFailedException z) {
+									logger.error(z);
+									logger.error("giving up here...");
+								}
+							}
+
+							continue;
+						}
+
+					} else {
 						logger.debug("Not yet in range to renew.");
 					}
 				}
+			} else {
+				logger.debug("token is not renewable, so doing nothing...");
 			}
-		}else {
-			logger.debug("token is not renewable, so doing nothing...");
 		}
-		}
+
+		return renewals;
 	}
 }

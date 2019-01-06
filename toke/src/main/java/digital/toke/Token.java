@@ -66,7 +66,7 @@ public class Token {
 	public boolean isRenewable() {
 		JSONObject auth = json.optJSONObject("auth");
 		if(auth == null) throw new RuntimeException("Bad data?");
-		return auth.getBoolean("renewable");
+		return auth.optBoolean("renewable", false);
 	}
 	
 	/**
@@ -150,11 +150,11 @@ public class Token {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (fromSuccessfulLoginRequest ? 1231 : 1237);
-		result = prime * result + ((json == null) ? 0 : json.toString().hashCode());
-		return result;
+		if(fromSuccessfulLoginRequest) {
+			return this.clientToken().hashCode();
+		}else {
+			return getJson().toString().hashCode();
+		}
 	}
 
 	public JSONObject getLookupData() {
@@ -176,18 +176,13 @@ public class Token {
 		if (!(obj instanceof Token)) {
 			return false;
 		}
+		
+		try {
 		Token other = (Token) obj;
-		if (fromSuccessfulLoginRequest != other.fromSuccessfulLoginRequest) {
-			return false;
-		}
-		if (json == null) {
-			if (other.json != null) {
-				return false;
-			}
-		} else if (!json.toString().equals(other.json.toString())) {
-			return false;
-		}
-		return true;
+			if(other.clientToken().equals(clientToken())) return true;
+		}catch(Exception x) {}
+		
+		return false;
 	}
 
 }

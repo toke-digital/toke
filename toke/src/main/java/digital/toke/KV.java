@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import digital.toke.event.EventEnum;
+import digital.toke.event.RenewalTokenEvent;
 import digital.toke.event.TokenEvent;
 import digital.toke.event.TokenListener;
 
@@ -33,10 +34,25 @@ public abstract class KV extends ServiceBase implements TokenListener {
 	
 	@Override
 	public void tokenEvent(TokenEvent evt) {
+		
+		if(evt.getType().equals(EventEnum.RENEWAL)) {
+			RenewalTokenEvent thisEvt = (RenewalTokenEvent) evt;
+			for(TokenRenewal tr : thisEvt.getList()) {
+				// update only what had been sent previously
+				if(tr.oldToken.clientToken().equals(this.token.clientToken())) {
+					this.token = tr.newToken;
+					break;
+				}
+			}
+			logger.info("Token with accessor "+token.accessor()+" set on Networking instance");
+			return;
+		}
+		
 		if(evt.getType().equals(EventEnum.LOGIN)) {
 			token = evt.getToken();
 			countDown();
 			logger.info("Token with accessor "+token.accessor()+" set on "+this.getClass().getName());
+			return;
 		}
 		
 	//	if(evt.getType().equals(EventEnum.SET_LATCH)) {
@@ -49,6 +65,7 @@ public abstract class KV extends ServiceBase implements TokenListener {
 			token = evt.getToken();
 		//    countDown();
 			logger.info("Reloaded token on "+this.getClass().getName());
+			return;
 		}
 	}
 

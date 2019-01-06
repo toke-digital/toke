@@ -34,6 +34,8 @@ public class LongRunningClient {
 		
 		// create a configuration - most fields have sensible defaults
 		
+		HousekeepingConfig hc = new HousekeepingConfig().unseal(true).unsealKeys(keys);
+		
 		DriverConfig config = new DriverConfig()
 				.proto("http")
 				.host("127.0.0.1")
@@ -43,10 +45,7 @@ public class LongRunningClient {
 				.authType("USERPASS")
 				.username("bob")
 				.password("password1")
-			//	.minttl(60)
-			//	.period(30)
-				.unseal(true)
-				.unsealKeys(keys);
+				.housekeepingConfig(hc);
 		
 		// driver will auto-login 
 		final Driver driver = new Driver(config);
@@ -68,14 +67,14 @@ public class LongRunningClient {
 					Toke toke = driver.kv2().kvWrite("test/stuff", obj);
 					System.out.println(toke);
 				} catch (WriteException e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 				
 				try {
 					Toke toke = driver.kv2().kvRead("test/stuff");
 					System.out.println(toke);
 				} catch (ReadException e) {
-					e.printStackTrace();
+				//	e.printStackTrace();
 				}
 				
 			}

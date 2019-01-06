@@ -41,6 +41,7 @@ public class KVv2 extends KV {
 	 * @throws ReadException
 	 */
 	public Toke kvRead(String path) throws ReadException {
+		if(token == null) throw new ReadException("Token not set");
 		return kvRead(path, -1);
 	}
 
@@ -55,6 +56,8 @@ public class KVv2 extends KV {
 	public Toke kvRead(String path, int version) throws ReadException {
 		
 		latch();
+		
+		if(token == null) throw new ReadException("Token not set");
 		
 		String url = config.kv2Path(KVv2DATA, path);
 		if(version != -1) {
@@ -84,6 +87,8 @@ public class KVv2 extends KV {
 		
 		latch();
 		
+		if(token == null) throw new ConfigureException("Token not set");
+		
 		String url = config.kv2Path(KVv2CONFIG,null);
 		JSONObject json = new JSONObject();
 		json.put("max_versions", max_versions);
@@ -107,6 +112,8 @@ public class KVv2 extends KV {
 	public Toke kvReadConfig() throws ReadException {
 		
 		latch();
+		
+		if(token == null) throw new ReadException("Token not set");
 		
 		String url = config.kv2Path(KVv2CONFIG, null);
 		
@@ -153,7 +160,7 @@ public class KVv2 extends KV {
 	}
     
     public Toke kvWrite(String path, JSONObject json) throws WriteException {
-		
+		if(token == null) throw new WriteException("Token not set");
   		return kvCreateUpdate(path, json.toString());
   	}
 	
@@ -188,6 +195,8 @@ public class KVv2 extends KV {
 		
 		latch();
 		
+		if(token == null) throw new WriteException("Token not set");
+		
 		String url = config.kv2Path(KVv2DATA,path);
 		
 		logger.debug(url);
@@ -215,6 +224,8 @@ public class KVv2 extends KV {
 		
 		latch();
 		
+		if(token == null) throw new ReadException("Token not set");
+		
 		Toke response = null;
 		try {
 			response = client.list(config.kv2List(path));
@@ -231,6 +242,8 @@ public class KVv2 extends KV {
 	public Toke kvReadMetadata(String path) throws ReadException {
 		
 		latch();
+		
+		if(token == null) throw new ReadException("Token not set");
 		
 		String url = config.kv2Path(KVv2METADATA, path);
 		
@@ -257,6 +270,8 @@ public class KVv2 extends KV {
 	public Toke kvDestroy(String path, int [] versions) throws WriteException {
 		
 		latch();
+		
+		if(token == null) throw new WriteException("Token not set");
 		
 		String url = config.kv2Path(KVv2DESTROY, path);
 		
@@ -285,6 +300,8 @@ public class KVv2 extends KV {
 		
 		latch();
 		
+		if(token == null) throw new WriteException("Token not set");
+		
 		String url = config.kv2Path(KVv2DATA, path);
 		
 		Toke response = null;
@@ -310,6 +327,8 @@ public class KVv2 extends KV {
 	public Toke kvDelete(String path, int [] versionsToDelete) throws WriteException {
 		
 		latch();
+		
+		if(token == null) throw new WriteException("Token not set");
 		
 		String url = config.kv2Path(KVv2DELETE, path);
 		
@@ -338,6 +357,8 @@ public class KVv2 extends KV {
 	public Toke kvUndelete(String path, int [] versionsToUndelete) throws WriteException {
 		
 		latch();
+		
+		if(token == null) throw new WriteException("Token not set");
 		
 		String url = config.kv2Path(KVv2UNDELETE, path);
 		

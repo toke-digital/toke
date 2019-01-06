@@ -7,7 +7,6 @@ package digital.toke;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,6 +22,8 @@ import okhttp3.HttpUrl;
 public class DriverConfig {
 	
 	private static final Logger logger = LogManager.getLogger(DriverConfig.class);
+	
+	HousekeepingConfig housekeepingConfig;
 	
 	// auth
 	AuthType authType; //        e.g., supports TOKEN, LDAP, APPROLE, USERPASS;
@@ -142,6 +143,13 @@ public class DriverConfig {
 		StringBuffer buf = baseURL();
 		buf.append(authPath);
 		buf.append("/token/renew");
+		return buf.toString();
+	}
+	
+	public String authTokenRenewSelf() {
+		StringBuffer buf = baseURL();
+		buf.append(authPath);
+		buf.append("/token/renew-self");
 		return buf.toString();
 	}
 	
@@ -351,9 +359,13 @@ public class DriverConfig {
 		tokenFile = fileWithToken;
 		return this;
 	}
-	
 
-	
+	/**
+	 * Used with initial token-based authentication, e.g., a root token. This token is always used to
+	 * acquire a child token for the actual service calls - it will not be used directly
+	 * 
+	 * @return
+	 */
 	public String findToken() {
 		
 		if(tokenFile != null) {
@@ -374,5 +386,16 @@ public class DriverConfig {
 		
 		return null;
 	}
+
+	public HousekeepingConfig getHousekeepingConfig() {
+		return housekeepingConfig;
+	}
+
+	public DriverConfig housekeepingConfig(HousekeepingConfig housekeepingConfig) {
+		this.housekeepingConfig = housekeepingConfig;
+		return this;
+	}
+	
+	
 
 }

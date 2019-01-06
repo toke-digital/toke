@@ -5,6 +5,10 @@
 package digital.toke;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -13,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 import digital.toke.accessor.Toke;
 import digital.toke.event.EventEnum;
+import digital.toke.event.RenewalTokenEvent;
 import digital.toke.event.TokenEvent;
 import digital.toke.event.TokenListener;
 import okhttp3.HttpUrl;
@@ -40,6 +45,26 @@ public class Networking implements TokenListener {
 	public Networking() {
 		client = new OkHttpClient();
 		logger.info("Initialized a networking instance");
+	}
+	
+	public boolean pingHost(String host, int port, int timeout) {
+	    try (Socket socket = new Socket()) {
+	        socket.connect(new InetSocketAddress(host, port), timeout);
+	        return true;
+	    } catch (IOException e) {
+	    	logger.error(e);
+	        return false; // Either timeout or unreachable or failed DNS lookup.
+	    }
+	}
+	
+	
+	public boolean checkIsReachable(String hostname) {
+		try {
+			return InetAddress.getByName(hostname).isReachable(200);
+		} catch (Exception x) {
+			logger.error(x);
+		}
+		return false;
 	}
 
 	/**
@@ -241,14 +266,30 @@ public class Networking implements TokenListener {
 	 */
 	@Override
 	public void tokenEvent(TokenEvent evt) {
+		
+		if(evt.getType().equals(EventEnum.RENEWAL)) {
+			RenewalTokenEvent thisEvt = (RenewalTokenEvent) evt;
+			for(TokenRenewal tr : thisEvt.getList()) {
+				// update only what had been sent previously
+				if(tr.oldToken.clientToken().equals(this.token.clientToken())) {
+					this.token = tr.newToken;
+					break;
+				}
+			}
+			logger.info("Token with accessor "+token.accessor()+" set on Networking instance");
+			return;
+		}
+		
 		if(evt.getType().equals(EventEnum.LOGIN)) {
 			token = evt.getToken();
 			logger.info("Token with accessor "+token.accessor()+" set on Networking instance");
+			return;
 		}
 		
 		if(evt.getType().equals(EventEnum.RELOAD_TOKEN)) {
 			token = evt.getToken();
 			logger.info("Reloaded token on Networking instance.");
+			return;
 		}
 	}
 }

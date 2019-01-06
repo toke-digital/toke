@@ -5,5 +5,5 @@
 package digital.toke.event;
 
 public enum EventEnum {
-	LOGIN, FAILED_LOGIN, SET_LATCH, RELOAD_TOKEN;
+	LOGIN, FAILED_LOGIN, SET_LATCH, RELOAD_TOKEN, RENEWAL;
 }

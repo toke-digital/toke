@@ -4,6 +4,8 @@
  */
 package digital.toke.accessor;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 /**
@@ -13,6 +15,9 @@ import org.json.JSONObject;
  *
  */
 public class Accessor {
+	
+	@SuppressWarnings("unused")
+	private static final Logger logger = LogManager.getLogger(Accessor.class);
 
 	public final Toke toke;
 
