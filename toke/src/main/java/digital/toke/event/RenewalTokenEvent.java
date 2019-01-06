@@ -9,7 +9,7 @@ public class RenewalTokenEvent extends TokenEvent {
 
 	private static final long serialVersionUID = 1L;
 	
-	final EventEnum type = EventEnum.RELOAD_TOKEN;
+	final EventEnum type = EventEnum.RENEWAL;
 	final List<TokenRenewal> list;
 
 	public RenewalTokenEvent(Object arg0, List<TokenRenewal> list) {

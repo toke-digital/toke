@@ -30,7 +30,7 @@ public class LongRunningClient {
 		
 		// create a configuration - most fields have sensible defaults
 		
-		File keyFile = new File("C:\\vault\\vault.keys.txt"); // update this
+		File keyFile = new File("C:\\vault\\keys");
 		
 		HousekeepingConfig hc = null;
 		try {

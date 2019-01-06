@@ -85,13 +85,12 @@ public class Token {
 	
 	public boolean isRoot() {
 		
-		JSONObject data = lookupData.optJSONObject("data");
-		if(data == null) throw new RuntimeException("Bad data?");
-		Object obj = data.get("expire_time");
-		if(obj == null) {
+		JSONObject auth = json.optJSONObject("auth");
+		if(auth == null) throw new RuntimeException("Bad data?");
+		
 			// likely dealing with root. verify by looking for root policy
 			boolean isRoot = false;
-			JSONArray policyArray = data.getJSONArray("policies");
+			JSONArray policyArray = auth.getJSONArray("policies");
 			Iterator<Object> iter = policyArray.iterator();
 			while(iter.hasNext()) {
 				Object item = iter.next();
@@ -102,16 +101,18 @@ public class Token {
 			
 			return isRoot;
 		}
-		
-		return false;
-	}
-	
+
 	/**
 	 * Can return null, do not call against root without a guard. There is some weirdness about vault date formats here...
 	 * 
 	 * @return
 	 */
 	public ZonedDateTime expireTime() {
+		
+		if(lookupData == null) {
+			throw new RuntimeException("lookupData is null - this is likely a programming error");
+		}
+		
 		JSONObject data = lookupData.optJSONObject("data");
 		if(data == null) throw new RuntimeException("Bad data?");
 		Object obj = data.get("expire_time");

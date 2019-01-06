@@ -1,6 +1,18 @@
 
 # create a policy for bob - for testing
 
+# auth
+
+# needed for driver operation
+path "auth/token/lookup-self" {
+  capabilities = ["read"]
+}
+
+# needed for driver operation
+path "auth/token/renew-self" {
+  capabilities = ["update"]
+}
+
 # sys
 
 # needed for driver operation

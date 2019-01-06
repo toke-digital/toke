@@ -57,7 +57,7 @@ public class Auth {
 		return client.checkIsReachable(config.host);
 	}
 	
-	// requires permission on auth/token/renew
+	// requires permission on auth/token/renew-self
 	public Token renewSelf(Token token) throws WriteException, ReadException {
 		String url = config.authTokenRenewSelf();	
 		logger.debug("Using: " + url);
@@ -262,6 +262,33 @@ public class Auth {
 	public Token lookupSelf(Token t) throws ReadException {
 		
 		String url = config.authTokenLookupSelf();
+		logger.debug("using url = "+url);
+		
+		Toke toke = null;
+		try {
+			toke = client.get(url);
+		} catch (IOException e) {
+			throw new ReadException(e);
+		}
+		
+		if(toke.successful) {
+			if(toke.response == null || toke.response.contains("errors")) {
+				throw new ReadException("Errors on token lookup: "+toke.response);
+			}else {
+			   return new Token(t.getJson(),
+					   t.fromSuccessfulLoginRequest,
+					   new JSONObject(toke.response));
+		    }
+		}else {
+			throw new ReadException("Failed to perform lookup: "+toke.toString());
+		}
+		
+	}
+	
+public Token lookup(Token t) throws ReadException {
+		
+		String url = config.authTokenLookup();
+		logger.debug("using url = "+url);
 		
 		JSONObject json = new JSONObject();
 		json.put("token",t.clientToken());
@@ -282,7 +309,7 @@ public class Auth {
 					   new JSONObject(toke.response));
 		    }
 		}else {
-			throw new ReadException("Failed to perform lookup on "+t);
+			throw new ReadException("Failed to perform lookup: "+toke.toString());
 		}
 		
 	}
