@@ -26,7 +26,12 @@ import digital.toke.exception.ReadException;
 
 import static digital.toke.RenewalType.*;
 
-
+/**
+ * Base class for Housekeeping (token lifecycle) classes
+ * 
+ * @author David R. Smith <davesmith.gbs@gmail.com>
+ *
+ */
 public abstract class HousekeepingBase implements Runnable {
 
 	private static final Logger logger = LogManager.getLogger(HousekeepingBase.class);

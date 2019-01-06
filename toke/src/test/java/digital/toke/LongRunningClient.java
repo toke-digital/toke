@@ -1,5 +1,7 @@
 package digital.toke;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -26,15 +28,16 @@ public class LongRunningClient {
 		
 		// unseal the vault if required or desired - not every use-case is as strict has the published (manual) approach
 		
-		// (obviously in a real program these would be loaded from a file or in some other secure way)
-		List<String> keys = new ArrayList<String>();
-		keys.add("y3Rb9MHxXM2todD9tMRwMXNzQHj/QmX+VACNLV9iWcWG");
-		keys.add("chCnCZQyZsx2VYz0ggJtrkZZctSMFcu+jRBxRnUcyj01");
-		keys.add("GVjrAMtmZYjxra9+MdkafzDoOvtn0TRqKEuQOU9X0ZhL");
-		
 		// create a configuration - most fields have sensible defaults
 		
-		HousekeepingConfig hc = new HousekeepingConfig().unseal(true).unsealKeys(keys);
+		File keyFile = new File("C:\\vault\\vault.keys.txt"); // update this
+		
+		HousekeepingConfig hc = null;
+		try {
+			hc = new HousekeepingConfig().unseal(true).unsealKeys(keyFile);
+		}catch(IOException x) {
+			x.printStackTrace();
+		}
 		
 		DriverConfig config = new DriverConfig()
 				.proto("http")
