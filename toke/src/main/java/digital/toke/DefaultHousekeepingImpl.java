@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright 2019 David R. Smith All Rights Reserved 
+ */
 package digital.toke;
 
 import java.util.List;
@@ -10,14 +14,15 @@ import org.apache.logging.log4j.Logger;
  * Basic housekeeping (token lifecycle management).
  * 
  * @author David R. Smith <davesmith.gbs@gmail.com>
- *
+ * @see HousekeepingConfig
+ * @see HousekeepingBase
  */
-public class Housekeeping extends HousekeepingBase {
+public class DefaultHousekeepingImpl extends HousekeepingBase {
 	
-	private static final Logger logger = LogManager.getLogger(Housekeeping.class);
+	private static final Logger logger = LogManager.getLogger(DefaultHousekeepingImpl.class);
 
 
-	public Housekeeping(TokenManager parent) {
+	public DefaultHousekeepingImpl(TokenManager parent) {
 		super(parent);
 	}
 

@@ -56,7 +56,7 @@ public class TokenManager {
 
 		// fires initially, and then again every 30 seconds
 		logger.info("Initializing scheduler...");
-		scheduledPool.scheduleWithFixedDelay(new Housekeeping(this), 1, 30, TimeUnit.SECONDS);
+		scheduledPool.scheduleWithFixedDelay(new DefaultHousekeepingImpl(this), 1, 30, TimeUnit.SECONDS);
 
 		logger.info("Initialized a TokenManager instance");
 	}

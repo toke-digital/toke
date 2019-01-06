@@ -1,6 +1,10 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright 2019 David R. Smith All Rights Reserved 
+ */
 package digital.toke.event;
 
-import java.util.EventObject;
+
 import java.util.List;
 
 import digital.toke.TokenRenewal;

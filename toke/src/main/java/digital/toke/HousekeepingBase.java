@@ -18,8 +18,6 @@ import org.apache.logging.log4j.Logger;
 
 import digital.toke.accessor.SealStatus;
 import digital.toke.accessor.Toke;
-import digital.toke.event.EventEnum;
-import digital.toke.event.TokenEvent;
 import digital.toke.exception.ConfigureException;
 import digital.toke.exception.LoginFailedException;
 import digital.toke.exception.ReadException;

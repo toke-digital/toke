@@ -1,9 +1,11 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright 2019 David R. Smith All Rights Reserved 
+ */
 package digital.toke;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -26,14 +28,11 @@ public class LongRunningClient {
 
 	public static void main(String [] args) {
 		
-		// unseal the vault if required or desired - not every use-case is as strict has the published (manual) approach
-		
-		// create a configuration - most fields have sensible defaults
-		
-		File keyFile = new File("C:\\vault\\keys");
-		
+		// create a token lifecycle configuration - most fields have sensible defaults
+		// in this case unseal the vault if required or desired - not every use-case is as strict as the published (manual) approach
 		HousekeepingConfig hc = null;
 		try {
+			File keyFile = new File("C:\\vault\\keys");
 			hc = new HousekeepingConfig().unseal(true).unsealKeys(keyFile);
 		}catch(IOException x) {
 			x.printStackTrace();
