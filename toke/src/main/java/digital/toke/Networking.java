@@ -29,7 +29,7 @@ import okhttp3.Response;
 /**
  * Thread-safe wrapper on the HTTP calls, we are using the delightful OKHttp. 
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  * @see Toke
  *
  */

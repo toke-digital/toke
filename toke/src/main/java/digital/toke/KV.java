@@ -15,7 +15,7 @@ import digital.toke.event.TokenListener;
 /**
  * Base class for shared code in KV implementations
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public abstract class KV extends ServiceBase implements TokenListener {

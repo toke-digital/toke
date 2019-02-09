@@ -5,7 +5,7 @@ import digital.toke.accessor.SealStatus;
 /**
  * Thrown when the vault is sealed when we are trying to start up
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class SealStatusException extends RuntimeException {

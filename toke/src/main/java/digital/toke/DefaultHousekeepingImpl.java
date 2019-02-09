@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * Basic housekeeping (token lifecycle management).
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  * @see HousekeepingConfig
  * @see HousekeepingBase
  */

@@ -7,7 +7,7 @@ package digital.toke.exception;
 /**
  * Thrown when write-oriented calls fail
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class WriteException extends TokeException {

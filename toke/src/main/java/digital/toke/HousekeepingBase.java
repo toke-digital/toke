@@ -27,7 +27,7 @@ import static digital.toke.RenewalType.*;
 /**
  * Base class for Housekeeping (token lifecycle) classes
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public abstract class HousekeepingBase implements Runnable {

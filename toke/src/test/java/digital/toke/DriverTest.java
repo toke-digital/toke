@@ -21,7 +21,7 @@ import digital.toke.exception.TokeException;
 /**
  * The testing requires a fairly specific vault instance to be set up and that's not documented quite yet.
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class DriverTest {

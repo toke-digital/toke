@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Input parameters for housekeeping (Token lifecycle management)
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class HousekeepingConfig {

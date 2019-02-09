@@ -12,7 +12,7 @@ import org.json.JSONArray;
 /**
  * Use with response from /sys/capabilities
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class Capabilities extends Accessor {

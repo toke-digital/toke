@@ -13,7 +13,7 @@ import org.json.JSONObject;
 /**
  * Use with KVv1 and KVv2 read operations
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class Data extends Accessor {

@@ -7,7 +7,7 @@ package digital.toke.exception;
 /**
  * Thrown when the TokenManager is unhappy
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class OutOfTokensException extends TokeException {

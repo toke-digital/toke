@@ -16,7 +16,7 @@ import okhttp3.HttpUrl;
 /**
  * Uses a fluent idiom to allow configuration; most items have sensible defaults.
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class DriverConfig {

@@ -19,7 +19,7 @@ import digital.toke.exception.WriteException;
 /**
  * Useful class for testing lifecycle
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class LongRunningClient {
@@ -29,10 +29,12 @@ public class LongRunningClient {
 	public static void main(String [] args) {
 		
 		// create a token lifecycle configuration - most fields have sensible defaults
-		// in this case unseal the vault if required or desired - not every use-case is as strict as the published (manual) approach
+		// in this case unseal the vault if required or desired - 
+		// not every use-case is as strict as the published (manual) approach
 		HousekeepingConfig hc = null;
 		try {
-			File keyFile = new File("C:\\vault\\keys");
+			File keyFile = new File("G:\\vault\\keys");
+			if(keyFile.)
 			hc = new HousekeepingConfig().unseal(true).unsealKeys(keyFile);
 		}catch(IOException x) {
 			x.printStackTrace();

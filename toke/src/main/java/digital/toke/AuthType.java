@@ -7,7 +7,7 @@ package digital.toke;
 /**
  * These are the currently implemented login (auth) types available
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public enum AuthType {

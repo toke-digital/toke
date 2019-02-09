@@ -11,7 +11,7 @@ import org.json.JSONObject;
 /**
  * Parent class of Accessors. These are sort of a cross between a Decorator and an Adapter pattern design.
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class Accessor {

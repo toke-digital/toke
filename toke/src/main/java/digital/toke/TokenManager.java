@@ -28,7 +28,7 @@ import digital.toke.exception.OutOfTokensException;
  * allows the Driver to continue operations essentially indefinitely, as in an
  * enterprise application which regularly needs to contact vault.
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class TokenManager {

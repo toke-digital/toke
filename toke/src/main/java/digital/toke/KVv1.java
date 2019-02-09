@@ -19,7 +19,7 @@ import okhttp3.HttpUrl;
 /**
  * Implement the RESTful interface calls to KVv1 secrets engine
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class KVv1 extends KV {

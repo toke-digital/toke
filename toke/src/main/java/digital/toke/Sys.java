@@ -23,7 +23,7 @@ import digital.toke.exception.ReadException;
 /**
  * Implement the RESTful interface calls to the vault back-end
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class Sys extends ServiceBase implements TokenListener {

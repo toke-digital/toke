@@ -21,7 +21,7 @@ import digital.toke.exception.TokeException;
 /**
  * See test-materials folder for prep
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class DriverTestKVv2 {

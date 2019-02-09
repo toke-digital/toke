@@ -23,7 +23,7 @@ import org.json.JSONObject;
  * knows if it has been instantiated from a successful login. Token objects 
  * are not necessarily valid at at any given time.
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class Token {

@@ -9,7 +9,7 @@ package digital.toke.exception;
  * runtime exceptions because it's import to be able to react to the Driver's signals
  * and try to recover
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class TokeException extends Exception {

@@ -15,7 +15,7 @@ import digital.toke.exception.WriteException;
 /**
  * Base class for classes which implement the API calls
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class ServiceBase {

@@ -7,7 +7,7 @@ package digital.toke;
 /**
  * auth/token/create* has parameters, which we encapsulate here
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  * @see DriverConfig
  */
 public class CreateTokenParameters {

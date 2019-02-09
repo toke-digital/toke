@@ -12,7 +12,7 @@ import digital.toke.Token;
  * Thrown when login fails for a network-oriented reason or some other reason releated to the attempt.
  * See 
  * 
- * @author David R. Smith <davesmith.gbs@gmail.com>
+ * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
 public class LoginFailedException extends TokeException {
