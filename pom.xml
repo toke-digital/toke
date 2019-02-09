@@ -9,6 +9,43 @@
         <module>toke</module>
     </modules>
     
-    <!-- ok  -->
+    <properties>
+		<JAVA_1_8_HOME>C:/Program Files/Java/jdk1.8.0_201</JAVA_1_8_HOME>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- needed to get my inadequate comments to parse in Java 1.8 javadoc -->
+		<additionalparam>-Xdoclint:none</additionalparam>
+	</properties>
+	
+	<url>https://github.com/toke-digital/hashicorp-vault-driver/tree/master/toke</url>
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	
+	<organization>
+		<name>David R. Smith</name>
+		<url>https://github.com/toke-digital/</url>
+	</organization>
+	<scm>
+		<connection>https://github.com/toke-digital/hashicorp-vault-driver.git</connection>
+		<developerConnection>https://github.com/toke-digital/hashicorp-vault-driver.git</developerConnection>
+		<url>https://github.com/toke-digital/hashicorp-vault-driver.git</url>
+	</scm>
+	<developers>
+		<developer>
+			<id>1</id>
+			<name>David R. Smith</name>
+			<email>davesmith.gbs@gmail.com</email>
+		</developer>
+	</developers>
+	<issueManagement>
+		<system>None</system>
+	</issueManagement>
+	<ciManagement>
+		<system>None</system>
+	</ciManagement>
   
 </project>
