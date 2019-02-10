@@ -25,6 +25,8 @@ import digital.toke.exception.WriteException;
 public class LongRunningClient {
 	
 	private static ScheduledExecutorService scheduledPool = Executors.newScheduledThreadPool(1);
+	
+	private static boolean unseal = true;
 
 	public static void main(String [] args) {
 		
@@ -34,13 +36,18 @@ public class LongRunningClient {
 		HousekeepingConfig hc = null;
 		try {
 			File keyFile = new File("G:\\vault\\keys");
-			if(keyFile.)
-			hc = new HousekeepingConfig().unseal(true).unsealKeys(keyFile);
+			if(keyFile.exists()) {
+			  if(unseal) {
+			      hc = new HousekeepingConfig().unseal(unseal).unsealKeys(keyFile);
+			  }else {
+				  throw new RuntimeException("Keyfile does not exist but requested unseal...baling out");
+			  }
+			}
 		}catch(IOException x) {
 			x.printStackTrace();
 		}
 		
-		DriverConfig config = new DriverConfig()
+		TokeDriverConfig config = new TokeDriverConfig()
 				.proto("http")
 				.host("127.0.0.1")
 				.port(8200)
@@ -52,9 +59,9 @@ public class LongRunningClient {
 				.housekeepingConfig(hc);
 		
 		// driver will auto-login 
-		final Driver driver = new Driver(config);
+		final TokeDriver driver = new TokeDriver(config);
 		
-		// now do something with Driver periodically
+		// now do something with Driver periodically for testing purposes
 		
 		scheduledPool.scheduleWithFixedDelay(new Runnable() {
 
@@ -87,7 +94,7 @@ public class LongRunningClient {
 		
 		
 		
-		// blocks so we don't exit main
+		// block so we don't exit main
 		 try {
 		        Object lock = new Object();
 		        synchronized (lock) {

@@ -19,9 +19,9 @@ import okhttp3.HttpUrl;
  * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
-public class DriverConfig {
+public class TokeDriverConfig {
 	
-	private static final Logger logger = LogManager.getLogger(DriverConfig.class);
+	private static final Logger logger = LogManager.getLogger(TokeDriverConfig.class);
 	
 	HousekeepingConfig housekeepingConfig;
 	
@@ -68,7 +68,7 @@ public class DriverConfig {
 	/**
 	 * Sets to default values
 	 */
-	public DriverConfig() {
+	public TokeDriverConfig() {
 		vaultApiPrefix = "/v1";
 		port = -1;
 		proto = "https";
@@ -275,87 +275,87 @@ public class DriverConfig {
 		}
 	
 	
-	public DriverConfig host(String val) {
+	public TokeDriverConfig host(String val) {
 		host = val;
 		return this;
 	}
 	
-	public DriverConfig proto(String val) {
+	public TokeDriverConfig proto(String val) {
 		proto = val;
 		return this;
 	}
 	
-	public DriverConfig port(int val) {
+	public TokeDriverConfig port(int val) {
 		port = val;
 		return this;
 	}
 	
-	public DriverConfig vaultApiPrefix(String val) {
+	public TokeDriverConfig vaultApiPrefix(String val) {
 		vaultApiPrefix = val;
 		return this;
 	}
 	
-	public DriverConfig defaultKVv1Name(String val) {
+	public TokeDriverConfig defaultKVv1Name(String val) {
 		defaultKVv1Name = val;
 		return this;
 	}
 	
-	public DriverConfig defaultKVv2Name(String val) {
+	public TokeDriverConfig defaultKVv2Name(String val) {
 		defaultKVv2Name = val;
 		return this;
 	}
 	
-	public DriverConfig authType(String val) {
+	public TokeDriverConfig authType(String val) {
 		authType = AuthType.valueOf(val.toUpperCase());
 		return this;
 	}
 	
-	public DriverConfig token(String val) {
+	public TokeDriverConfig token(String val) {
 		token = val;
 		return this;
 	}
 	
-	public DriverConfig renewable(boolean b) {
+	public TokeDriverConfig renewable(boolean b) {
 		renewable = b;
 		return this;
 	}
 	
-	public DriverConfig secretId(String val) {
+	public TokeDriverConfig secretId(String val) {
 		secretId = val;
 		return this;
 	}
 	
-	public DriverConfig roleId(String val) {
+	public TokeDriverConfig roleId(String val) {
 		roleId = val;
 		return this;
 	}
 	
-	public DriverConfig username(String val) {
+	public TokeDriverConfig username(String val) {
 		username = val;
 		return this;
 	}
 	
-	public DriverConfig password(String val) {
+	public TokeDriverConfig password(String val) {
 		password = val;
 		return this;
 	}
 	
-	public DriverConfig authPath(String val) {
+	public TokeDriverConfig authPath(String val) {
 		authPath = val;
 		return this;
 	}
 	
-	public DriverConfig kvName(String val) {
+	public TokeDriverConfig kvName(String val) {
 		kv1Name = val;
 		return this;
 	}
 	
-	public DriverConfig kv2Name(String val) {
+	public TokeDriverConfig kv2Name(String val) {
 		kv2Name = val;
 		return this;
 	}
 	
-	public DriverConfig tokenFile(File fileWithToken) {
+	public TokeDriverConfig tokenFile(File fileWithToken) {
 		tokenFile = fileWithToken;
 		return this;
 	}
@@ -391,7 +391,7 @@ public class DriverConfig {
 		return housekeepingConfig;
 	}
 
-	public DriverConfig housekeepingConfig(HousekeepingConfig housekeepingConfig) {
+	public TokeDriverConfig housekeepingConfig(HousekeepingConfig housekeepingConfig) {
 		this.housekeepingConfig = housekeepingConfig;
 		return this;
 	}

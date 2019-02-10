@@ -30,10 +30,10 @@ public class Auth {
 
 	private static final Logger logger = LogManager.getLogger(Auth.class);
 	
-	DriverConfig config;
+	TokeDriverConfig config;
 	Networking client;
 	
-	public Auth(DriverConfig config, Networking client) {
+	public Auth(TokeDriverConfig config, Networking client) {
 		super();
 		this.config = config;
 		this.client = client;

@@ -4,7 +4,7 @@
  */
 package digital.toke;
 
-import static digital.toke.DriverConfig.*;
+import static digital.toke.TokeDriverConfig.*;
 
 import java.io.IOException;
 import java.util.Map;
@@ -28,7 +28,7 @@ public class KVv2 extends KV {
 
 	private static final Logger logger = LogManager.getLogger(KVv2.class);
 	
-	public KVv2(DriverConfig config, Networking client) {
+	public KVv2(TokeDriverConfig config, Networking client) {
 		super(config,client);
 		logger.info("Initialized KVv2 driver instance");
 	}

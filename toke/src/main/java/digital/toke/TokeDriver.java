@@ -13,11 +13,11 @@ import org.apache.logging.log4j.Logger;
  * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
-public class Driver {
+public class TokeDriver {
 
-	private static final Logger logger = LogManager.getLogger(Driver.class);
+	private static final Logger logger = LogManager.getLogger(TokeDriver.class);
 	
-	final DriverConfig config;
+	final TokeDriverConfig config;
 	final Networking httpClient;
 	final TokenManager tokenManager;
 	
@@ -29,7 +29,7 @@ public class Driver {
 	final KVv2 kvv2;
 	
 
-	public Driver(DriverConfig config) {
+	public TokeDriver(TokeDriverConfig config) {
 		super();
 		this.config = config;
 		httpClient = new Networking();

@@ -22,11 +22,11 @@ public abstract class KV extends ServiceBase implements TokenListener {
 
 	private static final Logger logger = LogManager.getLogger(KV.class);
 	
-	protected DriverConfig config;
+	protected TokeDriverConfig config;
 	protected Token token;
 	protected Networking client;
 	
-	public KV(DriverConfig config, Networking client) {
+	public KV(TokeDriverConfig config, Networking client) {
 		super();
 		this.config = config;
 		this.client = client;

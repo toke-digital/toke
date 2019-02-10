@@ -30,11 +30,11 @@ public class Sys extends ServiceBase implements TokenListener {
 
 	private static final Logger logger = LogManager.getLogger(Sys.class);
 
-	protected DriverConfig config;
+	protected TokeDriverConfig config;
 	protected Token token;
 	protected Networking client;
 
-	public Sys(DriverConfig config, Networking client) {
+	public Sys(TokeDriverConfig config, Networking client) {
 		super();
 		this.config = config;
 		this.client = client;

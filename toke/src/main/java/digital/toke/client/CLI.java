@@ -6,8 +6,8 @@ package digital.toke.client;
 
 import org.json.JSONObject;
 
-import digital.toke.Driver;
-import digital.toke.DriverConfig;
+import digital.toke.TokeDriver;
+import digital.toke.TokeDriverConfig;
 import digital.toke.accessor.Toke;
 import digital.toke.exception.LoginFailedException;
 import digital.toke.exception.TokeException;
@@ -27,14 +27,14 @@ public class CLI {
 	}
 	
 	private void run(String [] args) {
-		DriverConfig config = new DriverConfig()
+		TokeDriverConfig config = new TokeDriverConfig()
 				.proto("http")
 				.host("127.0.0.1")
 				.port(8200)
 				.authType("TOKEN")
 				.token("s.7QmL8ffLsV1m4r7aTQqQGT1H");
 		
-		Driver driver = new Driver(config);
+		TokeDriver driver = new TokeDriver(config);
 		
 		try {
 		    driver.auth().login();

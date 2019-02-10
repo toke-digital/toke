@@ -13,8 +13,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import digital.toke.Driver;
-import digital.toke.DriverConfig;
+import digital.toke.TokeDriver;
+import digital.toke.TokeDriverConfig;
 import digital.toke.accessor.Toke;
 import digital.toke.exception.TokeException;
 
@@ -26,12 +26,12 @@ import digital.toke.exception.TokeException;
  */
 public class DriverTestKVv2 {
 	
-	static Driver driver;
+	static TokeDriver driver;
 	
 	@BeforeAll
 	public static void load() {
 		
-		DriverConfig config = new DriverConfig()
+		TokeDriverConfig config = new TokeDriverConfig()
 				.proto("http")
 				.host("127.0.0.1")
 				.port(8200)
@@ -42,7 +42,7 @@ public class DriverTestKVv2 {
 				.password("password1");
 		
 		// driver will auto-login and block on rest-calls until it is ready
-		driver = new Driver(config);
+		driver = new TokeDriver(config);
 		
 	}
 

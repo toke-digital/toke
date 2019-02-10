@@ -26,7 +26,7 @@ public class KVv1 extends KV {
 	
 	private static final Logger logger = LogManager.getLogger(KVv1.class);
 
-	public KVv1(DriverConfig config, Networking client) {
+	public KVv1(TokeDriverConfig config, Networking client) {
 		super(config,client);
 		logger.info("Initialized KVv1 driver instance");
 	}
