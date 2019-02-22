@@ -18,22 +18,28 @@ import java.util.List;
  */
 public class HousekeepingConfig {
 	
+	// turn on init support
+	boolean init; 
+	
 	// turn on unseal support
 	boolean unseal;
-	// keys must be in a file, one per line
-	List<String> unsealKeys;
 	
-	// turn on renew support - does not apply to periodic tokens we always try to renew them
+	// keys will be in a file one per line external to the application
+	List<String> unsealKeys;
+	File keyFile;
+	
+	// turn on renew support - does not apply to periodic tokens, we always try to renew those
 	boolean renew; 
 	long period; // period to check server, in seconds, default is 300 (every 5 minutes)
 	long min_ttl; // the minimum amount of time, in seconds, we are Ok with this token approaching expiry. default is 30 min.
 	
 	
-	// turn on remote host testing
+	// turn on remote host testing features
 	boolean testReachable;
 	boolean pingHost;
 
 	public HousekeepingConfig() {
+		init = false;
 		unseal = false;
 		renew = true;
 		period = 300; // check every 5 min
@@ -49,6 +55,11 @@ public class HousekeepingConfig {
 
 	List<String> getUnsealKeys() {
 		return unsealKeys;
+	}
+	
+	public HousekeepingConfig init(boolean attemptToInit) {
+		init = attemptToInit;
+		return this;
 	}
 	
 	public HousekeepingConfig unseal(boolean attemptToUnseal) {
@@ -87,16 +98,30 @@ public class HousekeepingConfig {
 	}
 	
 	/**
-	 * The file must have the keys one per line with no other content
+	 * The file must have the keys one per line with no other content.
+	 * 
 	 * @param keyFile
 	 * @return
 	 * @throws IOException 
 	 */
-	public HousekeepingConfig unsealKeys(File keyFile) throws IOException {
+	public HousekeepingConfig unsealKeys(File keyFile) {
+	
 		unsealKeys = new ArrayList<String>();
-		Files.lines(keyFile.toPath()).forEach(item -> {
-			if(item != null && item.trim().length()>0) unsealKeys.add(item);}
-		);
+		this.keyFile = keyFile;
+		
+		// cannot do this until keys are created if init = true
+		if(init == false) {
+			try {
+				Files.lines(keyFile.toPath()).forEach(item -> {
+					if(item != null && item.trim().length()>0) unsealKeys.add(item);
+			     }
+				);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
 		return this;
 	}
+	
 }

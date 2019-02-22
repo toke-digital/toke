@@ -235,6 +235,16 @@ public class Networking implements TokenListener {
 		}
 	}
 	
+	/**
+	 * Optionally use the XVaultToken header - in some cases such as authentication, we do not have a token yet or
+	 * as with /sys/init it is not required
+	 * 
+	 * @param url
+	 * @param json
+	 * @param withXVaultToken
+	 * @return
+	 * @throws IOException
+	 */
 	public Toke put(String url, String json, boolean withXVaultToken) throws IOException {
 		lock.lock();
 		try {

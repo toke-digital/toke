@@ -160,8 +160,6 @@ public class Sys extends ServiceBase implements TokenListener {
 
 	public Toke unseal(String key, boolean reset, boolean migrate) throws ConfigureException {
 
-		latch();
-
 		String url = config.baseURL().append("/sys/unseal").toString();
 		logger.debug("Using: " + url);
 		JSONObject json = new JSONObject().put("key", key).put("reset", reset).put("migrate", migrate);
@@ -173,6 +171,32 @@ public class Sys extends ServiceBase implements TokenListener {
 			// we expect a 200 per the documentation
 			configureExceptionExcept(response, 200);
 			return response;
+		} catch (IOException e) {
+			throw new ConfigureException(e);
+		}
+	}
+	
+	/**
+	 * Just call init with a minimal security threshold - can be used for testing purposes
+	 * 
+	 * @return
+	 * @throws ConfigureException
+	 */
+	public Toke init() throws ConfigureException {
+
+		String url = config.baseURL().append("/sys/init").toString();
+		logger.debug("Using: " + url);
+		JSONObject json = new JSONObject().put("secret_shares", 2).put("secret_threshhold", 2);
+
+		logger.debug(json.toString(4));
+
+		try {
+			Toke response = client.put(url, json.toString(), false);
+			// we expect a 200 per the documentation
+			if(response.code != 200) throw new ConfigureException("Failed to init");
+			
+			return response;
+			
 		} catch (IOException e) {
 			throw new ConfigureException(e);
 		}

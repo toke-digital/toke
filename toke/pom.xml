@@ -9,8 +9,7 @@
 		<version>1.0.0</version>
 	</parent>
 
-	<artifactId>vault-java-driver</artifactId>
-	<version>1.0.0</version>
+	<artifactId>toke-enterprise</artifactId>
 
 	<name>Digital Toke Vault Java Driver</name>
 	<description>A java driver for a subset of Hashicorp's Vault HTTP REST API.</description>

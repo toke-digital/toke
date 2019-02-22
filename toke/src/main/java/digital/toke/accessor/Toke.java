@@ -38,6 +38,12 @@ public class Toke {
 	private Data data;
 	private Secrets list;
 	private Capabilities caps;
+	private Init init;
+	
+	public Init init() {
+		if(init == null) init = new Init(this);
+		return init;
+	}
 
 	/**
 	 * Use with KVv1 and KVv2 reads

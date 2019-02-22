@@ -36,7 +36,7 @@ public class TokeDriver {
 		
 		auth = new Auth(config, httpClient);
 		
-		tokenManager = new TokenManager(auth);
+		tokenManager = new TokenManager(config, auth);
 		tokenManager.addTokenListener(httpClient);
 		
 		sys = new Sys(config, httpClient);
@@ -49,7 +49,24 @@ public class TokeDriver {
 		tokenManager.addTokenListener(kvv2);
 		
 		logger.info("Driver instance "+this.getClass().hashCode() +" initialized");
+		
 	}
+	
+	/**
+	 * Block until Driver is ready for use, i.e., after vault is unsealed and we have a token
+	 * 
+	 * @return
+	 */
+	public boolean isReady() {
+		
+		DefaultHousekeepingImpl impl = new DefaultHousekeepingImpl(this.tokenManager);
+		impl.run(); // initial
+
+		tokenManager.initScheduler(impl);
+		return true;
+	}
+	
+	
 	
 	public Auth auth() {
 		return auth;

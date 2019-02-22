@@ -18,8 +18,8 @@ import digital.toke.exception.ReadException;
 import digital.toke.exception.WriteException;
 
 /**
- * The auth module implements a vault login using various auth types such as LDAP and APPROLE. 
- * Tokens are sent wrapped in events to interested parties
+ * The auth module implements a vault login using various auth types such as
+ * LDAP and APPROLE. Tokens are sent wrapped in events to interested parties
  * 
  * See https://www.vaultproject.io/docs/auth/
  * 
@@ -29,87 +29,87 @@ import digital.toke.exception.WriteException;
 public class Auth {
 
 	private static final Logger logger = LogManager.getLogger(Auth.class);
-	
+
 	TokeDriverConfig config;
 	Networking client;
-	
+
 	public Auth(TokeDriverConfig config, Networking client) {
 		super();
 		this.config = config;
 		this.client = client;
-		logger.info("Auth instance "+this.hashCode()+" configured");
+		logger.info("Auth instance " + this.hashCode() + " configured");
 	}
-	
-	
+
 	public void logoff(Token token) {
 		// destroy token TODO
 	}
-	
+
 	public void logoffSelf() {
 		// destroy token TODO
 	}
-	
+
 	public boolean pingHost() {
-		return client.pingHost(config.host,config.port,200);
+		return client.pingHost(config.host, config.port, 200);
 	}
-	
+
 	public boolean hostIsReachable() {
 		return client.checkIsReachable(config.host);
 	}
-	
+
 	// requires permission on auth/token/renew-self
 	public Token renewSelf(Token token) throws WriteException, ReadException {
-		String url = config.authTokenRenewSelf();	
+		String url = config.authTokenRenewSelf();
 		logger.debug("Using: " + url);
 		JSONObject json = new JSONObject().put("increment", "1h"); // TODO make configurable
 		logger.debug(json.toString(4));
 
 		Toke toke = null;
 		try {
-			toke = client.post(url,json.toString());
+			toke = client.post(url, json.toString());
 		} catch (IOException e) {
 			throw new WriteException(e);
 		}
-		
-		if(!toke.successful) throw new WriteException("Failed to renew token with accessor "+token.accessor());
-		
+
+		if (!toke.successful)
+			throw new WriteException("Failed to renew token with accessor " + token.accessor());
+
 		Token newToken = new Token(new JSONObject(toke.response), toke.successful);
 		return lookupSelf(newToken);
 	}
-	
+
 	// requires permission on auth/token/renew
 	public Token renewPeriodic(Token token) throws WriteException, ReadException {
-		String url = config.authTokenRenew();	
+		String url = config.authTokenRenew();
 		logger.debug("Using: " + url);
 		JSONObject json = new JSONObject().put("token", token.clientToken());
 		logger.debug(json.toString(4));
 
-		
 		Toke toke = null;
 		try {
-			toke = client.post(url,json.toString());
+			toke = client.post(url, json.toString());
 		} catch (IOException e) {
 			throw new WriteException(e);
 		}
-		
-		if(!toke.successful) throw new WriteException("Failed to renew token with accessor "+token.accessor());
-		
+
+		if (!toke.successful)
+			throw new WriteException("Failed to renew token with accessor " + token.accessor());
+
 		Token newToken = new Token(new JSONObject(toke.response), toke.successful);
 		return lookupSelf(newToken);
-		
+
 	}
-	
+
 	public Toke checkSealStatus() throws ReadException {
 
 		String url = config.baseURL().append("/sys/seal-status").toString();
 
 		try {
-			return client.get(url,false);
+			return client.get(url, false);
 		} catch (IOException e) {
 			throw new ReadException(e);
 		}
 	}
-	
+
 	/**
 	 * Unseal for a set of keys. Return the last response
 	 * 
@@ -122,8 +122,8 @@ public class Auth {
 	public Toke unseal(List<String> keys, boolean reset, boolean migrate) throws ConfigureException {
 		Toke toke = null;
 		int count = 1;
-		for(String key: keys) {
-			logger.debug("sending unseal key "+count);
+		for (String key : keys) {
+			logger.debug("sending unseal key " + count);
 			toke = unseal(key, reset, migrate);
 			count++;
 		}
@@ -136,94 +136,95 @@ public class Auth {
 		logger.debug("Using: " + url);
 		JSONObject json = new JSONObject().put("key", key).put("reset", reset).put("migrate", migrate);
 
-	//	logger.debug(json.toString(4));
+		// logger.debug(json.toString(4));
 
 		try {
 			Toke response = client.put(url, json.toString(), false);
 			// we expect a 200 per the documentation
-			if(response.code!= 200) throw new ConfigureException(response.toString());
+			if (response.code != 200)
+				throw new ConfigureException(response.toString());
 			return response;
 		} catch (IOException e) {
 			throw new ConfigureException(e);
 		}
 	}
-	
-	
+
 	// Logins. All logins are POSTs
-	
+
 	Token loginLDAP() throws LoginFailedException {
 		String url = config.authLdapLogin();
 		JSONObject json = new JSONObject();
 		json.put("password", config.password);
-		return httpLogin(url,json);
+		return httpLogin(url, json);
 	}
-	
+
 	/**
-	 * Assumption: bind_secret_id is true for this app role, which forces the secret_id to be used
+	 * Assumption: bind_secret_id is true for this app role, which forces the
+	 * secret_id to be used
 	 * 
 	 * @throws LoginFailedException
 	 */
-    Token loginAppRole() throws LoginFailedException {
+	Token loginAppRole() throws LoginFailedException {
 		String url = config.authAppRoleLogin();
 		JSONObject json = new JSONObject();
 		json.put("role_id", config.roleId);
 		json.put("secret_id", config.secretId);
-		return  httpLogin(url,json);
+		return httpLogin(url, json);
 	}
-    
-    Token loginUserPass() throws LoginFailedException {
-    	logger.debug("in loginUserPass");
-  		String url = config.authUserPassLogin();
-  		JSONObject json = new JSONObject();
-  		json.put("password", config.password);
-  		return httpLogin(url,json);
-  	}
-    
-    Token loginToken() throws LoginFailedException {
-  		String url = config.authTokenLogin();
-  		JSONObject json = new JSONObject();
-  		// TODO at the moment only supporting one config property here
-  		json.put("renewable", config.renewable);
-  		Toke result = null;
-    	try {
-  			result = client.loginToken(url, json.toString(), config.findToken());
-  		} catch (IOException e) {
-  			throw new LoginFailedException(e);
-  		}
-    	
-    	return new Token(new JSONObject(result.response), result.successful);
-		
-    }
-    
-    Token loginToken(CreateTokenParameters params) throws LoginFailedException {
-  		String url = config.authTokenLogin();
-  		JSONObject json = new JSONObject();
-  		// TODO at the moment only supporting one config property here
-  		json.put("renewable", config.renewable);
-  		Toke result = null;
-    	try {
-  			result = client.loginToken(url, json.toString(), config.findToken());
-  		} catch (IOException e) {
-  			throw new LoginFailedException(e);
-  		}
-    	
-    	return new Token(new JSONObject(result.response), result.successful);
-		
-    }
-    
-    private Token httpLogin(String url, JSONObject json) throws LoginFailedException {
-    	
-    	logger.debug("in httpLogin");
-    	Toke result = null;
-    	try {
-  			result = client.login(url, json.toString());
-  			logger.debug("got result: "+result);
-  		} catch (IOException e) {
-  			throw new LoginFailedException(e);
-  		}
-    	return new Token(new JSONObject(result.response), result.successful);
-    }
-    
+
+	Token loginUserPass() throws LoginFailedException {
+		logger.debug("in loginUserPass");
+		String url = config.authUserPassLogin();
+		JSONObject json = new JSONObject();
+		json.put("password", config.password);
+		return httpLogin(url, json);
+	}
+
+	Token loginToken() throws LoginFailedException {
+		String url = config.authTokenLogin();
+		JSONObject json = new JSONObject();
+		// TODO at the moment only supporting one config property here
+		json.put("renewable", config.renewable);
+		Toke result = null;
+		try {
+			result = client.loginToken(url, json.toString(), config.findToken());
+		} catch (IOException e) {
+			throw new LoginFailedException(e);
+		}
+
+		return new Token(new JSONObject(result.response), result.successful);
+
+	}
+
+	Token loginToken(CreateTokenParameters params) throws LoginFailedException {
+		String url = config.authTokenLogin();
+		JSONObject json = new JSONObject();
+		// TODO at the moment only supporting one config property here
+		json.put("renewable", config.renewable);
+		Toke result = null;
+		try {
+			result = client.loginToken(url, json.toString(), config.findToken());
+		} catch (IOException e) {
+			throw new LoginFailedException(e);
+		}
+
+		return new Token(new JSONObject(result.response), result.successful);
+
+	}
+
+	private Token httpLogin(String url, JSONObject json) throws LoginFailedException {
+
+		logger.debug("in httpLogin");
+		Toke result = null;
+		try {
+			result = client.login(url, json.toString());
+			logger.debug("got result: " + result);
+		} catch (IOException e) {
+			throw new LoginFailedException(e);
+		}
+		return new Token(new JSONObject(result.response), result.successful);
+	}
+
 	/**
 	 * Currently implementing LDAP, APPROLE, USERPASS, TOKEN
 	 * 
@@ -231,87 +232,117 @@ public class Auth {
 	 * @throws LoginFailedException
 	 */
 	public Token login() throws LoginFailedException {
-		
+
 		Token t = null;
-		switch(config.authType) {
-			case LDAP: {
-				t = loginLDAP();
-				break;
-			}
-			case APPROLE: {
-				t = loginAppRole();
-				break;
-			}
-			case USERPASS: {
-				t = loginUserPass();
-				break;
-			}
-			case TOKEN: {
-				t = loginToken();
-				break;
-			}
-			default: {
-				// should fail before this
-				break;
-			}
+		switch (config.authType) {
+		case LDAP: {
+			t = loginLDAP();
+			break;
 		}
-		
+		case APPROLE: {
+			t = loginAppRole();
+			break;
+		}
+		case USERPASS: {
+			t = loginUserPass();
+			break;
+		}
+		case TOKEN: {
+			t = loginToken();
+			break;
+		}
+		default: {
+			// should fail before this
+			break;
+		}
+		}
+
 		return t;
 	}
-	
+
 	public Token lookupSelf(Token t) throws ReadException {
-		
+
 		String url = config.authTokenLookupSelf();
-		logger.debug("using url = "+url);
-		
+		logger.debug("using url = " + url);
+
 		Toke toke = null;
 		try {
 			toke = client.get(url);
 		} catch (IOException e) {
 			throw new ReadException(e);
 		}
-		
-		if(toke.successful) {
-			if(toke.response == null || toke.response.contains("errors")) {
-				throw new ReadException("Errors on token lookup: "+toke.response);
-			}else {
-			   return new Token(t.getJson(),
-					   t.fromSuccessfulLoginRequest,
-					   new JSONObject(toke.response));
-		    }
-		}else {
-			throw new ReadException("Failed to perform lookup: "+toke.toString());
+
+		if (toke.successful) {
+			if (toke.response == null || toke.response.contains("errors")) {
+				throw new ReadException("Errors on token lookup: " + toke.response);
+			} else {
+				return new Token(t.getJson(), t.fromSuccessfulLoginRequest, new JSONObject(toke.response));
+			}
+		} else {
+			throw new ReadException("Failed to perform lookup: " + toke.toString());
 		}
-		
+
 	}
-	
-public Token lookup(Token t) throws ReadException {
-		
+
+	public Token lookup(Token t) throws ReadException {
+
 		String url = config.authTokenLookup();
-		logger.debug("using url = "+url);
-		
+		logger.debug("using url = " + url);
+
 		JSONObject json = new JSONObject();
-		json.put("token",t.clientToken());
-		
+		json.put("token", t.clientToken());
+
 		Toke toke = null;
 		try {
-			toke = client.post(url,json.toString());
+			toke = client.post(url, json.toString());
 		} catch (IOException e) {
 			throw new ReadException(e);
 		}
-		
-		if(toke.successful) {
-			if(toke.response == null || toke.response.contains("errors")) {
-				throw new ReadException("Errors on token lookup: "+toke.response);
-			}else {
-			   return new Token(t.getJson(),
-					   t.fromSuccessfulLoginRequest,
-					   new JSONObject(toke.response));
-		    }
-		}else {
-			throw new ReadException("Failed to perform lookup: "+toke.toString());
+
+		if (toke.successful) {
+			if (toke.response == null || toke.response.contains("errors")) {
+				throw new ReadException("Errors on token lookup: " + toke.response);
+			} else {
+				return new Token(t.getJson(), t.fromSuccessfulLoginRequest, new JSONObject(toke.response));
+			}
+		} else {
+			throw new ReadException("Failed to perform lookup: " + toke.toString());
 		}
-		
+
 	}
 	
+	
+	public Toke initVault() throws ConfigureException {
+		return initVault(3,2);
+	}
+
+	/**
+	 * Just call init with a minimal security threshold - can be used for testing
+	 * purposes
+	 * 
+	 * @return
+	 * @throws ConfigureException
+	 */
+	public Toke initVault(int secretShares, int secretThreshhold) throws ConfigureException {
+
+		String url = config.baseURL().append("/sys/init").toString();
+		logger.debug("Using: " + url);
+		JSONObject json = new JSONObject().put("secret_shares", secretShares).put("secret_threshold", secretThreshhold);
+
+		logger.debug(json.toString(4));
+
+		try {
+			Toke response = client.put(url, json.toString(), false);
+			// we expect a 200 per the documentation
+			if (response.code != 200) {
+				throw new ConfigureException("Failed to init: "+response.response);
+				
+			}
+			return response;
+
+		} catch (IOException e) {
+			throw new ConfigureException(e);
+		}
+	}
+
 }

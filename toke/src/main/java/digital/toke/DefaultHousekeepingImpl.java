@@ -45,6 +45,10 @@ public class DefaultHousekeepingImpl extends HousekeepingBase {
 			}
 		}
 		
+		// 0.9 if init is set to true, attempt to create a new vault instance, write unseal keys, and put root token into 'token' field in config.
+		
+	    initVault();
+		
 		// 1.0 - see if unseal requested or needed to get our vault back up and running
 		unseal();
 		

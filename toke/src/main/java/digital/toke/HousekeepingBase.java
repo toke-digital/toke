@@ -4,6 +4,7 @@
  */
 package digital.toke;
 
+
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -51,9 +52,46 @@ public abstract class HousekeepingBase implements Runnable {
 		this.config = config;
 		this.tokenManager = parent;
 	}
-
+	
 	/**
-	 * If we are configured with unseal keys and 'unseal' is true, we can do this
+	 * If init is successful, it sets up to run unseal immediately ad login with the root token. 
+	 */
+	protected void initVault() {
+		
+		// very special case, we are initializing a new vault instance. 
+		if(this.config.init) {
+			try {
+				
+				// TODO, find out if it makes sense to try to init at all ....
+				
+				Auth auth = tokenManager.getAuth();
+				TokeDriverConfig driverConfig = tokenManager.getDriverConfig();
+				Toke response = auth.initVault();
+				logger.debug("Result of init call: "+response.response);
+				response.init().writeKeysToFile(this.config.keyFile);
+				
+				// this will set up initial unseal - this vault has never been unsealed before
+				this.config.unsealKeys = response.init().keys();
+				this.config.unseal = true;
+				
+				// this will set up our initial root login
+				driverConfig.token(response.init().rootToken());
+				driverConfig.authType = AuthType.TOKEN;
+				
+				logger.debug("root token set in config, you should be good to go for unseal");
+				
+			} catch (ConfigureException e) {
+				e.printStackTrace();
+				return;
+			}
+			
+			// if attempt successful, unset flag for init, we do not want to re-try this
+			this.config.init = false;
+		}
+	}
+	
+	/**
+	 * If we are configured with unseal keys and 'unseal' is true, and we have unseal keys, we can do this
 	 * operation. If not, nothing happens
 	 */
 	protected void unseal() {
@@ -86,10 +124,10 @@ public abstract class HousekeepingBase implements Runnable {
 						return;
 					}
 				}else {
-					logger.info("Vault sealed, but conditions not met in config to attempt unseal");
+					logger.error("Problem: vault sealed, but conditions not met in config to attempt unseal");
 				}
 			} else {
-				logger.info("Vault instance appears to be unsealed  - good.");
+				logger.info("Vault instance appears to be unsealed  - good. Exiting this method.");
 			}
 		} catch (ReadException e1) {
 			logger.error(e1);
