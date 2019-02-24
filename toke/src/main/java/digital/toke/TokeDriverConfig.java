@@ -66,7 +66,7 @@ public class TokeDriverConfig {
 
 	
 	/**
-	 * Sets to default values
+	 * Sets to the documented default values
 	 */
 	public TokeDriverConfig() {
 		vaultApiPrefix = "/v1";
@@ -310,6 +310,11 @@ public class TokeDriverConfig {
 		return this;
 	}
 	
+	public TokeDriverConfig authType(AuthType type) {
+		authType = type;
+		return this;
+	}
+	
 	public TokeDriverConfig token(String val) {
 		token = val;
 		return this;
@@ -361,8 +366,8 @@ public class TokeDriverConfig {
 	}
 
 	/**
-	 * Used with initial token-based authentication, e.g., a root token. This token is always used to
-	 * acquire a child token for the actual service calls - it will not be used directly
+	 * Used with initial token-based authentication, e.g., typically a root token. This initial login token is always used to
+	 * acquire a child token for the actual service calls - it will never be used directly for api calls
 	 * 
 	 * @return
 	 */
@@ -395,6 +400,140 @@ public class TokeDriverConfig {
 		this.housekeepingConfig = housekeepingConfig;
 		return this;
 	}
+	
+	public TokeDriverConfig build() {
+		
+		// complete any builder-style work here, prior to using the config.
+		logger.debug(this.toString());
+		
+		return this;
+	}
+
+	@Override
+	public String toString() {
+	  return super.toString();
+	}
+
+	@Override
+	
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((authPath == null) ? 0 : authPath.hashCode());
+		result = prime * result + ((authType == null) ? 0 : authType.hashCode());
+		result = prime * result + ((defaultKVv1Name == null) ? 0 : defaultKVv1Name.hashCode());
+		result = prime * result + ((defaultKVv2Name == null) ? 0 : defaultKVv2Name.hashCode());
+		result = prime * result + ((host == null) ? 0 : host.hashCode());
+		result = prime * result + ((housekeepingConfig == null) ? 0 : housekeepingConfig.hashCode());
+		result = prime * result + ((kv1Name == null) ? 0 : kv1Name.hashCode());
+		result = prime * result + ((kv2Name == null) ? 0 : kv2Name.hashCode());
+		result = prime * result + ((password == null) ? 0 : password.hashCode());
+		result = prime * result + port;
+		result = prime * result + ((proto == null) ? 0 : proto.hashCode());
+		result = prime * result + (renewable ? 1231 : 1237);
+		result = prime * result + ((roleId == null) ? 0 : roleId.hashCode());
+		result = prime * result + ((secretId == null) ? 0 : secretId.hashCode());
+		result = prime * result + ((token == null) ? 0 : token.hashCode());
+		result = prime * result + ((tokenFile == null) ? 0 : tokenFile.hashCode());
+		result = prime * result + ((username == null) ? 0 : username.hashCode());
+		result = prime * result + ((vaultApiPrefix == null) ? 0 : vaultApiPrefix.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TokeDriverConfig other = (TokeDriverConfig) obj;
+		if (authPath == null) {
+			if (other.authPath != null)
+				return false;
+		} else if (!authPath.equals(other.authPath))
+			return false;
+		if (authType != other.authType)
+			return false;
+		if (defaultKVv1Name == null) {
+			if (other.defaultKVv1Name != null)
+				return false;
+		} else if (!defaultKVv1Name.equals(other.defaultKVv1Name))
+			return false;
+		if (defaultKVv2Name == null) {
+			if (other.defaultKVv2Name != null)
+				return false;
+		} else if (!defaultKVv2Name.equals(other.defaultKVv2Name))
+			return false;
+		if (host == null) {
+			if (other.host != null)
+				return false;
+		} else if (!host.equals(other.host))
+			return false;
+		if (housekeepingConfig == null) {
+			if (other.housekeepingConfig != null)
+				return false;
+		} else if (!housekeepingConfig.equals(other.housekeepingConfig))
+			return false;
+		if (kv1Name == null) {
+			if (other.kv1Name != null)
+				return false;
+		} else if (!kv1Name.equals(other.kv1Name))
+			return false;
+		if (kv2Name == null) {
+			if (other.kv2Name != null)
+				return false;
+		} else if (!kv2Name.equals(other.kv2Name))
+			return false;
+		if (password == null) {
+			if (other.password != null)
+				return false;
+		} else if (!password.equals(other.password))
+			return false;
+		if (port != other.port)
+			return false;
+		if (proto == null) {
+			if (other.proto != null)
+				return false;
+		} else if (!proto.equals(other.proto))
+			return false;
+		if (renewable != other.renewable)
+			return false;
+		if (roleId == null) {
+			if (other.roleId != null)
+				return false;
+		} else if (!roleId.equals(other.roleId))
+			return false;
+		if (secretId == null) {
+			if (other.secretId != null)
+				return false;
+		} else if (!secretId.equals(other.secretId))
+			return false;
+		if (token == null) {
+			if (other.token != null)
+				return false;
+		} else if (!token.equals(other.token))
+			return false;
+		if (tokenFile == null) {
+			if (other.tokenFile != null)
+				return false;
+		} else if (!tokenFile.equals(other.tokenFile))
+			return false;
+		if (username == null) {
+			if (other.username != null)
+				return false;
+		} else if (!username.equals(other.username))
+			return false;
+		if (vaultApiPrefix == null) {
+			if (other.vaultApiPrefix != null)
+				return false;
+		} else if (!vaultApiPrefix.equals(other.vaultApiPrefix))
+			return false;
+		return true;
+	}
+
+	
 	
 	
 

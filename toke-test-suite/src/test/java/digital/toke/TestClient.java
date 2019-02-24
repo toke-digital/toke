@@ -12,8 +12,6 @@ import java.io.File;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import digital.toke.accessor.Toke;
-import digital.toke.exception.ReadException;
 
 public class TestClient {
 	
@@ -22,13 +20,16 @@ public class TestClient {
 	@BeforeAll
 	public static void init() {
 
-		File keyFile = new File("./target/runtime/keyFile.txt");
+		File keyFile = new File("./target/runtime/keyFile.json");
 		HousekeepingConfig hc = new HousekeepingConfig()
 				.reachable(true)
 				.pingHost(true)
 				.init(true)  // special case, on success root token will be inserted into config.token as it is assumed we will need it
 				.unseal(true)
-				.unsealKeys(keyFile); // keys will be written here
+				.unsealKeys(keyFile) // keys and root token will be written here
+				.build();
+		
+		System.out.println("housekeepingConfig: "+hc.toString());
 		
 		TokeDriverConfig config = new TokeDriverConfig()
 				.proto("http")
@@ -36,8 +37,11 @@ public class TestClient {
 				.port(8201)
 				.kvName("toke-kv1") 
 				.kv2Name("toke-kv2")
-				.authType("token")  // normally would need to set token(token) but with init == true init method will do this for us
-				.housekeepingConfig(hc);
+				.authType("TOKEN")  // see AuthType enum for the suported types 
+				.housekeepingConfig(hc)
+				.build();
+		
+		System.out.println("housekeepingConfig: "+config.toString());
 		 
 		driver = new TokeDriver(config);
 		
@@ -49,8 +53,8 @@ public class TestClient {
 			assertTrue(driver != null);
 			driver.isReady();
 			assertNotNull(driver.sys.token);
-		
-		
+			
+			
 	}
 
 }

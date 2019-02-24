@@ -35,14 +35,22 @@ public class DefaultHousekeepingImpl extends HousekeepingBase {
 			if(!tokenManager.getAuth().hostIsReachable()) {
 				logger.error("Host not reachable...bailing out of housekeeping.");
 				return;
+			}else {
+				logger.debug("Host "+this.tokenManager.getDriverConfig().host+" is reachable.");
 			}
+		}else {
+			logger.debug("host reachable test not performed because not requested. set config.testReachable to true for this test to occur");
 		}
 		
 		if(this.config.pingHost) {
 			if(!tokenManager.getAuth().pingHost()) {
 				logger.error("Socket probe failed...bailing out of housekeeping.");
 				return;
+			}else {
+				logger.debug("ping test on"+this.tokenManager.getDriverConfig().host+" was successful");
 			}
+		}else {
+			logger.debug("host reachable test not performed because not requested. set config.pingHost to true for this test to occur");
 		}
 		
 		// 0.9 if init is set to true, attempt to create a new vault instance, write unseal keys, and put root token into 'token' field in config.
@@ -63,6 +71,10 @@ public class DefaultHousekeepingImpl extends HousekeepingBase {
 		tokenManager.updateManagedSet(renewals); // this also fires event, sends list
 		
 		logger.debug("Completed housekeeping run...");
+		logger.debug("Token manager has "+tokenManager.getManagedTokens().size()+" tokens");
+		for(Token t: tokenManager.getManagedTokens()) {
+			logger.debug("  "+t.toString());
+		}
 		
 	}
 	

@@ -19,6 +19,9 @@ import digital.toke.event.TokenEvent;
 import digital.toke.event.TokenListener;
 import digital.toke.exception.ConfigureException;
 import digital.toke.exception.ReadException;
+import digital.toke.policy.Policy;
+import digital.toke.spec.AuthSpec;
+import digital.toke.spec.SecretsEngineSpec;
 
 /**
  * Implement the RESTful interface calls to the vault back-end
@@ -61,6 +64,163 @@ public class Sys extends ServiceBase implements TokenListener {
 			logger.info("Reloaded token on a Sys instance.");
 		}
 	}
+	
+	
+	
+	//************  Policy Support ************//
+	
+	public Toke listPolicies() throws ReadException {
+		String url = config.baseURL().append("/sys/policy").toString();
+		logger.debug("Using: " + url);
+		try {
+			Toke response = client.get(url);
+			// we expect a 200 per the documentation
+			if(response.code != 200) throw new ReadException("Failed to get a 200 response on /sys/policy");
+			return response;
+		} catch (IOException e) {
+			throw new ReadException(e);
+		}
+	}
+	
+	public Toke readPolicy(String policyName) throws ReadException {
+		String url = config.baseURL().append("/sys/policy/"+policyName).toString();
+		logger.debug("Using: " + url);
+		try {
+			Toke response = client.get(url);
+			// we expect a 200 per the documentation
+			if(response.code != 200) throw new ReadException("Failed to get a 200 response on /sys/policy/<polName>");
+			return response;
+		} catch (IOException e) {
+			throw new ReadException(e);
+		}
+	}
+	
+	/**
+	 * The policy is an ACL instruction regarding an individual path. See https://www.vaultproject.io/docs/concepts/policies.html
+	 * The API is basically one policy at a time - fairly limited support IMHO.
+	 * 
+	 * @param policyName
+	 * @param policy
+	 * @return
+	 */
+	public Toke createUpdatePolicy(String policyName, Policy policy) throws ConfigureException {
+		String url = config.baseURL().append("/sys/policy/"+policyName).toString();
+		logger.debug("Using: " + url);
+		
+		try {
+			Toke response = client.put(url, policy.toString(), true);
+			// we expect a 204 per the documentation
+			if(response.code != 204) throw new ConfigureException("Failed to get a 204 response on /sys/policy/"+policyName);
+			return response;
+		} catch (IOException e) {
+			throw new ConfigureException(e);
+		}
+	}
+	
+	
+	
+	// ******************* END Policy Support ***************** //
+	
+	// *******************  Mount support (create/enable secrets engines ****************  //
+	
+	
+	public Toke listMounts() throws ReadException {
+		String url = config.baseURL().append("/sys/mounts").toString();
+		logger.debug("Using: " + url);
+		try {
+			Toke response = client.get(url);
+			// we expect a 200 per the documentation
+			if(response.code != 200) throw new ReadException("Failed to get a 200 response on /sys/mounts");
+			return response;
+		} catch (IOException e) {
+			throw new ReadException(e);
+		}
+	}
+	
+	/**
+	 * Call the unfortunately named /sys/mounts.
+	 * 
+	 * Note: according to the documentation, "path" must be ASCII encoded.
+	 * 
+	 * @param name
+	 * @param params
+	 * @return
+	 * @throws ConfigureException
+	 */
+	public Toke enableSecretsEngine(String path, SecretsEngineSpec params) throws ConfigureException {
+		String url = config.baseURL().append("/sys/mounts/"+path).toString();
+		logger.debug("Using: " + url);
+		
+		try {
+			Toke response = client.put(url, params.toString(), true);
+			// we expect a 204 per the documentation
+			if(response.code != 204) throw new ConfigureException("Failed to get a 204 response on /sys/mounts/"+path);
+			return response;
+		} catch (IOException e) {
+			throw new ConfigureException(e);
+		}
+	}
+	
+	
+	// TODO
+	// disable
+	
+	// read mount configuration
+	
+	
+	
+	// tune mount configuration
+	
+	
+	
+	
+	
+	// *******************  END Mount support (create/enable secrets engines ****************  //
+	
+	// ******************** START SYS AUTH configure/enable methods ***************************** //
+	
+	public Toke listAuth() throws ReadException {
+		String url = config.baseURL().append("/sys/auth").toString();
+		logger.debug("Using: " + url);
+		try {
+			Toke response = client.get(url);
+			// we expect a 200 per the documentation
+			if(response.code != 200) throw new ReadException("Failed to get a 200 response on /sys/auth");
+			return response;
+		} catch (IOException e) {
+			throw new ReadException(e);
+		}
+	}
+	
+	
+	/**
+	 * Enable an auth method.
+	 * 
+	 * Note: the documentation says sudo privilege is required on /sys/auth to perform this action
+	 * 
+	 * @param path
+	 * @param spec
+	 * @return
+	 * @throws ConfigureException
+	 */
+	public Toke enableAuthMethod(String path, AuthSpec spec) throws ConfigureException {
+		String url = config.baseURL().append("/sys/auth/"+path).toString();
+		logger.debug("Using: " + url);
+		
+		try {
+			Toke response = client.put(url, spec.toString(), true);
+			// we expect a 204 per the documentation
+			if(response.code != 204) throw new ConfigureException("Failed to get a 204 response on /sys/mounts/"+path);
+			return response;
+		} catch (IOException e) {
+			throw new ConfigureException(e);
+		}
+	}
+	
+	
+	
+	// ******************** END SYS AUTH configure/enable methods ***************************** //
+	
 
 	public Toke capabilities(String token, String path) throws ReadException {
 		List<String> paths = new ArrayList<String>(1);

@@ -103,9 +103,11 @@ public abstract class HousekeepingBase implements Runnable {
 			Toke response = auth.checkSealStatus();
 			SealStatus vaultInstance = new SealStatus(response);
 			if (vaultInstance.isSealed()) {
+				logger.info("Notice: vault is sealed and we will attempt to unseal if the conditions for that have been met");
 				// check to see if we should attempt unsealing
 				if (config.unseal && (config.unsealKeys != null) && (config.unsealKeys.size()>0)) {
 					try {
+						logger.info("conditions met to attempt unseal: 1) requested, 2) unsealKeys is set; 3) unseal keys size is greater than 0");
 						response = auth.unseal(config.getUnsealKeys(), false, false);
 					} catch (ConfigureException e) {
 						logger.error(e);
@@ -141,7 +143,7 @@ public abstract class HousekeepingBase implements Runnable {
 	 * This method needs to return immediately if useCachedTokens is not set
 	 */
 	protected void loadCachedTokens() {
-
+		logger.info("No cached tokens to load");
 	}
 
 	/**
@@ -157,7 +159,7 @@ public abstract class HousekeepingBase implements Runnable {
 
 		if (tokens.size() == 0) {
 
-			logger.info("Zero tokens found, trying to login to get one...");
+			logger.info("Zero managed tokens found, trying to login to get one...");
 
 			Token token = null;
 			try {

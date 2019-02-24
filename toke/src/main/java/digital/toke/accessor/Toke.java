@@ -7,6 +7,12 @@ package digital.toke.accessor;
 /**
  * Simple wrapper on the response out of OKHTTP with HTTPResponse code, success flag, and message body.
  * 
+ * The metaphor of the "toke" is the in/out breathing of taking a hit off something. So each "toke" is an API call. ;-)
+ * 
+ * The other part of the conept is that the Toke object has an unbound JSON body which needs to be interpreted. We
+ * use Accessor objects for this purpose. Each accessor knows how to bind a json string and also has accessor methods
+ * appropriate to our needs in that specific case.
+ * 
  * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */

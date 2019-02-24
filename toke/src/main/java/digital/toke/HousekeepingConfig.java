@@ -10,6 +10,9 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Input parameters for housekeeping (Token lifecycle management)
  * 
@@ -17,6 +20,8 @@ import java.util.List;
  *
  */
 public class HousekeepingConfig {
+	
+	private static final Logger logger = LogManager.getLogger(HousekeepingConfig.class);
 	
 	// turn on init support
 	boolean init; 
@@ -38,6 +43,9 @@ public class HousekeepingConfig {
 	boolean testReachable;
 	boolean pingHost;
 
+	/**
+	 * Create an instance with some sane defaults.
+	 */
 	public HousekeepingConfig() {
 		init = false;
 		unseal = false;
@@ -47,6 +55,7 @@ public class HousekeepingConfig {
 		
 		testReachable = true;
 		pingHost = true;
+		
 	}
 	
 	public static HousekeepingConfig defaultInstance() {
@@ -122,6 +131,66 @@ public class HousekeepingConfig {
 		}
 		
 		return this;
+	}
+	
+	public HousekeepingConfig build() {
+		
+		// complete any builder-style work here, prior to using the config.
+		logger.debug(this.toString());
+		
+		return this;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (init ? 1231 : 1237);
+		result = prime * result + ((keyFile == null) ? 0 : keyFile.hashCode());
+		result = prime * result + (int) (min_ttl ^ (min_ttl >>> 32));
+		result = prime * result + (int) (period ^ (period >>> 32));
+		result = prime * result + (pingHost ? 1231 : 1237);
+		result = prime * result + (renew ? 1231 : 1237);
+		result = prime * result + (testReachable ? 1231 : 1237);
+		result = prime * result + (unseal ? 1231 : 1237);
+		result = prime * result + ((unsealKeys == null) ? 0 : unsealKeys.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		HousekeepingConfig other = (HousekeepingConfig) obj;
+		if (init != other.init)
+			return false;
+		if (keyFile == null) {
+			if (other.keyFile != null)
+				return false;
+		} else if (!keyFile.equals(other.keyFile))
+			return false;
+		if (min_ttl != other.min_ttl)
+			return false;
+		if (period != other.period)
+			return false;
+		if (pingHost != other.pingHost)
+			return false;
+		if (renew != other.renew)
+			return false;
+		if (testReachable != other.testReachable)
+			return false;
+		if (unseal != other.unseal)
+			return false;
+		if (unsealKeys == null) {
+			if (other.unsealKeys != null)
+				return false;
+		} else if (!unsealKeys.equals(other.unsealKeys))
+			return false;
+		return true;
 	}
 	
 }

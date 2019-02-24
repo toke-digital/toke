@@ -130,8 +130,6 @@ public class KVv1 extends KV {
 		return response;
 	}
 	
-	
-	
 	/**
 	 * Delete the previous version to the current one
 	 * 

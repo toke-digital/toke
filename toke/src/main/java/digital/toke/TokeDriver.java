@@ -66,8 +66,6 @@ public class TokeDriver {
 		return true;
 	}
 	
-	
-	
 	public Auth auth() {
 		return auth;
 	}
@@ -82,6 +80,11 @@ public class TokeDriver {
 	
 	public KVv2 kv2() {
 		return kvv2;
+	}
+	
+	@Override
+	public String toString() {
+		return super.toString();
 	}
 
 }
