@@ -17,12 +17,20 @@ public class TestClient {
 	
 	static TokeDriver driver;
 	
+	/**
+	 * This method creates a vault instance and populates it for testing on each run
+	 * 
+	 */
 	@BeforeAll
 	public static void init() {
 
+		
+		// keys will be written into this location after init
 		File keyFile = new File("./target/runtime/keyFile.json");
-		HousekeepingConfig hc = new HousekeepingConfig()
-				.reachable(true)
+		
+		
+		HousekeepingConfig hc = HousekeepingConfig.builder()
+	            .reachable(true)
 				.pingHost(true)
 				.init(true)  // special case, on success root token will be inserted into config.token as it is assumed we will need it
 				.unseal(true)
@@ -31,7 +39,7 @@ public class TestClient {
 		
 		System.out.println("housekeepingConfig: "+hc.toString());
 		
-		TokeDriverConfig config = new TokeDriverConfig()
+		TokeDriverConfig config = TokeDriverConfig.builder()
 				.proto("http")
 				.host("127.0.0.1")
 				.port(8201)

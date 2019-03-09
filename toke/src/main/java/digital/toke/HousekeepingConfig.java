@@ -42,95 +42,131 @@ public class HousekeepingConfig {
 	// turn on remote host testing features
 	boolean testReachable;
 	boolean pingHost;
+	
+	public static Builder builder() {
+		return new Builder();
+	}
 
-	/**
-	 * Create an instance with some sane defaults.
-	 */
-	public HousekeepingConfig() {
-		init = false;
-		unseal = false;
-		renew = true;
-		period = 300; // check every 5 min
-		min_ttl = 1800; // renew if difference between expire_date and now is less than 30 min.  
+	public static class Builder {
+		// turn on init support
+		boolean init; 
 		
-		testReachable = true;
-		pingHost = true;
+		// turn on unseal support
+		boolean unseal;
 		
+		// keys will be in a file one per line external to the application
+		List<String> unsealKeys;
+		File keyFile;
+		
+		// turn on renew support - does not apply to periodic tokens, we always try to renew those
+		boolean renew; 
+		long period; // period to check server, in seconds, default is 300 (every 5 minutes)
+		long min_ttl; // the minimum amount of time, in seconds, we are Ok with this token approaching expiry. default is 30 min.
+		
+		
+		// turn on remote host testing features
+		boolean testReachable;
+		boolean pingHost;
+		
+		/**
+		 * Has sane defaults: init and unseal are false by default, token renew (if available) is true
+		 */
+		public Builder() {
+			init = false;
+			unseal = false;
+			renew = true;
+			period = 300; // check every 5 min
+			min_ttl = 1800; // renew if difference between expire_date and now is less than 30 min.  
+			
+			testReachable = true;
+			pingHost = true;
+		}
+		
+		public Builder init(boolean attemptToInit) {
+			init = attemptToInit;
+			return this;
+		}
+		public Builder unseal(boolean attemptToUnseal) {
+			unseal = attemptToUnseal;
+			return this;
+		}
+		
+		public Builder renew(boolean attemptToRenewTokens) {
+			renew = attemptToRenewTokens;
+			return this;
+		}
+		
+		public Builder period(int periodInSeconds) {
+			period = periodInSeconds;
+			return this;
+		}
+		
+		public Builder minttl(int minInSeconds) {
+			min_ttl = minInSeconds;
+			return this;
+		}
+		
+		public Builder pingHost(boolean pingHost) {
+			this.pingHost = pingHost;
+			return this;
+		}
+		
+		public Builder reachable(boolean testReachable) {
+			this.testReachable = testReachable;
+			return this;
+		}
+		
+		public Builder unsealKeys(List<String> keys) {
+			this.unsealKeys = keys;
+			return this;
+		}
+		
+		/**
+		 * The file must have the keys one per line with no other content.
+		 * 
+		 * @param keyFile
+		 * @return
+		 * @throws IOException 
+		 */
+		public Builder unsealKeys(File keyFile) {
+		
+			unsealKeys = new ArrayList<String>();
+			this.keyFile = keyFile;
+			
+			// cannot do this until keys are created if init = true
+			if(init == false) {
+				try {
+					Files.lines(keyFile.toPath()).forEach(item -> {
+						if(item != null && item.trim().length()>0) unsealKeys.add(item);
+				     }
+					);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			return this;
+		}
+		
+		public HousekeepingConfig build() {
+			HousekeepingConfig config = new HousekeepingConfig();
+			config.init = this.init;
+			config.keyFile = this.keyFile;
+			config.min_ttl = this.min_ttl;
+			config.period = this.period;
+			config.pingHost = this.pingHost;
+			config.renew = this.renew;
+			config.testReachable = this.testReachable;
+			config.unseal = this.unseal;
+			config.unsealKeys = this.unsealKeys;
+			return config; 
+		}
 	}
 	
-	public static HousekeepingConfig defaultInstance() {
-		return new HousekeepingConfig();
-	}
+	private HousekeepingConfig() {}
 
 	List<String> getUnsealKeys() {
 		return unsealKeys;
-	}
-	
-	public HousekeepingConfig init(boolean attemptToInit) {
-		init = attemptToInit;
-		return this;
-	}
-	
-	public HousekeepingConfig unseal(boolean attemptToUnseal) {
-		unseal = attemptToUnseal;
-		return this;
-	}
-	
-	public HousekeepingConfig renew(boolean attemptToRenewTokens) {
-		renew = attemptToRenewTokens;
-		return this;
-	}
-	
-	public HousekeepingConfig period(int periodInSeconds) {
-		period = periodInSeconds;
-		return this;
-	}
-	
-	public HousekeepingConfig minttl(int minInSeconds) {
-		min_ttl = minInSeconds;
-		return this;
-	}
-	
-	public HousekeepingConfig pingHost(boolean pingHost) {
-		this.pingHost = pingHost;
-		return this;
-	}
-	
-	public HousekeepingConfig reachable(boolean testReachable) {
-		this.testReachable = testReachable;
-		return this;
-	}
-	
-	public HousekeepingConfig unsealKeys(List<String> keys) {
-		this.unsealKeys = keys;
-		return this;
-	}
-	
-	/**
-	 * The file must have the keys one per line with no other content.
-	 * 
-	 * @param keyFile
-	 * @return
-	 * @throws IOException 
-	 */
-	public HousekeepingConfig unsealKeys(File keyFile) {
-	
-		unsealKeys = new ArrayList<String>();
-		this.keyFile = keyFile;
-		
-		// cannot do this until keys are created if init = true
-		if(init == false) {
-			try {
-				Files.lines(keyFile.toPath()).forEach(item -> {
-					if(item != null && item.trim().length()>0) unsealKeys.add(item);
-			     }
-				);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		return this;
 	}
 	
 	public HousekeepingConfig build() {

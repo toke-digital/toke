@@ -42,7 +42,7 @@ public abstract class HousekeepingBase implements Runnable {
 		this.tokenManager = parent;
 		HousekeepingConfig hc = this.tokenManager.getAuth().config.getHousekeepingConfig();
 		if(hc == null ) {
-			config = HousekeepingConfig.defaultInstance();
+			config = new HousekeepingConfig.Builder().build(); // defaults
 		}else {
 			config = hc;
 		}
@@ -75,7 +75,7 @@ public abstract class HousekeepingBase implements Runnable {
 				this.config.unseal = true;
 				
 				// this will set up our initial root login
-				driverConfig.token(response.init().rootToken());
+				driverConfig.setToken(response.init().rootToken());
 				driverConfig.authType = AuthType.TOKEN;
 				
 				logger.debug("root token set in config, you should be good to go for unseal");
