@@ -1,6 +1,8 @@
 
 # create a policy for bob - for testing
 
+# this policy set works with a kv-v1 secrets engine mounted at "toke-kv1/" and a kv-v2 engine mounted at "toke-kv2/"
+
 # auth
 
 # needed for driver operation
@@ -35,8 +37,9 @@ path "sys/capabilities-accessor" {
   capabilities = ["read"]
 }
 
+# the exact permissions on this endpoint are ambiguous or undocumented, so give a likely set. 
 path "sys/wrapping/*" {
-  capabilities = ["read"]
+  capabilities = ["read", "create", "update"]
 }
 
 # kv1

@@ -95,6 +95,19 @@ public class Sys extends ServiceBase implements TokenListener {
 		}
 	}
 	
+	public Toke writePolicy(String policyName, String policyJSON) throws ReadException {
+		String url = config.baseURL().append("/sys/policy/"+policyName).toString();
+		logger.debug("Using: " + url);
+		try {
+			Toke response = client.put(url, policyJSON, true);
+			// we expect a 204 per the documentation
+			if(response.code != 200) throw new ReadException("Failed to get a 200 response on /sys/policy/<polName>");
+			return response;
+		} catch (IOException e) {
+			throw new ReadException(e);
+		}
+	}
+	
 	/**
 	 * The policy is an ACL instruction regarding an individual path. See https://www.vaultproject.io/docs/concepts/policies.html
 	 * The API is basically one policy at a time - fairly limited support IMHO.
