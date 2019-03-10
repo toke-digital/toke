@@ -10,6 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -50,7 +52,7 @@ public class TestClient {
 				.pingHost(true)
 				.init(true)  // special case, on success root token will be inserted into config.token as it is assumed we will need it
 				.unseal(true)
-				.unsealKeys(keyFile) // keys and root token will be written here
+				.unsealKeys(keyFile) // if unseal is true, keys and root token will be written here
 				.build();
 		
 		System.out.println("housekeepingConfig: "+hc.toString());
@@ -95,6 +97,12 @@ public class TestClient {
 				up.createUpdateUser(user);
 				t = up.readUser("bob", "my-userpass");
 				System.out.println("bob: "+t.userData().toString());
+				
+//				KVv1 secretsEngine = driver.kv();
+//				Map<String,Object> map = new HashMap<String,Object>();
+//				map.put("key1", "value1");
+//				map.put("key2", "value2");
+//				secretsEngine.kvWrite("my-secret/subpath", map);
 		        
 				
 			} catch (WriteException e) {
