@@ -102,7 +102,7 @@ Maven:
 <dependency>
    	<groupId>digital.toke</groupId>
 	<artifactId>vault-java-driver</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 </dependency>
 ```
 
