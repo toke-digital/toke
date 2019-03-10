@@ -16,12 +16,12 @@ Java 8
 ## Problem we are trying to solve
 ---------------------
 
-One typical use=case for Hashicorp Vault is at deploy time we just need a few secrets out of the vault, for example in
+One typical use case for Hashicorp Vault is at deploy time we just need a few secrets out of the vault, for example in
 the process of running Ansible builds. 
 
 But what about the scenario in an enterprise application which may run for days, weeks, or months? In that
 scenario we need to be able to update the running application with zero-downtime, renew tokens, change policies,
-etc. 
+etc. without having to involve DevOps or Vault Admins. Such resources can be quite scarce. 
 
 ## Current status
 ---------------------
