@@ -14,7 +14,7 @@ public class PolicyTest {
 		list.add(CapabilityEnum.create);
 		list.add(CapabilityEnum.delete);
 		list.add(CapabilityEnum.read);
-		Policy p = new Policy.Builder().withPath("secret/something").withCapabilities(list).build();
+		PolicySpec p = new PolicySpec.Builder().withPath("secret/something").withCapabilities(list).build();
 		System.err.println(p.toString());
 	}
 

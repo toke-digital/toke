@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.json.JSONObject;
 
-public class Policy {
+public class PolicySpec {
 
 	private String path;
 	private List<CapabilityEnum> capabilities;
@@ -14,12 +14,12 @@ public class Policy {
 	private List<String> deniedParameters;
 	private String minWrappingTTL, maxWrappingTTL;
 
-	public Policy(String path) {
+	public PolicySpec(String path) {
 		this();
 		this.path = path;
 	}
 
-	private Policy() {
+	private PolicySpec() {
 	}
 
 	public static class Builder {
@@ -31,9 +31,9 @@ public class Policy {
 		private List<String> deniedParameters;
 		private String minWrappingTTL, maxWrappingTTL;
 
-		public Policy build() {
+		public PolicySpec build() {
 
-			Policy p = new Policy(path);
+			PolicySpec p = new PolicySpec(path);
 			p.capabilities = this.capabilities;
 			p.requiredParameters = this.requiredParameters;
 			p.allowedParameters = this.allowedParameters;

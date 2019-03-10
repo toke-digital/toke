@@ -20,12 +20,18 @@ public class Accessor {
 	private static final Logger logger = LogManager.getLogger(Accessor.class);
 
 	public final Toke toke;
+	private JSONObject object;
 
 	public Accessor(Toke resp) {
 		this.toke = resp;
 	}
 	
 	public JSONObject json() {
-		return new JSONObject(toke.response);
+		if(object == null) object = new JSONObject(toke.response);
+		return object;
+	}
+	
+	public String toString() {
+		return json().toString(4);
 	}
 }

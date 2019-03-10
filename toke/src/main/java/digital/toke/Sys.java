@@ -4,8 +4,11 @@
  */
 package digital.toke;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -19,7 +22,8 @@ import digital.toke.event.TokenEvent;
 import digital.toke.event.TokenListener;
 import digital.toke.exception.ConfigureException;
 import digital.toke.exception.ReadException;
-import digital.toke.policy.Policy;
+import digital.toke.exception.WriteException;
+import digital.toke.policy.PolicySpec;
 import digital.toke.spec.AuthSpec;
 import digital.toke.spec.SecretsEngineSpec;
 
@@ -95,16 +99,37 @@ public class Sys extends ServiceBase implements TokenListener {
 		}
 	}
 	
-	public Toke writePolicy(String policyName, String policyJSON) throws ReadException {
+	public Toke writePolicy(String policyName, File hclEncodedPolicyFile) throws WriteException {
+		String url = config.baseURL().append("/sys/policy/"+policyName).toString();
+		logger.debug("Using: " + url);
+		
+		// according to the documentation, the hcl must be escaped or Base64 encoded
+		try {
+			byte [] encoded = Base64.getEncoder().encode(Files.readAllBytes(hclEncodedPolicyFile.toPath()));
+			String policyBase64 = new String(encoded, "US-ASCII");
+			JSONObject json = new JSONObject().put("policy", policyBase64);
+
+			Toke response = client.put(url, json.toString(), true);
+			// we expect a 204 per the documentation
+			if(response.code != 204) {
+				throw new WriteException("Failed to get a 204 response on /sys/policy/<polName>, "+response.response);
+			}
+			return response;
+		} catch (IOException e) {
+			throw new WriteException(e);
+		}
+	}
+	
+	public Toke deletePolicy(String policyName) throws WriteException {
 		String url = config.baseURL().append("/sys/policy/"+policyName).toString();
 		logger.debug("Using: " + url);
 		try {
-			Toke response = client.put(url, policyJSON, true);
+			Toke response = client.delete(url);
 			// we expect a 204 per the documentation
-			if(response.code != 200) throw new ReadException("Failed to get a 200 response on /sys/policy/<polName>");
+			if(response.code != 200) throw new WriteException("Failed to get a 204 response on /sys/policy/<polName>, was not deleted.");
 			return response;
 		} catch (IOException e) {
-			throw new ReadException(e);
+			throw new WriteException(e);
 		}
 	}
 	
@@ -116,7 +141,7 @@ public class Sys extends ServiceBase implements TokenListener {
 	 * @param policy
 	 * @return
 	 */
-	public Toke createUpdatePolicy(String policyName, Policy policy) throws ConfigureException {
+	public Toke createUpdatePolicy(String policyName, PolicySpec policy) throws ConfigureException {
 		String url = config.baseURL().append("/sys/policy/"+policyName).toString();
 		logger.debug("Using: " + url);
 		
@@ -216,14 +241,14 @@ public class Sys extends ServiceBase implements TokenListener {
 	 * @return
 	 * @throws ConfigureException
 	 */
-	public Toke enableAuthMethod(String path, AuthSpec spec) throws ConfigureException {
-		String url = config.baseURL().append("/sys/auth/"+path).toString();
+	public Toke enableAuthMethod(AuthSpec spec) throws ConfigureException {
+		String url = config.baseURL().append("/sys/auth/"+spec.getPath()).toString();
 		logger.debug("Using: " + url);
 		
 		try {
 			Toke response = client.put(url, spec.toString(), true);
 			// we expect a 204 per the documentation
-			if(response.code != 204) throw new ConfigureException("Failed to get a 204 response on /sys/mounts/"+path);
+			if(response.code != 204) throw new ConfigureException("Failed to get a 204 response on /sys/auth/"+spec.getPath());
 			return response;
 		} catch (IOException e) {
 			throw new ConfigureException(e);

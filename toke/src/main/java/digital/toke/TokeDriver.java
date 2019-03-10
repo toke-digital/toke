@@ -48,6 +48,9 @@ public class TokeDriver {
 		kvv2 = new KVv2(config, httpClient);
 		tokenManager.addTokenListener(kvv2);
 		
+		// add service classes for auth
+		tokenManager.addTokenListener(auth.userPass());
+		
 		logger.info("Driver instance "+this.getClass().hashCode() +" initialized");
 		
 	}

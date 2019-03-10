@@ -5,13 +5,11 @@
 package digital.toke.accessor;
 
 /**
- * Simple wrapper on the response out of OKHTTP with HTTPResponse code, success flag, and message body.
+ * A "toke" is a simple wrapper on the response out of OKHTTP with HTTPResponse code, success flag, and message body.
  * 
- * The metaphor of the "toke" is the in/out breathing of taking a hit off something. So each "toke" is an API call. ;-)
- * 
- * The other part of the conept is that the Toke object has an unbound JSON body which needs to be interpreted. We
- * use Accessor objects for this purpose. Each accessor knows how to bind a json string and also has accessor methods
- * appropriate to our needs in that specific case.
+ * Toke object has an unbound JSON body which needs to be interpreted. We use Accessor objects for this purpose. 
+ * Each Accessor knows how to bind a json string and also has accessor methods appropriate to our needs in 
+ * that specific API response.
  * 
  * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
@@ -45,6 +43,8 @@ public class Toke {
 	private Secrets list;
 	private Capabilities caps;
 	private Init init;
+	private Policy policy;
+	private UserData userData;
 	
 	public Init init() {
 		if(init == null) init = new Init(this);
@@ -76,6 +76,16 @@ public class Toke {
 	public Secrets kvList() {
 		if(list == null) list = new Secrets(this);
 		return list;
+	}
+	
+	public Policy policy() {
+		if(policy == null) policy = new Policy(this);
+		return policy;
+	}
+	
+	public UserData userData() {
+		if(userData == null) userData = new UserData(this);
+		return userData;
 	}
 	
 	

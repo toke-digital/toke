@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import digital.toke.accessor.Toke;
+import digital.toke.auth.UserPass;
 import digital.toke.exception.ConfigureException;
 import digital.toke.exception.LoginFailedException;
 import digital.toke.exception.ReadException;
@@ -32,12 +33,17 @@ public class Auth {
 
 	TokeDriverConfig config;
 	Networking client;
+	
+	UserPass userpass;
 
 	public Auth(TokeDriverConfig config, Networking client) {
 		super();
 		this.config = config;
 		this.client = client;
 		logger.info("Auth instance " + this.hashCode() + " configured");
+		
+		userpass = new UserPass(config,client);
+		
 	}
 
 	public void logoff(Token token) {
@@ -345,4 +351,10 @@ public class Auth {
 		}
 	}
 
+	public UserPass userPass() {
+		return userpass;
+	}
+	
+	
+	
 }

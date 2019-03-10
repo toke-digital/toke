@@ -4,15 +4,31 @@
  */
 package digital.toke;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import digital.toke.accessor.Toke;
+import digital.toke.auth.UserPass;
+import digital.toke.auth.UserSpec;
+import digital.toke.exception.ConfigureException;
+import digital.toke.exception.ReadException;
+import digital.toke.exception.WriteException;
+import digital.toke.spec.AuthSpec;
 
+
+/**
+ * NOTE: this is expected to be run in the context of a full Maven build during the test phase, so the vault instance test-bed is set up. 
+ * 
+ * @author daves
+ *
+ */
 public class TestClient {
 	
 	static TokeDriver driver;
@@ -60,8 +76,37 @@ public class TestClient {
 	
 			assertTrue(driver != null);
 			driver.isReady();
-			assertNotNull(driver.sys.token);
+			assertNotNull("Sys token is: "+driver.sys.token);
+			Sys sys = driver.sys();
 			
+			try {
+				
+				AuthSpec userpassSpec = AuthSpec.builder("my-userpass", AuthType.USERPASS).build();
+				sys.enableAuthMethod(userpassSpec);
+				
+				sys.writePolicy("bob", new File("./test-materials/bob.policy.hcl"));
+				Toke t = sys.readPolicy("bob");
+				assertEquals("bob", t.policy().name);
+				assertNotNull(t.policy().rules);
+				System.out.println(t.policy().rules);
+				
+				UserSpec user = UserSpec.builder("bob").authPath("my-userpass").password("password1").build();
+				UserPass up = driver.auth().userPass();
+				up.createUpdateUser(user);
+				t = up.readUser("bob", "my-userpass");
+				System.out.println("bob: "+t.userData().toString());
+		        
+				
+			} catch (WriteException e) {
+				e.printStackTrace();
+				fail();
+			} catch (ReadException e) {
+				e.printStackTrace();
+				fail();
+			} catch (ConfigureException e) {
+				e.printStackTrace();
+				fail();
+			}
 			
 	}
 
