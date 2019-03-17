@@ -429,6 +429,23 @@ public class TokeDriverConfig {
 
 		return url;
 	}
+	
+	public HttpUrl approleList(String path) {
+
+		StringBuffer segments = new StringBuffer("v1");
+
+		if (path != null) {
+			if (path.charAt(0) != '/') {
+				segments.append("/");
+			}
+			segments.append(path);
+		}
+
+		HttpUrl url = new HttpUrl.Builder().scheme(proto).host(host).port(port).addPathSegments(segments.toString())
+				.addQueryParameter("list", "true").build();
+
+		return url;
+	}
 
 	/**
 	 * Used with initial token-based authentication, e.g., typically a root token.

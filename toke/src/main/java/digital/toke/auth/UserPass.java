@@ -42,7 +42,7 @@ public class UserPass extends ServiceBase implements TokenListener {
 		if (evt.getType().equals(EventEnum.LOGIN)) {
 			token = evt.getToken();
 			countDown();
-			logger.info("Token with accessor " + token.accessor() + " set on Sys");
+			logger.info("Token with accessor " + token.accessor() + " set on UserPass");
 		}
 
 		if (evt.getType().equals(EventEnum.RELOAD_TOKEN)) {
