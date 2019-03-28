@@ -8,7 +8,8 @@
 		<version>1.0.1</version>
 	</parent>
 	<artifactId>toke-path</artifactId>
-	<description>implement a seperate module for json path</description>
+	<name>Digital Toke - Toke Path</name>
+	<description>Optional module adding json-path support for accessors.</description>
 
 	<dependencies>
 

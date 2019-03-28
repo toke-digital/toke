@@ -11,8 +11,8 @@
 
 	<artifactId>driver</artifactId>
 
-	<name>Digital Toke Vault Java Driver</name>
-	<description>A java driver for a subset of Hashicorp's Vault HTTP REST API.</description>
+	<name>Digital Toke - Vault Java Driver</name>
+	<description>A Java driver for a subset of Hashicorp's Vault HTTP REST API.</description>
 
 	<dependencies>
 		<dependency>

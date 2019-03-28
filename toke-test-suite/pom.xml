@@ -8,7 +8,9 @@
 		<version>1.0.1</version>
 	</parent>
 	<artifactId>toke-test-suite</artifactId>
-	<description>stand-alone test suite which downloads and runs a local copy of the vault binary. Requires internet access or proxy config in settings.xml.</description>
+	<name>Digital Toke - Test Suite</name>
+	<description>Stand-alone test suite which downloads and runs a local copy of the open-source Hashicorp Vault binary. 
+	Requires internet access or proxy config in your settings.xml.</description>
 
 	<dependencies>
 
