@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
  * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
-public class TokeDriver {
+public final class TokeDriver {
 
 	private static final Logger logger = LogManager.getLogger(TokeDriver.class);
 	
@@ -28,6 +28,7 @@ public class TokeDriver {
 	final KVv1 kvv1;
 	final KVv2 kvv2;
 	
+	private boolean ready;
 
 	public TokeDriver(TokeDriverConfig config) {
 		super();
@@ -56,16 +57,18 @@ public class TokeDriver {
 	}
 	
 	/**
-	 * Block until Driver is ready for use, i.e., after vault is unsealed and we have a token
+	 * Block until Driver is ready for use, i.e., after vault is unsealed and we have a token, if it is ready 
 	 * 
 	 * @return
 	 */
 	public boolean isReady() {
 		
-		DefaultHousekeepingImpl impl = new DefaultHousekeepingImpl(this.tokenManager);
-		impl.run(); // initial
-
-		tokenManager.initScheduler(impl);
+		if(!ready) {
+			DefaultHousekeepingImpl impl = new DefaultHousekeepingImpl(this.tokenManager);
+			impl.run(); // initial
+			tokenManager.initScheduler(impl);
+			ready = true;
+		}
 		return true;
 	}
 	

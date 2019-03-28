@@ -6,7 +6,8 @@ toke is a java driver for Hashicorp vault. It aims to implement a managed life-c
 
 I've used Steve Perkin's [BetterCloud driver](https://github.com/BetterCloud/vault-java-driver) 
 successfully but I needed KVv2 support, which that project did not provide at the time. They have a 
-little different idea on design as well. This is intended to be an enterprise solution. 
+little different idea on design as well. This is intended to be an enterprise solution and to do lots of
+things which go a bit beyond the basics. 
 
 Requires
 ---------------------
@@ -17,21 +18,24 @@ Java 8
 ---------------------
 
 One typical use case for Hashicorp Vault is at deploy time we just need a few secrets out of the vault, for example in
-the process of running Ansible builds. 
+the process of running Ansible builds. This can be done with curl. 
 
 But what about the scenario in an enterprise application which may run for days, weeks, or months? In that
 scenario we need to be able to update the running application with zero-downtime, renew tokens, change policies,
-etc. without having to involve DevOps or Vault Admins. Such resources can be quite scarce. 
+etc. without having to involve DevOps or Vault Admins. Such human resources can be quite scarce. As developers
+we would like to have more control and autonomy. 
 
 ## Current status
 ---------------------
 
 The driver supports KVv1, KVv2, Sys, and some other useful API calls with token login. Auto-renewal on tokens is working. Auto-unseal is an
-optional feature here rather than a bug here as it is quite useful during testing. 
+optional feature here rather than a bug, as it is quite useful during testing. 
 
-A lot of regression testing and scenarios yet to be completed. You can help by submitting a pull request.  
+A lot of regression testing and scenarios yet to be completed. You can help by submitting a pull request! :-)  
 
-## RoadMap
+## RoadMap/Progress
+
+29/03/2019 - Artifact name change in toke pom, addition of toke-path maven module (for optional json-path support)
 
 10/03/2019 - I am implementing userpass auth backend API methods, will start soon on LDAP. Maven pom version 1.0.1 will have those, plus the improved test suite.   
 
@@ -101,7 +105,7 @@ Maven:
 ```
 <dependency>
    	<groupId>digital.toke</groupId>
-	<artifactId>vault-java-driver</artifactId>
+	<artifactId>driver</artifactId>
 	<version>1.0.1</version>
 </dependency>
 ```

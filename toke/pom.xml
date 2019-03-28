@@ -9,7 +9,7 @@
 		<version>1.0.1</version>
 	</parent>
 
-	<artifactId>vault-java-driver</artifactId>
+	<artifactId>driver</artifactId>
 
 	<name>Digital Toke Vault Java Driver</name>
 	<description>A java driver for a subset of Hashicorp's Vault HTTP REST API.</description>
@@ -22,7 +22,7 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/org.json/json -->
+		<!-- in order to keep the driver more usable, a minimum of dependencies here -->
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
@@ -43,15 +43,6 @@
 			<artifactId>log4j-core</artifactId>
 			<version>2.11.1</version>
 		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
-		<dependency>
-			<groupId>org.yaml</groupId>
-			<artifactId>snakeyaml</artifactId>
-			<version>1.23</version>
-		</dependency>
-
-
 
 	</dependencies>
 

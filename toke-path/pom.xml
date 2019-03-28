@@ -1,0 +1,45 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>digital.toke</groupId>
+		<artifactId>toke-parent</artifactId>
+		<version>1.0.1</version>
+	</parent>
+	<artifactId>toke-path</artifactId>
+	<description>implement a seperate module for json path</description>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>5.1.0</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<!--  our base packages, toke, log4j, and okhttp -->
+		<dependency>
+			<groupId>digital.toke</groupId>
+			<artifactId>driver</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+
+         <!--  this is at a cost of 5 jars, so FYI -->
+		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+
+	</dependencies>
+
+	<properties>
+		<JAVA_1_8_HOME>C:/Program Files/Java/jdk1.8.0_201</JAVA_1_8_HOME>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- needed to get my inadequate comments to parse in Java 1.8 javadoc -->
+		<additionalparam>-Xdoclint:none</additionalparam>
+	</properties>
+
+</project>

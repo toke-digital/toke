@@ -14,8 +14,8 @@
 
 		<dependency>
 			<groupId>digital.toke</groupId>
-			<artifactId>vault-java-driver</artifactId>
-			<version>1.0.0</version>
+			<artifactId>driver</artifactId>
+			<version>1.0.1</version>
 		</dependency>
 
 

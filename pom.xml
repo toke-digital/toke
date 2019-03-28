@@ -8,10 +8,10 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>toke</module>
+		<module>driver</module>
 		<module>toke-test-suite</module>
+		<module>toke-path</module>
 	</modules>
-
 
 	<distributionManagement>
 		<snapshotRepository>
