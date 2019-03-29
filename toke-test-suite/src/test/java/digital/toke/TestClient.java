@@ -14,7 +14,9 @@ import java.io.File;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import digital.toke.accessor.PolicyResponseDecorator;
 import digital.toke.accessor.Toke;
+import digital.toke.accessor.UserDataResponseDecorator;
 import digital.toke.auth.UserPass;
 import digital.toke.auth.UserSpec;
 import digital.toke.exception.ConfigureException;
@@ -81,15 +83,17 @@ public class TestClient {
 
 			sys.writePolicy("bob", new File("./test-materials/bob.policy.hcl"));
 			Toke t = sys.readPolicy("bob");
-			assertEquals("bob", t.policy().name);
-			assertNotNull(t.policy().rules);
-			System.out.println(t.policy().rules);
+			PolicyResponseDecorator pd = new PolicyResponseDecorator(t);
+			assertEquals("bob", pd.name);
+			assertNotNull(pd.rules);
+			System.out.println(pd.rules);
 
 			UserSpec user = UserSpec.builder("bob").authPath("my-userpass").password("password1").build();
 			UserPass up = driver.auth().userPass();
 			up.createUpdateUser(user);
 			t = up.readUser("bob", "my-userpass");
-			System.out.println("bob: " + t.userData().toString());
+			UserDataResponseDecorator userData = new UserDataResponseDecorator(t);
+			System.out.println("bob: " + userData.toString());
 
 
 		} catch (WriteException e) {
@@ -118,9 +122,10 @@ public class TestClient {
 
 			sys.writePolicy("bob", new File("./test-materials/bob.policy.hcl"));
 			Toke t = sys.readPolicy("bob");
-			assertEquals("bob", t.policy().name);
-			assertNotNull(t.policy().rules);
-			System.out.println(t.policy().rules);
+			PolicyResponseDecorator prd = new PolicyResponseDecorator(t);
+			assertEquals("bob", prd.name);
+			assertNotNull(prd.rules);
+			System.out.println(prd.rules);
 
 	//		AppRoleSpec approle = AppRoleSpec.builder("bob-builder-approle");
 		

@@ -1,8 +1,8 @@
 package digital.toke.accessor;
 
-public class UserData extends TokeResponseDecorator {
+public class UserDataResponseDecorator extends TokeResponseDecorator {
 
-	public UserData(Toke resp) {
+	public UserDataResponseDecorator(Toke resp) {
 		super(resp);
 	}
 	
