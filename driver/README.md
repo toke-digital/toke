@@ -1,1 +1,1 @@
-See parent project readme for details
+See parent project README for details: https://github.com/toke-digital/toke

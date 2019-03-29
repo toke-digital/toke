@@ -23,12 +23,12 @@ the process of running Ansible builds. This can be done with curl or with some s
 But what about the scenario in an enterprise application which may run for days, weeks, or months? In that
 scenario we need to be able to update the running application with zero-downtime, renew tokens, change policies,
 etc. without having to involve DevOps or Vault Admins. Such human resources can be quite scarce. As developers
-we would like to have more control and autonomy. 
+we would like to have more control and autonomy when dealing with Vault. 
 
 ## Current Status
 ---------------------
 
-The driver supports KVv1, KVv2, some of Sys, and other useful API calls with token login. Auto-renewal on tokens is working. Auto-unseal is an
+At this early stage the driver supports KVv1, KVv2, some of Sys, and other useful API calls with token login. Auto-renewal on tokens is working. Auto-unseal is an
 optional feature here rather than a bug, as it is quite useful during testing. 
 
 A lot of regression testing and scenarios yet to be completed. You can help by submitting a pull request! :-)  
