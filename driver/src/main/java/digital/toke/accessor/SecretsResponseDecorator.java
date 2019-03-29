@@ -7,9 +7,9 @@ package digital.toke.accessor;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Secrets extends Accessor {
+public class SecretsResponseDecorator extends TokeResponseDecorator {
 
-	public Secrets(Toke resp) {
+	public SecretsResponseDecorator(Toke resp) {
 		super(resp);
 	}
 	

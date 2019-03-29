@@ -1,6 +1,6 @@
 package digital.toke.accessor;
 
-public class UserData extends Accessor {
+public class UserData extends TokeResponseDecorator {
 
 	public UserData(Toke resp) {
 		super(resp);

@@ -17,7 +17,8 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import digital.toke.accessor.SealStatus;
+import digital.toke.accessor.InitResponseDecorator;
+import digital.toke.accessor.SealStatusResponseDecorator;
 import digital.toke.accessor.Toke;
 import digital.toke.exception.ConfigureException;
 import digital.toke.exception.LoginFailedException;
@@ -68,14 +69,15 @@ public abstract class HousekeepingBase implements Runnable {
 				TokeDriverConfig driverConfig = tokenManager.getDriverConfig();
 				Toke response = auth.initVault();
 				logger.debug("Result of init call: "+response.response);
-				response.init().writeKeysToFile(this.config.keyFile);
+				InitResponseDecorator init = new InitResponseDecorator(response);
+				init.writeKeysToFile(this.config.keyFile);
 				
 				// this will set up initial unseal - this vault has never been unsealed before
-				this.config.unsealKeys = response.init().keys();
+				this.config.unsealKeys = init.keys();
 				this.config.unseal = true;
 				
 				// this will set up our initial root login
-				driverConfig.setToken(response.init().rootToken());
+				driverConfig.setToken(init.rootToken());
 				driverConfig.authType = AuthType.TOKEN;
 				
 				logger.debug("root token set in config, you should be good to go for unseal");
@@ -101,7 +103,7 @@ public abstract class HousekeepingBase implements Runnable {
 		Auth auth = tokenManager.getAuth();
 		try {
 			Toke response = auth.checkSealStatus();
-			SealStatus vaultInstance = new SealStatus(response);
+			SealStatusResponseDecorator vaultInstance = new SealStatusResponseDecorator(response);
 			if (vaultInstance.isSealed()) {
 				logger.info("Notice: vault is sealed and we will attempt to unseal if the conditions for that have been met");
 				// check to see if we should attempt unsealing
@@ -115,7 +117,7 @@ public abstract class HousekeepingBase implements Runnable {
 					}
 					
 					if(response != null) {
-						vaultInstance = new SealStatus(response);
+						vaultInstance = new SealStatusResponseDecorator(response);
 						if (vaultInstance.isSealed()) {
 							logger.error("expected to unseal, but failed..." + vaultInstance.json().toString());
 						} else {

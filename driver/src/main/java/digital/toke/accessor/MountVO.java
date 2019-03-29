@@ -16,19 +16,19 @@ import org.json.JSONObject;
     }
     
  * @author daves
- *
+ * @see MountsResponseDecorator
  */
-public class Mount {
+public class MountVO {
 
-	public String name;
-	public String type;
-	public String description;
-	public long defaultLeaseTTL;
-	public long maxLeaseTTL;
-	public boolean forceNoCache;
-	public boolean sealWrap;
+	public final String name;
+	public final String type;
+	public final String description;
+	public final long defaultLeaseTTL;
+	public final long maxLeaseTTL;
+	public final boolean forceNoCache;
+	public final boolean sealWrap;
 	
-	Mount(String name, JSONObject obj) {
+	MountVO(String name, JSONObject obj) {
 		this.name = name;
 		JSONObject inner = obj.getJSONObject(name);
 		type = inner.optString("type");

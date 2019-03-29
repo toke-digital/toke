@@ -12,11 +12,11 @@ import org.json.JSONObject;
  * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
-public class Policy extends Accessor {
+public class PolicyResponseDecorator extends TokeResponseDecorator {
 	
 	public String name, rules;
 
-	public Policy(Toke resp) {
+	public PolicyResponseDecorator(Toke resp) {
 		super(resp);
 		JSONObject top = json();
 		name = top.optString("name");

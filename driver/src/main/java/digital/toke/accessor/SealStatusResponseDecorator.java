@@ -7,11 +7,11 @@ package digital.toke.accessor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class SealStatus extends Accessor {
+public class SealStatusResponseDecorator extends TokeResponseDecorator {
 
-	private static final Logger logger = LogManager.getLogger(SealStatus.class);
+	private static final Logger logger = LogManager.getLogger(SealStatusResponseDecorator.class);
 	
-	public SealStatus(Toke resp) {
+	public SealStatusResponseDecorator(Toke resp) {
 		super(resp);
 		if(resp == null) logger.error("Response was null...?");
 	}

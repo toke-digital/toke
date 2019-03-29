@@ -1,6 +1,6 @@
 package digital.toke.exception;
 
-import digital.toke.accessor.SealStatus;
+import digital.toke.accessor.SealStatusResponseDecorator;
 
 /**
  * Thrown when the vault is sealed when we are trying to start up
@@ -10,13 +10,13 @@ import digital.toke.accessor.SealStatus;
  */
 public class SealStatusException extends RuntimeException {
 
-	SealStatus status;
+	SealStatusResponseDecorator status;
 	
 	private static final long serialVersionUID = 1L;
 
 	public SealStatusException() {}
 	
-	public SealStatusException(SealStatus status) {
+	public SealStatusException(SealStatusResponseDecorator status) {
 		super();
 		this.status = status;
 	}

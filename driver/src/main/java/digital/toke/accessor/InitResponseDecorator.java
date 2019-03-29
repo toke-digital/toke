@@ -18,35 +18,35 @@ import org.json.JSONException;
     "root_token": "foo"
    }
  */
-public class Init extends Accessor {
-
-	public Init(Toke resp) {
-		super(resp);
+public class InitResponseDecorator extends TokeResponseDecorator {
+	
+	public InitResponseDecorator(Toke toke) {
+		 super(toke);
 	}
 	
 	public List<String> keys() {
-		JSONArray array = json().getJSONArray("keys");
+		JSONArray array = toke.accessor().json().getJSONArray("keys");
 		ArrayList<String> list = new ArrayList<String>();
 		array.forEach(item -> list.add(String.valueOf(item)));
 		return list;
 	}
 
 	public List<String> keysBase64() {
-		JSONArray array = json().getJSONArray("keys_base64");
+		JSONArray array = toke.accessor().json().getJSONArray("keys_base64");
 		ArrayList<String> list = new ArrayList<String>();
 		array.forEach(item -> list.add(String.valueOf(item)));
 		return list;
 	}
 	
 	public String rootToken() {
-		return json().getString("root_token");
+		return toke.accessor().json().getString("root_token");
 	}
 	
-	//Write JSON from response to file 
+	//Write keys from response to a file 
 	public void writeKeysToFile(File keyFile) {
 		
 		try {
-			Files.write(keyFile.toPath(), json().toString(4).getBytes("UTF-8"));
+			Files.write(keyFile.toPath(), toke.accessor().json().toString(4).getBytes("UTF-8"));
 		} catch (JSONException | IOException e) {
 			e.printStackTrace();
 		}

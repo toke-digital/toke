@@ -16,10 +16,10 @@ import org.json.JSONObject;
  * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
-public class Data extends Accessor {
+public class DataResponseDecorator extends TokeResponseDecorator {
 	
 
-	public Data(Toke resp) {
+	public DataResponseDecorator(Toke resp) {
 		super(resp);
 	}
 	

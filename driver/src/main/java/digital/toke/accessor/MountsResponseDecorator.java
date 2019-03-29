@@ -32,9 +32,9 @@ import java.util.Iterator;
  
  */
 
-public class Mounts extends Accessor {
+public class MountsResponseDecorator extends TokeResponseDecorator {
 
-	public Mounts(Toke resp) {
+	public MountsResponseDecorator(Toke resp) {
 		super(resp);
 	}
 	
@@ -47,8 +47,8 @@ public class Mounts extends Accessor {
 		return false;
 	}
 	
-	public Mount getMount(String name) {
-		Mount m = new Mount(name, json());
+	public MountVO getMount(String name) {
+		MountVO m = new MountVO(name, json());
 		return m;
 		
 	}

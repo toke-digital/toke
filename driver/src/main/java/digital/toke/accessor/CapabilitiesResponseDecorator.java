@@ -15,9 +15,9 @@ import org.json.JSONArray;
  * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
  */
-public class Capabilities extends Accessor {
+public class CapabilitiesResponseDecorator extends TokeResponseDecorator {
 
-	public Capabilities(Toke resp) {
+	public CapabilitiesResponseDecorator(Toke resp) {
 		super(resp);
 	}
 	
