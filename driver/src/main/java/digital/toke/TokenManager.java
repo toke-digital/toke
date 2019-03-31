@@ -5,9 +5,9 @@
 package digital.toke;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -16,15 +16,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import digital.toke.event.EventEnum;
-import digital.toke.event.RenewalTokenEvent;
 import digital.toke.event.TokenEvent;
 import digital.toke.event.TokenListener;
 
 
 /**
- * TokenManager looks after token life-cycle and can do auto-renewals, etc. It
+ * <p>TokenManager looks after token life-cycle and can do auto-renewals, etc. It
  * allows the Driver to continue operations essentially indefinitely, as in an
- * enterprise application which regularly needs to contact vault.
+ * enterprise application which regularly needs to contact vault.</p>
+ * 
+ * <p>Tokens have a metadata dictionary which must contain a "token_handle" with value like "root" or "bob". This handle
+ * allows us to easily distinguish and apply a token</p> 
  * 
  * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
@@ -36,7 +38,7 @@ public class TokenManager {
 	private final TokeDriverConfig driverConfig;
 	
 	private final Auth auth;
-	private final Set<Token> tokens;
+	private final Map<String,Token> tokens;
 	private final List<TokenListener> listeners;
 
 	private ScheduledExecutorService scheduledPool;
@@ -49,7 +51,7 @@ public class TokenManager {
 	public TokenManager(TokeDriverConfig config, Auth auth) {
 		this.driverConfig = config;
 		this.auth = auth;
-		tokens = new HashSet<Token>();
+		tokens = new HashMap<String,Token>();
 		listeners = new ArrayList<TokenListener>();
 	}
 
@@ -79,38 +81,26 @@ public class TokenManager {
 
 	}
 	
-	public void updateManagedSet(final List<TokenRenewal> list) {
-		
-		// bail if nothing to send
-		if(list.size() == 0) return;
-		
-		this.fireTokenEvent(new RenewalTokenEvent(this,list));
-		
-		final Set<Token> set = getManagedTokens();
-		for(TokenRenewal tr: list) {
-			if(set.contains(tr.oldToken)) {
-				set.remove(tr.oldToken);
-			}
-		}
-		for(TokenRenewal tr: list) {
-				set.add(tr.newToken);
-		}
-	}
-
 	public void addTokenListener(TokenListener listener) {
 		listeners.add(listener);
+	}
+	
+	public void updateManagedTokens(List<TokenRenewal> list) {
+		// TODO
 	}
 
 	public Auth getAuth() {
 		return auth;
 	}
-
-	public Set<Token> getManagedTokens() {
-		return tokens;
-	}
 	
 	public TokeDriverConfig getDriverConfig() {
 		return driverConfig;
 	}
+
+	Map<String, Token> getTokens() {
+		return tokens;
+	}
+	
+	
 
 }

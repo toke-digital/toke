@@ -19,9 +19,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
- * Data Model of a vault token. The token has an accessor and it also 
+ * <p>Data Model of a vault token. The token has an accessor and it also 
  * knows if it has been instantiated from a successful login. Token objects 
- * are not necessarily valid at at any given time.
+ * are not necessarily valid at at any given time.</p>
+ * 
+ * <p>Tokens can have extra data attached in the form of a metadata dictionary.</p>
  * 
  * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
@@ -34,21 +36,28 @@ public class Token {
     //  "expire_time": "2018-05-19T11:35:54.466476215-04:00",
 	static DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 	
+	final String tokenHandle;
 	final JSONObject json;
 	final boolean fromSuccessfulLoginRequest;
 
 	final JSONObject lookupData;
 	
-	public Token(JSONObject json, boolean valid) {
+	public Token(String tokenHandle, JSONObject json, boolean valid) {
+		this.tokenHandle = tokenHandle;
 		this.json = json;
 		this.fromSuccessfulLoginRequest = valid;
 		this.lookupData = new JSONObject();
 	}
 	
-	public Token(JSONObject json, boolean valid, JSONObject lookupData) {
+	public Token(String tokenHandle, JSONObject json, boolean valid, JSONObject lookupData) {
+		this.tokenHandle = tokenHandle;
 		this.json = json;
 		this.fromSuccessfulLoginRequest = valid;
 		this.lookupData = lookupData;
+	}
+
+	public String getTokenHandle() {
+		return tokenHandle;
 	}
 
 	public String clientToken() {
@@ -103,8 +112,8 @@ public class Token {
 		}
 
 	/**
-	 * Can return null, do not call against root without a guard. There is some weirdness about vault date formats here...
-	 * 
+	 * <p>Can return null, do not call against root without a guard. There is some weirdness about vault date formats here...</p>
+	 * TODO - review
 	 * @return
 	 */
 	public ZonedDateTime expireTime() {
@@ -164,7 +173,8 @@ public class Token {
 
 	/**
 	 * Implementation note - Token equality is used by the TokenManager 
-	 * so this is important, don't change unless you know what you are doing.
+	 * so this is important, don't change this unless you know what you are doing.
+	 * Basically we are using the actual token value as the comparison point (client_token" field). 
 	 */
 	@Override
 	public boolean equals(Object obj) {

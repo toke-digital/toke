@@ -7,6 +7,7 @@ package digital.toke;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,21 +26,8 @@ public class TokeDriverConfig {
 	
 	private TokeDriverConfig() {}
 
+	LoginConfig loginConfig;
 	HousekeepingConfig housekeepingConfig;
-
-	// auth
-	AuthType authType; // e.g., supports TOKEN, LDAP, APPROLE, USERPASS;
-
-	// set based on selected auth type
-	String token;
-	File tokenFile;
-
-	String secretId;
-	String roleId;
-
-	// used with LDAP and USERPASS
-	String username;
-	String password;
 
 	// pathing stuff
 	String host; // e.g., localhost
@@ -76,23 +64,11 @@ public class TokeDriverConfig {
 			defaultKVv2Name = "/secret";
 
 			authPath = "/auth";
+			
 		}
 
 		HousekeepingConfig housekeepingConfig;
-
-		// auth
-		AuthType authType; // e.g., supports TOKEN, LDAP, APPROLE, USERPASS;
-
-		// set based on selected auth type
-		String token;
-		File tokenFile;
-
-		String secretId;
-		String roleId;
-
-		// used with LDAP and USERPASS
-		String username;
-		String password;
+		LoginConfig loginConfig;
 
 		// pathing stuff
 		String host; // e.g., localhost
@@ -140,43 +116,8 @@ public class TokeDriverConfig {
 			return this;
 		}
 
-		public Builder authType(String val) {
-			authType = AuthType.valueOf(val.toUpperCase());
-			return this;
-		}
-
-		public Builder authType(AuthType type) {
-			authType = type;
-			return this;
-		}
-
-		public Builder token(String val) {
-			token = val;
-			return this;
-		}
-
 		public Builder renewable(boolean b) {
 			renewable = b;
-			return this;
-		}
-
-		public Builder secretId(String val) {
-			secretId = val;
-			return this;
-		}
-
-		public Builder roleId(String val) {
-			roleId = val;
-			return this;
-		}
-
-		public Builder username(String val) {
-			username = val;
-			return this;
-		}
-
-		public Builder password(String val) {
-			password = val;
 			return this;
 		}
 
@@ -195,21 +136,10 @@ public class TokeDriverConfig {
 			return this;
 		}
 
-		public Builder tokenFile(File fileWithToken) {
-			tokenFile = fileWithToken;
-			return this;
-		}
-
 		public TokeDriverConfig build() {
 			TokeDriverConfig config = new TokeDriverConfig();
 			config.housekeepingConfig = this.housekeepingConfig;
-			config.authType = this.authType;
-			config.token = this.token;
-			config.tokenFile = this.tokenFile;
-			config.secretId = this.secretId;
-			config.roleId = this.roleId;
-			config.username = this.username;
-			config.password = this.password;
+			config.loginConfig = this.loginConfig;
 			config.host = this.host;
 			config.proto = this.proto;
 			config.port = this.port;
@@ -226,6 +156,11 @@ public class TokeDriverConfig {
 
 		public Builder housekeepingConfig(HousekeepingConfig housekeepingConfig) {
 			this.housekeepingConfig = housekeepingConfig;
+			return this;
+		}
+		
+		public Builder loginConfig(LoginConfig loginConfig) {
+			this.loginConfig = loginConfig;
 			return this;
 		}
 
@@ -260,7 +195,7 @@ public class TokeDriverConfig {
 		StringBuffer buf = baseURL();
 		buf.append(authPath);
 		buf.append("/ldap/login/");
-		buf.append(username);
+		buf.append(loginConfig.username);
 		return buf.toString();
 	}
 
@@ -275,7 +210,7 @@ public class TokeDriverConfig {
 		StringBuffer buf = baseURL();
 		buf.append(authPath);
 		buf.append("/userpass/login/");
-		buf.append(username);
+		buf.append(loginConfig.username);
 		return buf.toString();
 	}
 
@@ -456,20 +391,20 @@ public class TokeDriverConfig {
 	 */
 	public String findToken() {
 
-		if (tokenFile != null) {
+		if (loginConfig.tokenFile != null) {
 			try {
-				String t = new String(Files.readAllBytes(tokenFile.toPath()), "UTF-8");
+				String t = new String(Files.readAllBytes(loginConfig.tokenFile.toPath()), "UTF-8");
 				logger.debug("returning a token from file to use for auth");
 				return t;
 			} catch (IOException e) {
-				logger.error("Failed to read file with token: " + tokenFile.getPath().toString());
+				logger.error("Failed to read file with token: " + loginConfig.tokenFile.getPath().toString());
 				logger.error(e);
 			}
-		} else if (token == null) {
+		} else if (loginConfig.token == null) {
 			logger.error("Token asked for but not found in config, please fix this and try again.");
 		} else {
 			logger.debug("returning token from config, not file.");
-			return token;
+			return loginConfig.token;
 		}
 
 		return null;
@@ -485,128 +420,32 @@ public class TokeDriverConfig {
 	}
 
 	@Override
-
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((authPath == null) ? 0 : authPath.hashCode());
-		result = prime * result + ((authType == null) ? 0 : authType.hashCode());
-		result = prime * result + ((defaultKVv1Name == null) ? 0 : defaultKVv1Name.hashCode());
-		result = prime * result + ((defaultKVv2Name == null) ? 0 : defaultKVv2Name.hashCode());
-		result = prime * result + ((host == null) ? 0 : host.hashCode());
-		result = prime * result + ((housekeepingConfig == null) ? 0 : housekeepingConfig.hashCode());
-		result = prime * result + ((kv1Name == null) ? 0 : kv1Name.hashCode());
-		result = prime * result + ((kv2Name == null) ? 0 : kv2Name.hashCode());
-		result = prime * result + ((password == null) ? 0 : password.hashCode());
-		result = prime * result + port;
-		result = prime * result + ((proto == null) ? 0 : proto.hashCode());
-		result = prime * result + (renewable ? 1231 : 1237);
-		result = prime * result + ((roleId == null) ? 0 : roleId.hashCode());
-		result = prime * result + ((secretId == null) ? 0 : secretId.hashCode());
-		result = prime * result + ((token == null) ? 0 : token.hashCode());
-		result = prime * result + ((tokenFile == null) ? 0 : tokenFile.hashCode());
-		result = prime * result + ((username == null) ? 0 : username.hashCode());
-		result = prime * result + ((vaultApiPrefix == null) ? 0 : vaultApiPrefix.hashCode());
-		return result;
+		return Objects.hash(authPath, defaultKVv1Name, defaultKVv2Name, host, housekeepingConfig, kv1Name, kv2Name,
+				loginConfig, port, proto, renewable, vaultApiPrefix);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (!(obj instanceof TokeDriverConfig)) {
 			return false;
+		}
 		TokeDriverConfig other = (TokeDriverConfig) obj;
-		if (authPath == null) {
-			if (other.authPath != null)
-				return false;
-		} else if (!authPath.equals(other.authPath))
-			return false;
-		if (authType != other.authType)
-			return false;
-		if (defaultKVv1Name == null) {
-			if (other.defaultKVv1Name != null)
-				return false;
-		} else if (!defaultKVv1Name.equals(other.defaultKVv1Name))
-			return false;
-		if (defaultKVv2Name == null) {
-			if (other.defaultKVv2Name != null)
-				return false;
-		} else if (!defaultKVv2Name.equals(other.defaultKVv2Name))
-			return false;
-		if (host == null) {
-			if (other.host != null)
-				return false;
-		} else if (!host.equals(other.host))
-			return false;
-		if (housekeepingConfig == null) {
-			if (other.housekeepingConfig != null)
-				return false;
-		} else if (!housekeepingConfig.equals(other.housekeepingConfig))
-			return false;
-		if (kv1Name == null) {
-			if (other.kv1Name != null)
-				return false;
-		} else if (!kv1Name.equals(other.kv1Name))
-			return false;
-		if (kv2Name == null) {
-			if (other.kv2Name != null)
-				return false;
-		} else if (!kv2Name.equals(other.kv2Name))
-			return false;
-		if (password == null) {
-			if (other.password != null)
-				return false;
-		} else if (!password.equals(other.password))
-			return false;
-		if (port != other.port)
-			return false;
-		if (proto == null) {
-			if (other.proto != null)
-				return false;
-		} else if (!proto.equals(other.proto))
-			return false;
-		if (renewable != other.renewable)
-			return false;
-		if (roleId == null) {
-			if (other.roleId != null)
-				return false;
-		} else if (!roleId.equals(other.roleId))
-			return false;
-		if (secretId == null) {
-			if (other.secretId != null)
-				return false;
-		} else if (!secretId.equals(other.secretId))
-			return false;
-		if (token == null) {
-			if (other.token != null)
-				return false;
-		} else if (!token.equals(other.token))
-			return false;
-		if (tokenFile == null) {
-			if (other.tokenFile != null)
-				return false;
-		} else if (!tokenFile.equals(other.tokenFile))
-			return false;
-		if (username == null) {
-			if (other.username != null)
-				return false;
-		} else if (!username.equals(other.username))
-			return false;
-		if (vaultApiPrefix == null) {
-			if (other.vaultApiPrefix != null)
-				return false;
-		} else if (!vaultApiPrefix.equals(other.vaultApiPrefix))
-			return false;
-		return true;
+		return Objects.equals(authPath, other.authPath) && Objects.equals(defaultKVv1Name, other.defaultKVv1Name)
+				&& Objects.equals(defaultKVv2Name, other.defaultKVv2Name) && Objects.equals(host, other.host)
+				&& Objects.equals(housekeepingConfig, other.housekeepingConfig)
+				&& Objects.equals(kv1Name, other.kv1Name) && Objects.equals(kv2Name, other.kv2Name)
+				&& Objects.equals(loginConfig, other.loginConfig) && port == other.port
+				&& Objects.equals(proto, other.proto) && renewable == other.renewable
+				&& Objects.equals(vaultApiPrefix, other.vaultApiPrefix);
 	}
 
-	public void setToken(String token) {
-		this.token = token;
-	}
-	
 	
 
 }

@@ -4,8 +4,8 @@
  */
 package digital.toke.accessor;
 
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -24,7 +24,8 @@ public class DataResponseDecorator extends TokeResponseDecorator {
 	}
 	
 	public Map<String,Object> map() {
-		Map<String,Object> map = new HashMap<String, Object>();
+		
+		Map<String,Object> map = new LinkedHashMap<String, Object>();
 		
 		JSONObject top = json();
 		JSONObject data = top.optJSONObject("data");
@@ -46,12 +47,13 @@ public class DataResponseDecorator extends TokeResponseDecorator {
 	}
 	
 	/**
-	 * Use on KVv1 and KVv2 reads
+	 * Use on KVv1 and KVv2 reads. Attempt to preserve order 
+	 * (not sure if the results are ordered yet, but may be, if so we will support that)
 	 * 
 	 * @return
 	 */
 	public Map<String,Object> metadata() {
-		Map<String,Object> map = new HashMap<String, Object>();
+		Map<String,Object> map = new LinkedHashMap<String, Object>();
 		
 		JSONObject top = json();
 		JSONObject data = top.optJSONObject("data");

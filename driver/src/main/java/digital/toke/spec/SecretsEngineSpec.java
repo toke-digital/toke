@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright 2019 David R. Smith All Rights Reserved 
+ */
 package digital.toke.spec;
 
 import java.util.List;
@@ -7,7 +11,7 @@ import org.json.JSONObject;
 public class SecretsEngineSpec {
 	
 	String path;
-	String type;
+	SecretsEngineType type;
 	String description;
 	String defaultLeaseTTL;
 	String maxLeaseTTL;
@@ -24,10 +28,14 @@ public class SecretsEngineSpec {
 	boolean local;
 	boolean seal_wrap;
 	
+	public static Builder builder(String path, SecretsEngineType type) {
+		return new Builder(path, type);
+	}
+	
 	public static class Builder {
 		
 		String path;
-		String type;
+		SecretsEngineType type;
 		String description;
 		String defaultLeaseTTL;
 		String maxLeaseTTL;
@@ -44,7 +52,7 @@ public class SecretsEngineSpec {
 		boolean local;
 		boolean seal_wrap;
 		
-		public Builder(String path, String type) {
+		public Builder(String path, SecretsEngineType type) {
 			this.path = path;
 			this.type = type;
 		}
@@ -100,6 +108,11 @@ public class SecretsEngineSpec {
 		
 		public SecretsEngineSpec build() {
 			SecretsEngineSpec mp = new SecretsEngineSpec(path,type);
+			mp.version = version;
+			mp.defaultLeaseTTL = defaultLeaseTTL;
+			mp.maxLeaseTTL = maxLeaseTTL;
+			mp.description = description;
+			
 		// TODO
 			
 			return mp;
@@ -108,7 +121,7 @@ public class SecretsEngineSpec {
 	}
 	
 
-	public SecretsEngineSpec(String path, String type) {
+	public SecretsEngineSpec(String path, SecretsEngineType type) {
 		this();
 		this.path = path;
 		this.type = type;
@@ -118,15 +131,16 @@ public class SecretsEngineSpec {
 	
 	public String toString() {
 		
-		// TODO here
+		// TODO 
 		
 		JSONObject obj = new JSONObject();
-		obj.put("type", type.toLowerCase());
+		obj.put("type", type.getType());
 		
 		JSONObject config = new JSONObject();
 		JSONObject options = new JSONObject();
 		options.put("version", version);
 		config.put("config", options);
+		
 		
 		
 		return obj.toString();

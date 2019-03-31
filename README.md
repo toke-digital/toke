@@ -21,9 +21,11 @@ One typical use case for Hashicorp Vault is at deploy time we just need a few se
 the process of running Ansible builds. This can be done with curl or with some simple java calls using the java.io.* classes.
 
 But what about the scenario in an enterprise application which may run for days, weeks, or months? In that
-scenario we need to be able to update the running application with zero-downtime, renew tokens, change policies,
-etc. without having to involve DevOps or Vault Admins. Such human resources can be quite scarce. As developers
-we would like to have more control and autonomy when dealing with Vault. 
+scenario we need to be able to update the running application with zero-downtime and renew tokens, change policies,
+etc. without necessarily having to involve DevOps or Vault Admins in the process. 
+
+Then there are are testing scenarios we would like to implement which require much more complete control. 
+
 
 ## Current Status
 ---------------------

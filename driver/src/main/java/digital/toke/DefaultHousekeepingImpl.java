@@ -11,7 +11,7 @@ import org.apache.logging.log4j.Logger;
 
 
 /**
- * Basic housekeeping (token lifecycle management).
+ * <p>Basic housekeeping (token lifecycle management).</p>
  * 
  * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  * @see HousekeepingConfig
@@ -68,11 +68,11 @@ public class DefaultHousekeepingImpl extends HousekeepingBase {
 		
 		// 1.3 - this is needed because updates to the set must be synchronized
 		List<TokenRenewal> renewals = renew();
-		tokenManager.updateManagedSet(renewals); // this also fires event, sends list
+		tokenManager.updateManagedTokens(renewals); // this also fires event, sends list
 		
 		logger.debug("Completed housekeeping run...");
-		logger.debug("Token manager has "+tokenManager.getManagedTokens().size()+" tokens");
-		for(Token t: tokenManager.getManagedTokens()) {
+		logger.debug("Token manager has "+tokenManager.getTokens().size()+" tokens");
+		for(Token t: tokenManager.getTokens().values()) {
 			logger.debug("  "+t.toString());
 		}
 		

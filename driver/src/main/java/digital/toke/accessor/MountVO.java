@@ -1,3 +1,7 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ * Copyright 2019 David R. Smith All Rights Reserved 
+ */
 package digital.toke.accessor;
 
 import org.json.JSONObject;
@@ -39,5 +43,14 @@ public class MountVO {
 		forceNoCache = inner.optBoolean("force_no_cache");
 		sealWrap = inner.optBoolean("seal_wrap");
 	}
+
+	@Override
+	public String toString() {
+		return "MountVO [name=" + name + ", type=" + type + ", description=" + description + ", defaultLeaseTTL="
+				+ defaultLeaseTTL + ", maxLeaseTTL=" + maxLeaseTTL + ", forceNoCache=" + forceNoCache + ", sealWrap="
+				+ sealWrap + "]";
+	}
+	
+	
 
 }

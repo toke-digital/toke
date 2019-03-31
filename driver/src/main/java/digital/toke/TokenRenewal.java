@@ -6,12 +6,14 @@ package digital.toke;
 
 public class TokenRenewal {
 
+	public final String handle;
 	public final Token oldToken;
 	public final Token newToken;
 	public final RenewalType renewalType;
 	
-	public TokenRenewal(RenewalType type, Token oldToken, Token newToken) {
+	public TokenRenewal(String handle, RenewalType type, Token oldToken, Token newToken) {
 		super();
+		this.handle = handle;
 		this.oldToken = oldToken;
 		this.newToken = newToken;
 		this.renewalType = type;

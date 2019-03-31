@@ -12,7 +12,7 @@ import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +27,7 @@ import digital.toke.exception.ReadException;
 import static digital.toke.RenewalType.*;
 
 /**
- * Base class for Housekeeping (token lifecycle) classes
+ * <p>Base class for Housekeeping (token lifecycle) classes</p>
  * 
  * @author David R. Smith &lt;davesmith.gbs@gmail.com&gt;
  *
@@ -77,8 +77,8 @@ public abstract class HousekeepingBase implements Runnable {
 				this.config.unseal = true;
 				
 				// this will set up our initial root login
-				driverConfig.setToken(init.rootToken());
-				driverConfig.authType = AuthType.TOKEN;
+				driverConfig.loginConfig.setToken(init.rootToken());
+				driverConfig.loginConfig.authType = AuthType.TOKEN;
 				
 				logger.debug("root token set in config, you should be good to go for unseal");
 				
@@ -149,19 +149,21 @@ public abstract class HousekeepingBase implements Runnable {
 	}
 
 	/**
-	 * Should be idempotent
-	 */
+	 * This method is called within the Housekeeping classes. It is normally going to be a root or highly privileged user. 
+	 * Call loginAux() to add additional managed tokens.
+	 * 
+	 * */
 	protected void login() {
 		// 1.0 - do we have any tokens? If not, try to get one.
 		// The initial TokenEvent sent of a valid token will free the latch on the
 		// restful client operations when we are ready to go
 
 		final Auth auth = tokenManager.getAuth();
-		final Set<Token> tokens = tokenManager.getManagedTokens();
+		final Map<String,Token> tokens = tokenManager.getTokens();
 
 		if (tokens.size() == 0) {
 
-			logger.info("Zero managed tokens found, trying to login to get one...");
+			logger.info("Zero managed tokens found, trying to login to get one using auth creds...");
 
 			Token token = null;
 			try {
@@ -174,11 +176,13 @@ public abstract class HousekeepingBase implements Runnable {
 				return;
 			}
 			
+			// enrich the Token's info with additional data from a lookup
 			// requires read permission on /auth/token/lookup-self
+			// the token will have the special tokenHandle "root"
 			try {
 				token = auth.lookupSelf(token);
 				logger.debug("updated token with lookup data " + token.lookupData.toString());
-				tokens.add(token);
+				tokens.put("root", token);
 				tokenManager.fireLoginEvent(token);
 				return; // exit at this point - we are logged in and lookup complete
 			} catch (ReadException e) {
@@ -186,8 +190,8 @@ public abstract class HousekeepingBase implements Runnable {
 				logger.error("Does this user have permission to read auth/token/lookup-self?", e);
 				return;
 			}
-			
 		}
+		
 	}
 
 	
@@ -197,35 +201,29 @@ public abstract class HousekeepingBase implements Runnable {
 	 */
 	public List<TokenRenewal> renew() {
 		List<TokenRenewal> renewals = new ArrayList<TokenRenewal>();
-		final Set<Token> tokens = tokenManager.getManagedTokens();
+		final Map<String,Token> tokens = tokenManager.getTokens();
 		if(tokens.size() == 0) return renewals; // bail if nothing to renew
 	
 		final Auth auth = tokenManager.getAuth();
 	
-		Iterator<Token> iter = tokens.iterator();
+		Iterator<String> iter = tokens.keySet().iterator();
 		while (iter.hasNext()) {
-			Token oldToken = iter.next();
+			String handle = iter.next();
+			Token oldToken = tokens.get(handle);
 			
 			if (oldToken.isPeriodic()) {
 				try {
 					Token newToken = auth.renewPeriodic(oldToken);
-					renewals.add(new TokenRenewal(PERIODIC, oldToken,newToken));
+					renewals.add(new TokenRenewal(handle, PERIODIC, oldToken,newToken));
 				} catch (Exception x) {
-					logger.info("Renew Periodic has failed, will try to reauthenticate and get a new token.", x);
-					try {
-						Token newToken = auth.login();
-						renewals.add(new TokenRenewal(LOGIN,oldToken,newToken));
-					} catch (LoginFailedException e) {
-						logger.error(e);
-						logger.error("giving up here...");
-					}
+					logger.info("Renew Periodic has failed for "+handle, x);
 				}
 
 				continue;
 			}
 			
 			if (oldToken.isRenewable()) {
-				logger.debug("token is renewable...");
+				logger.debug("token with handle "+handle+" is renewable...");
 				ZonedDateTime zdt = oldToken.expireTime();
 				// instant can be null if this is root, possibly others...?
 				if (zdt != null) {
@@ -239,30 +237,21 @@ public abstract class HousekeepingBase implements Runnable {
 							// ok, try to do renewal
 							try {
 								Token newToken = auth.renewSelf(oldToken);
-								renewals.add(new TokenRenewal(SELF,oldToken,newToken));
+								renewals.add(new TokenRenewal(handle,SELF,oldToken,newToken));
 							} catch (Exception e) {
 								e.printStackTrace();
-								logger.info(
-										"Renew of non-periodic token has failed, will try to reauthenticate and get a new token.",
-										e);
-								try {
-									Token newToken = auth.login();
-									renewals.add(new TokenRenewal(LOGIN,oldToken,newToken));
-								} catch (LoginFailedException z) {
-									logger.error(z);
-									logger.error("giving up here...");
-								}
+								logger.info("Renew of non-periodic token has failed for "+handle, e);
 							}
 
 							continue;
 						}
 
 					} else {
-						logger.debug("Not yet in range to renew.");
+						logger.debug("Not yet in range to renew "+handle);
 					}
 				}
 			} else {
-				logger.debug("token is not renewable, so doing nothing...");
+				logger.debug("token "+handle+" is not renewable, so doing nothing...");
 			}
 		}
 

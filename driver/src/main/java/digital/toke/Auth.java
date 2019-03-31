@@ -19,10 +19,11 @@ import digital.toke.exception.ReadException;
 import digital.toke.exception.WriteException;
 
 /**
- * The auth module implements a vault login using various auth types such as
- * LDAP and APPROLE. Tokens are sent wrapped in events to interested parties
+ * <p>The auth module implements a vault login using various auth types such as
+ * LDAP and APPROLE. Tokens are sent wrapped in events to interested parties and
+ * managed by the TokenManager instance</p>
  * 
- * See https://www.vaultproject.io/docs/auth/
+ * <p>See https://www.vaultproject.io/docs/auth/</p>
  * 
  * @author Dave
  *
@@ -47,10 +48,6 @@ public class Auth {
 	}
 
 	public void logoff(Token token) {
-		// destroy token TODO
-	}
-
-	public void logoffSelf() {
 		// destroy token TODO
 	}
 
@@ -79,7 +76,7 @@ public class Auth {
 		if (!toke.successful)
 			throw new WriteException("Failed to renew token with accessor " + token.accessor());
 
-		Token newToken = new Token(new JSONObject(toke.response), toke.successful);
+		Token newToken = new Token(token.tokenHandle, new JSONObject(toke.response), toke.successful);
 		return lookupSelf(newToken);
 	}
 
@@ -100,7 +97,7 @@ public class Auth {
 		if (!toke.successful)
 			throw new WriteException("Failed to renew token with accessor " + token.accessor());
 
-		Token newToken = new Token(new JSONObject(toke.response), toke.successful);
+		Token newToken = new Token(token.tokenHandle, new JSONObject(toke.response), toke.successful);
 		return lookupSelf(newToken);
 
 	}
@@ -160,8 +157,8 @@ public class Auth {
 	Token loginLDAP() throws LoginFailedException {
 		String url = config.authLdapLogin();
 		JSONObject json = new JSONObject();
-		json.put("password", config.password);
-		return httpLogin(url, json);
+		json.put("password", config.loginConfig.password);
+		return httpLogin(config.loginConfig.username, url, json);
 	}
 
 	/**
@@ -173,17 +170,17 @@ public class Auth {
 	Token loginAppRole() throws LoginFailedException {
 		String url = config.authAppRoleLogin();
 		JSONObject json = new JSONObject();
-		json.put("role_id", config.roleId);
-		json.put("secret_id", config.secretId);
-		return httpLogin(url, json);
+		json.put("role_id", config.loginConfig.roleId);
+		json.put("secret_id", config.loginConfig.secretId);
+		return httpLogin(config.loginConfig.roleId, url, json);
 	}
 
 	Token loginUserPass() throws LoginFailedException {
 		logger.debug("in loginUserPass");
 		String url = config.authUserPassLogin();
 		JSONObject json = new JSONObject();
-		json.put("password", config.password);
-		return httpLogin(url, json);
+		json.put("password", config.loginConfig.password);
+		return httpLogin(config.loginConfig.username, url, json);
 	}
 
 	Token loginToken() throws LoginFailedException {
@@ -198,11 +195,11 @@ public class Auth {
 			throw new LoginFailedException(e);
 		}
 
-		return new Token(new JSONObject(result.response), result.successful);
+		return new Token("root", new JSONObject(result.response), result.successful);
 
 	}
 
-	Token loginToken(CreateTokenParameters params) throws LoginFailedException {
+	Token loginToken(CreateTokenParameterSpec params) throws LoginFailedException {
 		String url = config.authTokenLogin();
 		JSONObject json = new JSONObject();
 		// TODO at the moment only supporting one config property here
@@ -214,13 +211,13 @@ public class Auth {
 			throw new LoginFailedException(e);
 		}
 
-		return new Token(new JSONObject(result.response), result.successful);
+		return new Token(params.getTokenHandle(), new JSONObject(result.response), result.successful);
 
 	}
 
-	private Token httpLogin(String url, JSONObject json) throws LoginFailedException {
+	private Token httpLogin(String tokenHandle, String url, JSONObject json) throws LoginFailedException {
 
-		logger.debug("in httpLogin");
+		logger.debug("in httpLogin for "+tokenHandle);
 		Toke result = null;
 		try {
 			result = client.login(url, json.toString());
@@ -228,7 +225,7 @@ public class Auth {
 		} catch (IOException e) {
 			throw new LoginFailedException(e);
 		}
-		return new Token(new JSONObject(result.response), result.successful);
+		return new Token(tokenHandle, new JSONObject(result.response), result.successful);
 	}
 
 	/**
@@ -240,7 +237,7 @@ public class Auth {
 	public Token login() throws LoginFailedException {
 
 		Token t = null;
-		switch (config.authType) {
+		switch (config.loginConfig.authType) {
 		case LDAP: {
 			t = loginLDAP();
 			break;
@@ -282,7 +279,7 @@ public class Auth {
 			if (toke.response == null || toke.response.contains("errors")) {
 				throw new ReadException("Errors on token lookup: " + toke.response);
 			} else {
-				return new Token(t.getJson(), t.fromSuccessfulLoginRequest, new JSONObject(toke.response));
+				return new Token(t.tokenHandle, t.getJson(), t.fromSuccessfulLoginRequest, new JSONObject(toke.response));
 			}
 		} else {
 			throw new ReadException("Failed to perform lookup: " + toke.toString());
@@ -309,7 +306,7 @@ public class Auth {
 			if (toke.response == null || toke.response.contains("errors")) {
 				throw new ReadException("Errors on token lookup: " + toke.response);
 			} else {
-				return new Token(t.getJson(), t.fromSuccessfulLoginRequest, new JSONObject(toke.response));
+				return new Token(t.tokenHandle, t.getJson(), t.fromSuccessfulLoginRequest, new JSONObject(toke.response));
 			}
 		} else {
 			throw new ReadException("Failed to perform lookup: " + toke.toString());
