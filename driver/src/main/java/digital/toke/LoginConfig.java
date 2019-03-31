@@ -146,6 +146,9 @@ public class LoginConfig {
 		this.token = token;
 	}
 
-	
+	@Override
+	public String toString() {
+		return "LoginConfig [authType=" + authType + "]";
+	}
 
 }

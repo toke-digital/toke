@@ -20,6 +20,7 @@ import digital.toke.accessor.UserDataResponseDecorator;
 import digital.toke.auth.UserPass;
 import digital.toke.auth.UserSpec;
 import digital.toke.exception.ConfigureException;
+import digital.toke.exception.LoginFailedException;
 import digital.toke.exception.ReadException;
 import digital.toke.exception.WriteException;
 import digital.toke.spec.AuthSpec;
@@ -76,19 +77,27 @@ public class TestClient {
 	public void testUserPass() {
 
 		assertTrue(driver != null);
+		
+		// once this completes, the driver has logged itself in using the root token from the init, and a child token 
+		// has been distributed to the various modules, as they are EventListeners
 		driver.isReady();
+		Auth auth = driver.auth();
+		
+		// have the child token from the TOKEN type login done by root 
 		Sys sys = driver.sys();
 		KVv1 kv = driver.kv();
 
 		try {
 
+			// 1. As child of root token
+			
 			// enable an authentication method called "userpass"
 			AuthSpec userpassSpec = AuthSpec.builder("userpass", AuthType.USERPASS).build();
 			sys.enableAuthMethod(userpassSpec);
 			
 			// create a user named bob with password, "password1"
 			UserSpec user = UserSpec.builder("bob").authPath("userpass").password("password1").build();
-			UserPass up = driver.auth().userPass();
+			UserPass up = auth.userPass();
 			up.createUpdateUser(user);
 			Toke t = up.readUser("bob", "userpass");
 			UserDataResponseDecorator userData = new UserDataResponseDecorator(t);
@@ -103,7 +112,6 @@ public class TestClient {
 			assertNotNull(pd.rules);
 			System.out.println(pd.rules);
 			
-			
 			// now enable a secrets engine related to the above policy and user
 			SecretsEngineSpec kv1Spec = SecretsEngineSpec.builder("toke-kv1", SecretsEngineType.KV).build();
 			t = sys.enableSecretsEngine("toke-kv1", kv1Spec);
@@ -113,6 +121,16 @@ public class TestClient {
 				System.err.println(t.response);
 				fail();
 			}
+			
+		  // 2. Now login as 'bob', we want to write values using his token
+			
+		 LoginConfig bobLoginConfig = LoginConfig.builder(AuthType.USERPASS).username("bob").password("password1").build();
+		 try {
+			auth.login(bobLoginConfig);
+		} catch (LoginFailedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 			
 
 		  // now try writing some values 

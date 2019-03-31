@@ -37,29 +37,21 @@ public abstract class KV extends ServiceBase implements TokenListener {
 		
 		if(evt.getType().equals(EventEnum.RENEWAL)) {
 			RenewalTokenEvent thisEvt = (RenewalTokenEvent) evt;
-			for(TokenRenewal tr : thisEvt.getList()) {
-				// update only what had been sent previously
-				if(tr.oldToken.clientToken().equals(this.token.clientToken())) {
-					this.token = tr.newToken;
-					break;
-				}
-			}
-			logger.info("Token with accessor "+token.accessor()+" set on Networking instance");
+		    if(thisEvt.getRenewal().oldToken.tokenHandle.equals(this.token.tokenHandle)){
+			   this.token = thisEvt.getRenewal().newToken;
+			   logger.info("Token with handle "+token.tokenHandle+" updated on KV instance");
+		    }
+			
 			return;
 		}
 		
 		if(evt.getType().equals(EventEnum.LOGIN)) {
 			token = evt.getToken();
 			countDown();
-			logger.info("Token with accessor "+token.accessor()+" set on "+this.getClass().getName());
+			logger.info("Token with handle "+token.tokenHandle+" set on "+this.getClass().getName());
 			return;
 		}
 		
-	//	if(evt.getType().equals(EventEnum.SET_LATCH)) {
-	//		refreshLatch();
-	//		latch();
-	//		logger.info("Reloaded token on "+this.getClass().getName());
-	//	}
 		
 		if(evt.getType().equals(EventEnum.RELOAD_TOKEN)) {
 			token = evt.getToken();

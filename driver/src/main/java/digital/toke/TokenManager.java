@@ -16,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import digital.toke.event.EventEnum;
+import digital.toke.event.RenewalTokenEvent;
 import digital.toke.event.TokenEvent;
 import digital.toke.event.TokenListener;
 
@@ -74,11 +75,14 @@ public class TokenManager {
 	}
 
 	public void fireLoginEvent(Token token) {
-
 		logger.info("Firing successful login event...");
 		logger.debug(token.getJson().toString());
 		fireTokenEvent(new TokenEvent(this, token, EventEnum.LOGIN));
-
+	}
+	
+	public void fireRenewalEvent(TokenRenewal tokenRenewal) {
+		logger.info("Firing successful login event...");
+		fireTokenEvent(new RenewalTokenEvent(this, tokenRenewal));
 	}
 	
 	public void addTokenListener(TokenListener listener) {
@@ -86,7 +90,19 @@ public class TokenManager {
 	}
 	
 	public void updateManagedTokens(List<TokenRenewal> list) {
-		// TODO
+		
+		// remove "old" token objects which have been renewed
+		for(TokenRenewal t: list) {
+			if(tokens.containsKey(t.oldToken.tokenHandle)) {
+				tokens.remove(t.oldToken.tokenHandle);
+			}
+		}
+		
+		for(TokenRenewal t: list) {
+			tokens.put(t.newToken.tokenHandle, t.newToken);
+			fireRenewalEvent(t);
+		}
+		
 	}
 
 	public Auth getAuth() {

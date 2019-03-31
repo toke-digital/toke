@@ -18,6 +18,7 @@ import org.json.JSONObject;
 
 import digital.toke.accessor.Toke;
 import digital.toke.event.EventEnum;
+import digital.toke.event.RenewalTokenEvent;
 import digital.toke.event.TokenEvent;
 import digital.toke.event.TokenListener;
 import digital.toke.exception.ConfigureException;
@@ -50,10 +51,21 @@ public class Sys extends ServiceBase implements TokenListener {
 
 	@Override
 	public void tokenEvent(TokenEvent evt) {
+		
+		if(evt.getType().equals(EventEnum.RENEWAL)) {
+			RenewalTokenEvent thisEvt = (RenewalTokenEvent) evt;
+		    if(thisEvt.getRenewal().oldToken.tokenHandle.equals(this.token.tokenHandle)){
+			   this.token = thisEvt.getRenewal().newToken;
+			   logger.info("Token with handle "+token.tokenHandle+" updated on Sys instance");
+		    }
+			
+			return;
+		}
+		
 		if (evt.getType().equals(EventEnum.LOGIN)) {
 			token = evt.getToken();
 			countDown();
-			logger.info("Token with accessor " + token.accessor() + " set on Sys");
+			logger.info("Token with handle " + token.tokenHandle + " set on Sys");
 		}
 
 		// if(evt.getType().equals(EventEnum.SET_LATCH)) {

@@ -5,8 +5,6 @@
 package digital.toke.event;
 
 
-import java.util.List;
-
 import digital.toke.TokenRenewal;
 
 public class RenewalTokenEvent extends TokenEvent {
@@ -14,21 +12,19 @@ public class RenewalTokenEvent extends TokenEvent {
 	private static final long serialVersionUID = 1L;
 	
 	final EventEnum type = EventEnum.RENEWAL;
-	final List<TokenRenewal> list;
+	final TokenRenewal item;
 
-	public RenewalTokenEvent(Object arg0, List<TokenRenewal> list) {
+	public RenewalTokenEvent(Object arg0, TokenRenewal renewal) {
 		super(arg0, EventEnum.RENEWAL);
-		this.list = list;
+		this.item = renewal;
 	}
 	
 	public EventEnum getType() {
 		return type;
 	}
 
-	public List<TokenRenewal> getList() {
-		return list;
+	public TokenRenewal getRenewal() {
+		return item;
 	}
-	
-	
 
 }

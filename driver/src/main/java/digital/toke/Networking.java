@@ -278,16 +278,14 @@ public class Networking implements TokenListener {
 		
 		if(evt.getType().equals(EventEnum.RENEWAL)) {
 			RenewalTokenEvent thisEvt = (RenewalTokenEvent) evt;
-			for(TokenRenewal tr : thisEvt.getList()) {
-				// update only what had been sent previously
-				if(tr.oldToken.clientToken().equals(this.token.clientToken())) {
-					this.token = tr.newToken;
-					break;
-				}
-			}
-			logger.info("Token with accessor "+token.accessor()+" set on Networking instance");
+		    if(thisEvt.getRenewal().oldToken.tokenHandle.equals(this.token.tokenHandle)){
+			   this.token = thisEvt.getRenewal().newToken;
+			   logger.info("Token with handle "+token.tokenHandle+" updated on Networking instance");
+		    }
+			
 			return;
 		}
+		
 		
 		if(evt.getType().equals(EventEnum.LOGIN)) {
 			token = evt.getToken();

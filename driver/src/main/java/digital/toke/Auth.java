@@ -76,7 +76,7 @@ public class Auth {
 		if (!toke.successful)
 			throw new WriteException("Failed to renew token with accessor " + token.accessor());
 
-		Token newToken = new Token(token.tokenHandle, new JSONObject(toke.response), toke.successful);
+		Token newToken = new Token(token.loginConfig, new JSONObject(toke.response), toke.successful);
 		return lookupSelf(newToken);
 	}
 
@@ -97,7 +97,7 @@ public class Auth {
 		if (!toke.successful)
 			throw new WriteException("Failed to renew token with accessor " + token.accessor());
 
-		Token newToken = new Token(token.tokenHandle, new JSONObject(toke.response), toke.successful);
+		Token newToken = new Token(token.loginConfig, new JSONObject(toke.response), toke.successful);
 		return lookupSelf(newToken);
 
 	}
@@ -158,7 +158,14 @@ public class Auth {
 		String url = config.authLdapLogin();
 		JSONObject json = new JSONObject();
 		json.put("password", config.loginConfig.password);
-		return httpLogin(config.loginConfig.username, url, json);
+		return httpLogin(config.loginConfig, url, json);
+	}
+	
+	Token loginLDAP(LoginConfig loginConfig) throws LoginFailedException {
+		String url = config.authLdapLogin();
+		JSONObject json = new JSONObject();
+		json.put("password", loginConfig.password);
+		return httpLogin(loginConfig, url, json);
 	}
 
 	/**
@@ -172,7 +179,15 @@ public class Auth {
 		JSONObject json = new JSONObject();
 		json.put("role_id", config.loginConfig.roleId);
 		json.put("secret_id", config.loginConfig.secretId);
-		return httpLogin(config.loginConfig.roleId, url, json);
+		return httpLogin(config.loginConfig, url, json);
+	}
+	
+	Token loginAppRole(LoginConfig loginConfig) throws LoginFailedException {
+		String url = config.authAppRoleLogin();
+		JSONObject json = new JSONObject();
+		json.put("role_id", loginConfig.roleId);
+		json.put("secret_id", loginConfig.secretId);
+		return httpLogin(loginConfig, url, json);
 	}
 
 	Token loginUserPass() throws LoginFailedException {
@@ -180,7 +195,15 @@ public class Auth {
 		String url = config.authUserPassLogin();
 		JSONObject json = new JSONObject();
 		json.put("password", config.loginConfig.password);
-		return httpLogin(config.loginConfig.username, url, json);
+		return httpLogin(config.loginConfig, url, json);
+	}
+	
+	Token loginUserPass(LoginConfig loginConfig) throws LoginFailedException {
+		logger.debug("in loginUserPass");
+		String url = config.authUserPassLogin();
+		JSONObject json = new JSONObject();
+		json.put("password", loginConfig.password);
+		return httpLogin(loginConfig, url, json);
 	}
 
 	Token loginToken() throws LoginFailedException {
@@ -195,29 +218,30 @@ public class Auth {
 			throw new LoginFailedException(e);
 		}
 
-		return new Token("root", new JSONObject(result.response), result.successful);
+		return new Token(config.loginConfig, new JSONObject(result.response), result.successful);
 
 	}
-
-	Token loginToken(CreateTokenParameterSpec params) throws LoginFailedException {
+	
+	Token loginToken(LoginConfig loginConfig) throws LoginFailedException {
 		String url = config.authTokenLogin();
 		JSONObject json = new JSONObject();
 		// TODO at the moment only supporting one config property here
 		json.put("renewable", config.renewable);
 		Toke result = null;
 		try {
-			result = client.loginToken(url, json.toString(), config.findToken());
+			result = client.loginToken(url, json.toString(), loginConfig.token);
 		} catch (IOException e) {
 			throw new LoginFailedException(e);
 		}
 
-		return new Token(params.getTokenHandle(), new JSONObject(result.response), result.successful);
+		return new Token(loginConfig, new JSONObject(result.response), result.successful);
 
 	}
+	
 
-	private Token httpLogin(String tokenHandle, String url, JSONObject json) throws LoginFailedException {
+	private Token httpLogin(LoginConfig lc, String url, JSONObject json) throws LoginFailedException {
 
-		logger.debug("in httpLogin for "+tokenHandle);
+		logger.debug("in httpLogin for "+lc.toString());
 		Toke result = null;
 		try {
 			result = client.login(url, json.toString());
@@ -225,44 +249,89 @@ public class Auth {
 		} catch (IOException e) {
 			throw new LoginFailedException(e);
 		}
-		return new Token(tokenHandle, new JSONObject(result.response), result.successful);
+		return new Token(lc, new JSONObject(result.response), result.successful);
 	}
 
 	/**
-	 * Currently implementing LDAP, APPROLE, USERPASS, TOKEN
+	 * This is used internally with asynchronous (auto-login) situations as with a vault init
 	 * 
 	 * @return Token
 	 * @throws LoginFailedException
 	 */
-	public Token login() throws LoginFailedException {
+	Token login() throws LoginFailedException {
 
 		Token t = null;
 		switch (config.loginConfig.authType) {
-		case LDAP: {
-			t = loginLDAP();
-			break;
-		}
-		case APPROLE: {
-			t = loginAppRole();
-			break;
-		}
-		case USERPASS: {
-			t = loginUserPass();
-			break;
-		}
-		case TOKEN: {
-			t = loginToken();
-			break;
-		}
-		default: {
-			// should fail before this
-			break;
-		}
+			case LDAP: {
+				t = loginLDAP();
+				break;
+			}
+			case APPROLE: {
+				t = loginAppRole();
+				break;
+			}
+			case USERPASS: {
+				t = loginUserPass();
+				break;
+			}
+			case TOKEN: {
+				t = loginToken();
+				break;
+			}
+			default: {
+				// should fail before this
+				break;
+			}
 		}
 
 		return t;
 	}
+	
+	/**
+	 * This is a synchronous login for use when we want to add additional managed logins. It returns the token handle (key)
+	 * for the Token as found in the TokenManager's HashMap
+	 * 
+	 * @param lc
+	 * @return
+	 * @throws LoginFailedException
+	 */
+	public String login(LoginConfig lc) throws LoginFailedException {
 
+		Token t = null;
+		switch (lc.authType) {
+			case LDAP: {
+				t = loginLDAP(lc);
+				break;
+			}
+			case APPROLE: {
+				t = loginAppRole(lc);
+				break;
+			}
+			case USERPASS: {
+				t = loginUserPass(lc);
+				break;
+			}
+			case TOKEN: {
+				t = loginToken(lc);
+				break;
+			}
+			default: {
+				// should fail before this
+				break;
+			}
+		}
+
+		return t.tokenHandle;
+	}
+	
+
+	/**
+	 * Enrich the token with current lookup data. The original Token instance is unchanged; a new instance is returned which is cloned + the lookup data
+	 * 
+	 * @param t
+	 * @return
+	 * @throws ReadException
+	 */
 	public Token lookupSelf(Token t) throws ReadException {
 
 		String url = config.authTokenLookupSelf();
@@ -279,7 +348,7 @@ public class Auth {
 			if (toke.response == null || toke.response.contains("errors")) {
 				throw new ReadException("Errors on token lookup: " + toke.response);
 			} else {
-				return new Token(t.tokenHandle, t.getJson(), t.fromSuccessfulLoginRequest, new JSONObject(toke.response));
+				return new Token(t.loginConfig, t.getJson(), t.fromSuccessfulLoginRequest, new JSONObject(toke.response));
 			}
 		} else {
 			throw new ReadException("Failed to perform lookup: " + toke.toString());
@@ -306,7 +375,7 @@ public class Auth {
 			if (toke.response == null || toke.response.contains("errors")) {
 				throw new ReadException("Errors on token lookup: " + toke.response);
 			} else {
-				return new Token(t.tokenHandle, t.getJson(), t.fromSuccessfulLoginRequest, new JSONObject(toke.response));
+				return new Token(t.loginConfig, t.getJson(), t.fromSuccessfulLoginRequest, new JSONObject(toke.response));
 			}
 		} else {
 			throw new ReadException("Failed to perform lookup: " + toke.toString());
