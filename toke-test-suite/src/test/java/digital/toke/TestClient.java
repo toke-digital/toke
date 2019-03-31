@@ -23,6 +23,8 @@ import digital.toke.exception.ConfigureException;
 import digital.toke.exception.ReadException;
 import digital.toke.exception.WriteException;
 import digital.toke.spec.AuthSpec;
+import digital.toke.spec.SecretsEngineSpec;
+import digital.toke.spec.SecretsEngineType;
 
 /**
  * NOTE: this is expected to be run in the context of a full Maven build during
@@ -45,25 +47,26 @@ public class TestClient {
 		// keys will be written into this location after init
 		File keyFile = new File("./target/runtime/keyFile.json");
 
-		HousekeepingConfig hc = HousekeepingConfig.builder().reachable(true).pingHost(true).init(true) // special case,
-																										// on success
-																										// root token
-																										// will be
-																										// inserted into
-																										// config.token
-																										// as it is
-																										// assumed we
-																										// will need it
-				.unseal(true).unsealKeys(keyFile) // if unseal is true, keys and root token will be written here
+		HousekeepingConfig hc = HousekeepingConfig.builder()
+				.reachable(true)
+				.pingHost(true)
+				.init(true) 
+				.unseal(true)
+				.unsealKeys(keyFile) // if unseal is true, keys and root token will be written here
 				.build();
 
 		System.out.println("housekeepingConfig: " + hc.toString());
 
-		TokeDriverConfig config = TokeDriverConfig.builder().proto("http").host("127.0.0.1").port(8201)
-				.kvName("toke-kv1").kv2Name("toke-kv2").authType("TOKEN") // see AuthType enum for the suported types
+		// LoginConfig in this case is handled internally (as we are doing an init and unseal). 
+		TokeDriverConfig config = TokeDriverConfig.builder()
+				.proto("http")
+				.host("127.0.0.1")
+				.port(8201)
+				.kvName("toke-kv1")
+				.kv2Name("toke-kv2")
 				.housekeepingConfig(hc).build();
 
-		System.out.println("housekeepingConfig: " + config.toString());
+		System.out.println("TokenDriverConfig: " + config.toString());
 
 		driver = new TokeDriver(config);
 
@@ -75,26 +78,53 @@ public class TestClient {
 		assertTrue(driver != null);
 		driver.isReady();
 		Sys sys = driver.sys();
+		KVv1 kv = driver.kv();
 
 		try {
 
-			AuthSpec userpassSpec = AuthSpec.builder("my-userpass", AuthType.USERPASS).build();
+			// enable an authentication method called "userpass"
+			AuthSpec userpassSpec = AuthSpec.builder("userpass", AuthType.USERPASS).build();
 			sys.enableAuthMethod(userpassSpec);
-
+			
+			// create a user named bob with password, "password1"
+			UserSpec user = UserSpec.builder("bob").authPath("userpass").password("password1").build();
+			UserPass up = driver.auth().userPass();
+			up.createUpdateUser(user);
+			Toke t = up.readUser("bob", "userpass");
+			UserDataResponseDecorator userData = new UserDataResponseDecorator(t);
+			System.out.println("bob: " + userData.toString());
+			
+			// write a policy for our user, bob, this allows him to among other things, read and write on toke-kv1
+			
 			sys.writePolicy("bob", new File("./test-materials/bob.policy.hcl"));
-			Toke t = sys.readPolicy("bob");
+			t = sys.readPolicy("bob");
 			PolicyResponseDecorator pd = new PolicyResponseDecorator(t);
 			assertEquals("bob", pd.name);
 			assertNotNull(pd.rules);
 			System.out.println(pd.rules);
+			
+			
+			// now enable a secrets engine related to the above policy and user
+			SecretsEngineSpec kv1Spec = SecretsEngineSpec.builder("toke-kv1", SecretsEngineType.KV).build();
+			t = sys.enableSecretsEngine("toke-kv1", kv1Spec);
+			if(t.successful) {
+				System.err.println(t.response);
+			}else {
+				System.err.println(t.response);
+				fail();
+			}
+			
 
-			UserSpec user = UserSpec.builder("bob").authPath("my-userpass").password("password1").build();
-			UserPass up = driver.auth().userPass();
-			up.createUpdateUser(user);
-			t = up.readUser("bob", "my-userpass");
-			UserDataResponseDecorator userData = new UserDataResponseDecorator(t);
-			System.out.println("bob: " + userData.toString());
-
+		  // now try writing some values 
+			
+		  kv.write("toke-kv1/testcase", "key0", "value0");
+		  kv.accumulate("toke-kv1/testcase", "key1", "value1");
+		  kv.accumulate("toke-kv1/testcase", "key2", "value2");
+		  
+		 System.err.println("found"+ kv.list("toke-kv1"));
+		 
+		 System.err.println("found"+ kv.kvRead("toke-kv1/testcase").accessor().json().toString(4));
+			
 
 		} catch (WriteException e) {
 			e.printStackTrace();

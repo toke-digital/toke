@@ -65,6 +65,8 @@ public class TokeDriverConfig {
 
 			authPath = "/auth";
 			
+			loginConfig = new LoginConfig(AuthType.TOKEN); // this is used for autologin situations
+			
 		}
 
 		HousekeepingConfig housekeepingConfig;
