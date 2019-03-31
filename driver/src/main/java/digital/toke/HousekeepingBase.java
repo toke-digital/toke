@@ -150,16 +150,18 @@ public abstract class HousekeepingBase implements Runnable {
 
 	/**
 	 * This method is called within the Housekeeping classes. It is normally going to be a root or highly privileged user. 
-	 * Call loginAux() to add additional managed tokens.
+	 * Call loginAux() to add additional managed tokens after this.
 	 * 
 	 * */
-	protected void login() {
+	protected void autologin() {
 		// 1.0 - do we have any tokens? If not, try to get one.
-		// The initial TokenEvent sent of a valid token will free the latch on the
-		// restful client operations when we are ready to go
+		// The initial TokenEvent sent with a valid token will free the latch on the
+		// restful client operations, and then we are ready to go
 
 		final Auth auth = tokenManager.getAuth();
 		final Map<String,Token> tokens = tokenManager.getTokens();
+		
+		// TODO - expired tokens?
 
 		if (tokens.size() == 0) {
 
@@ -190,6 +192,8 @@ public abstract class HousekeepingBase implements Runnable {
 				logger.error("Does this user have permission to read auth/token/lookup-self?", e);
 				return;
 			}
+		}else {
+			logger.info("> 0 managed tokens found, doing nothing in autologin...");
 		}
 		
 	}
@@ -216,7 +220,8 @@ public abstract class HousekeepingBase implements Runnable {
 					Token newToken = auth.renewPeriodic(oldToken);
 					renewals.add(new TokenRenewal(handle, PERIODIC, oldToken,newToken));
 				} catch (Exception x) {
-					logger.info("Renew Periodic has failed for "+handle, x);
+					logger.warn("Renew Periodic has failed for "+handle, x);
+					// TODO login again
 				}
 
 				continue;
@@ -241,6 +246,7 @@ public abstract class HousekeepingBase implements Runnable {
 							} catch (Exception e) {
 								e.printStackTrace();
 								logger.info("Renew of non-periodic token has failed for "+handle, e);
+								// TODO login again
 							}
 
 							continue;

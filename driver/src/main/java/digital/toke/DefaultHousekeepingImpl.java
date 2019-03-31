@@ -64,7 +64,7 @@ public class DefaultHousekeepingImpl extends HousekeepingBase {
 		loadCachedTokens();
 		
 		// 1.2 - if a login is required to get a new token, do that
-		login();
+		autologin();
 		
 		// 1.3 - this is needed because updates to the set must be synchronized
 		List<TokenRenewal> renewals = renew();
